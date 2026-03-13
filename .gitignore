@@ -18,6 +18,13 @@ node_modules/
 dist/
 *.local
 
+# Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
 # Logs
 *.log
 
@@ -28,3 +35,7 @@ dist/
 # Environment
 .env
 .env.local
+
+# Build cache
+.angular/
+*.tsbuildinfo
