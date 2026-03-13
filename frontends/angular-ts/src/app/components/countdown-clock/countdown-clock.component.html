@@ -1,0 +1,23 @@
+@if (isExpired()) {
+  <div class="expired-msg">
+    <span class="expired-icon">🎉</span>
+    <span>时间已到，胶囊即将开启…</span>
+  </div>
+} @else {
+  <div class="clock">
+    <p class="clock-title">距离开启还有</p>
+    <div class="units">
+      @for (unit of units(); track unit.label; let i = $index) {
+        <div class="unit-group">
+          <div class="clock-card">
+            <span class="number">{{ pad(unit.value) }}</span>
+          </div>
+          <span class="label">{{ unit.label }}</span>
+          @if (i < units().length - 1) {
+            <span class="colon">:</span>
+          }
+        </div>
+      }
+    </div>
+  </div>
+}

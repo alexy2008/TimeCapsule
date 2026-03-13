@@ -1,0 +1,26 @@
+<div class="code-input-wrapper">
+  <div class="input-row">
+    <input
+      class="input code-input"
+      [ngModel]="code"
+      (ngModelChange)="onCodeChange($event)"
+      name="code"
+      placeholder="输入 8 位胶囊码"
+      maxlength="8"
+      (keyup)="handleKeyup($event)"
+      autocomplete="off"
+      spellcheck="false"
+    />
+    <button
+      type="button"
+      class="btn btn-primary"
+      (click)="handleSubmit()"
+      [disabled]="loading || code.trim().length === 0"
+    >
+      {{ loading ? '查询中...' : '开启' }}
+    </button>
+  </div>
+  @if (error) {
+    <p class="error-text">{{ error }}</p>
+  }
+</div>

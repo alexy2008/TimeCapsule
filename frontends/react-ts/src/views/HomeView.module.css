@@ -1,0 +1,114 @@
+.hero {
+  padding: var(--space-16) 0 var(--space-8);
+}
+
+.heroLogo {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto var(--space-6);
+}
+
+.heroTitle {
+  font-size: 2.5rem;
+  margin-bottom: var(--space-3);
+}
+
+.heroSubtitle {
+  font-size: var(--text-xl);
+  margin-bottom: var(--space-8);
+}
+
+.heroActions {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-5);
+}
+
+.actionBtn {
+  display: block;
+  text-decoration: none;
+}
+
+.actionBtnCreate,
+.actionBtnOpen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-4) var(--space-10);
+  border-radius: var(--radius-xl);
+  color: #ffffff;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), filter var(--transition-fast);
+  box-shadow: var(--shadow-md);
+  min-width: 200px;
+}
+
+.actionMain {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.actionBtnCreate {
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+}
+
+.actionBtnOpen {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+}
+
+.actionBtnCreate:hover,
+.actionBtnOpen:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+  filter: brightness(1.08);
+}
+
+/* 暗色模式：降低背景亮度，增强光晓边界 */
+[data-theme="dark"] .actionBtnCreate {
+  background: linear-gradient(135deg, #15803d 0%, #166534 100%);
+  box-shadow: 0 0 0 1px rgba(74, 222, 128, 0.25), var(--shadow-md);
+}
+
+[data-theme="dark"] .actionBtnOpen {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%);
+  box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.25), var(--shadow-md);
+}
+
+[data-theme="dark"] .actionBtnCreate:hover,
+[data-theme="dark"] .actionBtnOpen:hover {
+  filter: brightness(1.15);
+}
+
+.actionIcon {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.actionLabel {
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  letter-spacing: 0.02em;
+}
+
+.actionDesc {
+  font-size: var(--text-sm);
+  opacity: 0.85;
+}
+
+@media (max-width: 480px) {
+  .heroActions {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .actionBtn {
+    width: 100%;
+    max-width: 280px;
+  }
+}
+
+.featureIcon {
+  font-size: 2rem;
+  margin-bottom: var(--space-3);
+}

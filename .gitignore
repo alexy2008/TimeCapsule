@@ -1,0 +1,30 @@
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Java / Maven
+backends/spring-boot/target/
+*.class
+*.jar
+*.war
+
+# Node
+node_modules/
+dist/
+*.local
+
+# Logs
+*.log
+
+# Database
+*.db
+*.sqlite
+
+# Environment
+.env
+.env.local

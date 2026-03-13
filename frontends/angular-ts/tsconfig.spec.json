@@ -1,0 +1,24 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./out-tsc/spec",
+    "types": ["jasmine"],
+    "target": "ES2022",
+    "module": "ES2022",
+    "moduleResolution": "bundler",
+    "useDefineForClassFields": false,
+    "lib": ["ES2022", "dom"],
+    "strict": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": false,
+    "baseUrl": ".",
+    "paths": {
+      "@app/*": ["src/app/*"],
+      "@spec/*": ["../../spec/*"]
+    }
+  },
+  "include": [
+    "src/**/*.spec.ts",
+    "src/**/*.ts"
+  ]
+}

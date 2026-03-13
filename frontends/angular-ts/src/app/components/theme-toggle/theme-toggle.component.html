@@ -1,0 +1,12 @@
+<button
+  class="theme-toggle"
+  (click)="themeService.toggle()"
+  [title]="themeService.theme() === 'light' ? '切换到暗色模式' : '切换到亮色模式'"
+  type="button"
+>
+  @if (themeService.theme() === 'light') {
+    <span>🌙</span>
+  } @else {
+    <span>☀️</span>
+  }
+</button>

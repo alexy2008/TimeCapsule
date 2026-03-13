@@ -1,0 +1,41 @@
+<div class="page">
+  <div class="container container-sm">
+    <div class="page-header">
+      <h1>关于时间胶囊</h1>
+      <p>一个技术展示项目</p>
+    </div>
+
+    <div class="card about-section">
+      <h3>项目简介</h3>
+      <p>
+        时间胶囊 (HelloTime) 是一个类似 RealWorld 的技术展示应用。
+        通过统一的 API 规范和可复用的前端样式，展示不同前后端技术栈的组合能力。
+      </p>
+    </div>
+
+    <div class="card about-section">
+      <h3>当前技术栈</h3>
+      <ul class="tech-list">
+        <li><strong>前端框架:</strong> Angular 18 + TypeScript</li>
+        <li><strong>后端框架:</strong> {{ techStack()?.framework || '加载中...' }}</li>
+        <li><strong>后端语言:</strong> {{ techStack()?.language || '加载中...' }}</li>
+        <li><strong>数据库:</strong> {{ techStack()?.database || '加载中...' }}</li>
+        <li><strong>样式系统:</strong> 共享 CSS Design Tokens</li>
+        <li><strong>状态管理:</strong> Angular Signals</li>
+      </ul>
+    </div>
+
+    <div class="card about-section">
+      <h3>设计理念</h3>
+      <ul class="tech-list">
+        <li>统一的 REST API 规范 (OpenAPI 3.0)</li>
+        <li>可复用的前端样式系统 (CSS 自定义属性)</li>
+        <li>支持亮色 / 暗色主题切换</li>
+        <li>前后端分离，可自由组合技术栈</li>
+        <li>Angular Standalone Components，无 NgModule</li>
+      </ul>
+    </div>
+
+    <p class="version-text" (click)="handleSecretClick()">HelloTime v1.0.0</p>
+  </div>
+</div>

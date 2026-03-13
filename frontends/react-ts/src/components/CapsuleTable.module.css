@@ -1,0 +1,38 @@
+.capsuleTableWrapper {
+  overflow-x: auto;
+}
+
+.codeCell {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+}
+
+.actionsCell {
+  display: flex;
+  gap: var(--space-2);
+  white-space: nowrap;
+}
+
+.contentRow td {
+  background-color: var(--color-bg-secondary);
+  padding: var(--space-4);
+}
+
+.contentPreview {
+  max-width: 800px;
+}
+
+.contentLabel {
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-tertiary);
+  margin-bottom: var(--space-1);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.contentText {
+  white-space: pre-wrap;
+  line-height: var(--leading-relaxed);
+  color: var(--color-text-secondary);
+}

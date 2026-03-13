@@ -1,0 +1,204 @@
+# HelloTime Vue 3 Frontend
+
+时间胶囊应用的前端界面，基于 Vue 3 和 TypeScript 构建。
+
+## 技术栈
+
+- **框架**: Vue 3.5 + Composition API
+- **语言**: TypeScript 5.9
+- **构建工具**: Vite 7
+- **路由**: Vue Router 4.6
+- **测试**: Vitest + Vue Testing Library
+
+## 功能特性
+
+- 响应式单页应用（SPA）
+- TypeScript 类型安全
+- 胶囊创建、查看、管理功能
+- 管理员认证界面
+- 主题切换（亮色/暗色）
+- 统一的 API 错误处理
+
+## 快速开始
+
+### 前置要求
+
+- Node.js 18+
+- npm 或 pnpm
+
+### 安装依赖
+
+```bash
+npm install
+```
+
+### 开发模式
+
+```bash
+npm run dev
+```
+
+应用将在 `http://localhost:5173` 启动。
+
+### 环境变量
+
+创建 `.env` 文件配置后端 API 地址：
+
+```env
+VITE_API_BASE_URL=http://localhost:8080
+```
+
+## 项目结构
+
+```
+src/
+├── api/              # API 客户端封装
+│   └── index.ts      # Fetch 封装，统一错误处理
+├── components/       # 可复用组件
+│   ├── AppHeader.vue
+│   ├── AppFooter.vue
+│   ├── CapsuleForm.vue
+│   ├── CapsuleCard.vue
+│   ├── CapsuleTable.vue
+│   ├── CapsuleCodeInput.vue
+│   ├── AdminLogin.vue
+│   ├── ThemeToggle.vue
+│   └── ConfirmDialog.vue
+├── composables/      # 可复用组合式函数
+│   ├── useCapsule.ts     # 胶囊相关逻辑
+│   ├── useAdmin.ts       # 管理员认证逻辑
+│   └── useTheme.ts       # 主题切换逻辑
+├── router/           # 路由配置
+│   └── index.ts
+├── types/            # TypeScript 类型定义
+│   └── index.ts
+├── views/            # 页面级组件
+│   ├── HomeView.vue      # 首页
+│   ├── CreateView.vue    # 创建胶囊页
+│   ├── OpenView.vue      # 查看胶囊页
+│   ├── AdminView.vue     # 管理后台页
+│   └── AboutView.vue     # 关于页面
+├── App.vue         # 根组件
+└── main.ts         # 应用入口
+```
+
+## 路由
+
+| 路径 | 组件 | 描述 |
+|------|------|------|
+| `/` | HomeView | 首页，胶囊列表 |
+| `/create` | CreateView | 创建时间胶囊 |
+| `/open/:code` | OpenView | 查看胶囊详情 |
+| `/admin` | AdminView | 管理员后台 |
+| `/about` | AboutView | 关于页面 |
+
+## 命令
+
+```bash
+# 开发模式
+npm run dev
+
+# 构建生产版本
+npm run build
+
+# 预览构建结果
+npm run preview
+
+# 运行测试
+npm run test
+
+# 监听测试
+npm run test:watch
+
+# 类型检查
+npx vue-tsc --noEmit
+```
+
+## 共享样式
+
+本项目使用来自 `spec` 目录的共享设计令牌和样式：
+
+- `tokens.css` - CSS 变量（颜色、字体、间距）
+- `base.css` - CSS 重置和基础样式
+- `components.css` - 共享组件样式
+- `layout.css` - 布局工具类
+
+## 组件示例
+
+### CapsuleForm
+
+胶囊创建表单组件：
+
+```vue
+<template>
+  <CapsuleForm
+    :initial-data="capsule"
+    @submit="handleSubmit"
+    @cancel="handleCancel"
+  />
+</template>
+```
+
+### CapsuleCard
+
+胶囊卡片展示组件：
+
+```vue
+<template>
+  <CapsuleCard
+    :capsule="capsule"
+    @open="navigateToOpen"
+  />
+</template>
+```
+
+## Composables
+
+### useCapsule
+
+胶囊相关的状态管理：
+
+```typescript
+import { useCapsule } from '@/composables/useCapsule'
+
+const { capsules, loading, error, fetchCapsules, createCapsule } = useCapsule()
+```
+
+### useAdmin
+
+管理员认证：
+
+```typescript
+import { useAdmin } from '@/composables/useAdmin'
+
+const { token, isAuthenticated, login, logout } = useAdmin()
+```
+
+### useTheme
+
+主题切换：
+
+```typescript
+import { useTheme } from '@/composables/useTheme'
+
+const { theme, toggleTheme } = useTheme()
+```
+
+## API 客户端
+
+统一的 API 客户端封装，自动处理错误：
+
+```typescript
+import { createCapsule, getCapsule } from '@/api'
+
+// 创建胶囊
+const response = await createCapsule({
+  title: '给未来的自己',
+  content: '希望你一切都好',
+  creator: '张三',
+  openAt: '2027-01-01T00:00:00Z'
+})
+
+// 查询胶囊
+const capsule = await getCapsule('Ab3xK9mZ')
+```

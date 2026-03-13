@@ -1,0 +1,10 @@
+<footer class="footer">
+  <div class="container footer-inner">
+    <p class="footer-text">
+      <span>Powered By:</span>
+      <span class="tech-stack">
+        {{ techStack() ? 'Angular 18 | ' + techStack()!.framework + ' | ' + techStack()!.language + ' | ' + techStack()!.database : '加载中...' }}
+      </span>
+    </p>
+  </div>
+</footer>

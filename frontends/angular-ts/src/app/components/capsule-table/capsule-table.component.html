@@ -1,0 +1,82 @@
+<div class="table-wrapper">
+  <div class="table-header">
+    <h3 class="table-title">胶囊列表 ({{ pageInfo.totalElements }} 条)</h3>
+    <button type="button" class="btn btn-secondary" (click)="refresh.emit()">刷新</button>
+  </div>
+
+  @if (loading) {
+    <div class="table-empty">加载中...</div>
+  } @else if (capsules.length === 0) {
+    <div class="table-empty">暂无胶囊</div>
+  } @else {
+    <div class="table-scroll">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>胶囊码</th>
+            <th>标题</th>
+            <th>发布者</th>
+            <th>开启时间</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (capsule of capsules; track capsule.code) {
+            <tr>
+              <td><code class="code-cell">{{ capsule.code }}</code></td>
+              <td>{{ capsule.title }}</td>
+              <td>{{ capsule.creator }}</td>
+              <td>{{ formatTime(capsule.openAt) }}</td>
+              <td>
+                <span class="badge" [class.badge-success]="capsule.opened" [class.badge-warning]="!capsule.opened">
+                  {{ capsule.opened ? '已开启' : '未开启' }}
+                </span>
+              </td>
+              <td class="actions">
+                <button type="button" class="btn btn-secondary btn-sm" (click)="toggleExpand(capsule.code)">
+                  {{ expandedCode === capsule.code ? '收起' : '查看' }}
+                </button>
+                <button type="button" class="btn btn-danger btn-sm" (click)="delete.emit(capsule.code)">
+                  删除
+                </button>
+              </td>
+            </tr>
+            @if (expandedCode === capsule.code) {
+              <tr class="expanded-row">
+                <td colspan="6">
+                  <div class="expanded-content">
+                    <strong>内容：</strong>
+                    <span>{{ capsule.content || '（内容尚未开放）' }}</span>
+                  </div>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (pageInfo.totalPages > 1) {
+      <div class="pagination">
+        <button
+          type="button"
+          class="btn btn-secondary btn-sm"
+          [disabled]="pageInfo.number === 0"
+          (click)="page.emit(pageInfo.number - 1)"
+        >
+          上一页
+        </button>
+        <span class="page-info">{{ pageInfo.number + 1 }} / {{ pageInfo.totalPages }}</span>
+        <button
+          type="button"
+          class="btn btn-secondary btn-sm"
+          [disabled]="pageInfo.number >= pageInfo.totalPages - 1"
+          (click)="page.emit(pageInfo.number + 1)"
+        >
+          下一页
+        </button>
+      </div>
+    }
+  }
+</div>

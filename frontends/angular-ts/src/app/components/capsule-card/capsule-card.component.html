@@ -1,0 +1,31 @@
+<div class="card capsule-card">
+  <div class="card-header">
+    <h3 class="card-title">{{ capsule.title }}</h3>
+    <span class="badge" [class.badge-success]="capsule.opened" [class.badge-warning]="!capsule.opened">
+      {{ capsule.opened ? '已开启' : '未到时间' }}
+    </span>
+  </div>
+
+  <div class="capsule-meta">
+    <span>发布者: {{ capsule.creator }}</span>
+    <span>胶囊码: <code>{{ capsule.code }}</code></span>
+  </div>
+
+  <div class="capsule-times">
+    <span>创建于: {{ formatTime(capsule.createdAt) }}</span>
+    <span>开启于: {{ formatTime(capsule.openAt) }}</span>
+  </div>
+
+  @if (capsule.opened && capsule.content) {
+    <div class="capsule-content">
+      <p class="content-label">内容</p>
+      <p class="content-text">{{ capsule.content }}</p>
+    </div>
+  } @else if (!capsule.opened) {
+    <div class="capsule-locked">
+      <p class="lock-icon">🔒</p>
+      <p class="lock-text">胶囊尚未到开启时间</p>
+      <app-countdown-clock [targetIso]="capsule.openAt" (expired)="expired.emit()" />
+    </div>
+  }
+</div>

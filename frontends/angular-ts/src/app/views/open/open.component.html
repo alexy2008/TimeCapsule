@@ -1,0 +1,22 @@
+<div class="page">
+  <div class="container container-sm">
+    <div class="page-header">
+      <h1>开启时间胶囊</h1>
+      <p>输入胶囊码，查看时间胶囊</p>
+    </div>
+
+    <app-capsule-code-input
+      [value]="codeInput()"
+      [loading]="loading()"
+      [error]="error()"
+      (valueChange)="codeInput.set($event)"
+      (codeSubmit)="handleQuery($event)"
+    />
+
+    @if (capsule()) {
+      <div class="result">
+        <app-capsule-card [capsule]="capsule()!" (expired)="handleExpired()" />
+      </div>
+    }
+  </div>
+</div>

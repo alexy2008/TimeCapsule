@@ -1,0 +1,50 @@
+.header {
+  height: var(--header-height);
+  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-bg);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  transition: background-color var(--transition-base), border-color var(--transition-base);
+  /* 让 header 内容垂直居中 */
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  text-decoration: none;
+  color: var(--color-text);
+}
+
+.logoImg {
+  width: 32px;
+  height: 32px;
+}
+
+.logoText {
+  font-size: var(--text-lg);
+  font-weight: var(--font-bold);
+}
+
+.navLink {
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--color-text-secondary);
+  transition: color var(--transition-fast);
+  padding: var(--space-1) var(--space-2);
+}
+
+.navLink:hover,
+.active {
+  color: var(--color-primary);
+}
+
+/* 移动端：隐藏 Logo 文字，只保留图标 */
+@media (max-width: 480px) {
+  .logoText {
+    display: none;
+  }
+}

@@ -1,0 +1,27 @@
+<div class="login-wrapper">
+  <form class="login-form card" (ngSubmit)="handleLogin()">
+    <h2 class="login-title">管理员登录</h2>
+    <div class="form-group">
+      <label class="input-label" for="admin-password">密码</label>
+      <input
+        id="admin-password"
+        [(ngModel)]="password"
+        name="password"
+        type="password"
+        class="input"
+        placeholder="输入管理员密码"
+        autocomplete="current-password"
+      />
+    </div>
+    @if (error) {
+      <p class="error-text">{{ error }}</p>
+    }
+    <button
+      type="submit"
+      class="btn btn-primary btn-lg submit-btn"
+      [disabled]="loading || !password"
+    >
+      {{ loading ? '登录中...' : '登录' }}
+    </button>
+  </form>
+</div>

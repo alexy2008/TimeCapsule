@@ -1,0 +1,348 @@
+openapi: 3.0.3
+info:
+  title: 时间胶囊 (HelloTime) API
+  description: 时间胶囊应用 REST API 规范
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080/api/v1
+
+paths:
+  /health:
+    get:
+      summary: 健康检查
+      operationId: healthCheck
+      tags: [System]
+      responses:
+        '200':
+          description: 服务正常
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /capsules:
+    post:
+      summary: 创建时间胶囊
+      operationId: createCapsule
+      tags: [Capsule]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCapsuleRequest'
+      responses:
+        '201':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse_CapsuleCreated'
+        '400':
+          description: 参数校验失败
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+
+  /capsules/{code}:
+    get:
+      summary: 查询时间胶囊
+      operationId: getCapsule
+      tags: [Capsule]
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[A-Za-z0-9]{8}$'
+      responses:
+        '200':
+          description: 查询成功（时间未到时 content 为 null）
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse_CapsuleDetail'
+        '404':
+          description: 胶囊不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+
+  /admin/login:
+    post:
+      summary: 管理员登录
+      operationId: adminLogin
+      tags: [Admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminLoginRequest'
+      responses:
+        '200':
+          description: 登录成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse_AdminToken'
+        '401':
+          description: 密码错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+
+  /admin/capsules:
+    get:
+      summary: 分页查询所有胶囊
+      operationId: listCapsules
+      tags: [Admin]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse_CapsulePage'
+        '401':
+          description: 未授权
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+
+  /admin/capsules/{code}:
+    delete:
+      summary: 删除胶囊
+      operationId: deleteCapsule
+      tags: [Admin]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 删除成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse_Void'
+        '401':
+          description: 未授权
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 胶囊不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    CreateCapsuleRequest:
+      type: object
+      required: [title, content, creator, openAt]
+      properties:
+        title:
+          type: string
+          maxLength: 100
+        content:
+          type: string
+        creator:
+          type: string
+          maxLength: 30
+        openAt:
+          type: string
+          format: date-time
+
+    AdminLoginRequest:
+      type: object
+      required: [password]
+      properties:
+        password:
+          type: string
+
+    HealthResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            status:
+              type: string
+              description: 服务状态 (UP/DOWN)
+            timestamp:
+              type: string
+              format: date-time
+              description: 服务器当前时间
+            techStack:
+              $ref: '#/components/schemas/TechStack'
+              description: 后端技术栈信息
+
+    TechStack:
+      type: object
+      properties:
+        framework:
+          type: string
+          description: 框架名称和版本
+        language:
+          type: string
+          description: 编程语言
+        database:
+          type: string
+          description: 数据库类型
+
+    CapsuleCreated:
+      type: object
+      properties:
+        code:
+          type: string
+        title:
+          type: string
+        creator:
+          type: string
+        openAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+
+    CapsuleDetail:
+      type: object
+      properties:
+        code:
+          type: string
+        title:
+          type: string
+        content:
+          type: string
+          nullable: true
+          description: 时间未到时为 null
+        creator:
+          type: string
+        openAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        opened:
+          type: boolean
+
+    CapsulePage:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/CapsuleDetail'
+        totalElements:
+          type: integer
+        totalPages:
+          type: integer
+        number:
+          type: integer
+        size:
+          type: integer
+
+    ApiResponse_CapsuleCreated:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/CapsuleCreated'
+        message:
+          type: string
+
+    ApiResponse_CapsuleDetail:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/CapsuleDetail'
+        message:
+          type: string
+
+    ApiResponse_CapsulePage:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/CapsulePage'
+        message:
+          type: string
+
+    ApiResponse_AdminToken:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            token:
+              type: string
+        message:
+          type: string
+
+    ApiResponse_Void:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          nullable: true
+        message:
+          type: string
+
+    ApiErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          enum: [false]
+        data:
+          type: object
+          nullable: true
+        message:
+          type: string
+        errorCode:
+          type: string

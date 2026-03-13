@@ -1,0 +1,32 @@
+.capsuleCard {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.capsuleMeta,
+.capsuleTimes {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.capsuleContent {
+  margin-top: var(--space-4);
+  padding: var(--space-4);
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+  white-space: pre-wrap;
+  line-height: var(--leading-relaxed);
+}
+
+.capsuleLocked {
+  margin-top: var(--space-4);
+  padding: var(--space-6);
+}
+
+.lockIcon {
+  font-size: 3rem;
+  margin-bottom: var(--space-2);
+}

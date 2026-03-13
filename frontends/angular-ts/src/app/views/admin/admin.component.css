@@ -1,0 +1,36 @@
+.page-header {
+  margin-bottom: var(--space-8);
+}
+
+.page-header h1 {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
+}
+
+.admin-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-6);
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+}
+
+.admin-hint {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.error-banner {
+  background-color: #fee2e2;
+  color: var(--color-error);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-6);
+  font-size: var(--text-sm);
+}
+
+[data-theme="dark"] .error-banner {
+  background-color: #450a0a;
+}

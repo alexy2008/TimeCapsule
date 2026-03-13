@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xxd /Users/alex/AiWork/HelloTimeByClaude/backends/spring-boot/src/main/java/com/hellotime/exception/CapsuleNotFoundException.java | head -20)",
+      "Bash(npx vitest:*)",
+      "Bash(npm run build:*)",
+      "Bash(pip install:*)",
+      "Bash(python3:*)",
+      "Bash(source:*)",
+      "Bash(python -m pytest:*)",
+      "Bash(npm install:*)",
+      "Bash(npx ng build:*)",
+      "Bash(ls:*)",
+      "Bash(./mvnw test:*)",
+      "Bash(curl:*)",
+      "Read(//private/tmp/**)",
+      "Bash(sqlite3:*)",
+      "Bash(python:*)",
+      "Bash(pkill:*)",
+      "Bash(.venv/bin/python:*)"
+    ],
+    "additionalDirectories": [
+      "/Users/alex/AiWork/HelloTimeByClaude/backends/fastapi/app",
+      "/Users/alex/AiWork/HelloTimeByClaude/frontends/angular-ts/src/app/{types,api,services,components/{app-header,app-footer,theme-toggle,capsule-form,capsule-card,capsule-code-input,capsule-table,admin-login,confirm-dialog},views"
+    ]
+  }
+}

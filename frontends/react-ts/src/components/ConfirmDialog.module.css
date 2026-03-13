@@ -1,0 +1,10 @@
+.dialogTitle {
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  margin-bottom: var(--space-2);
+}
+
+.dialogMessage {
+  margin-bottom: var(--space-6);
+  line-height: var(--leading-relaxed);
+}

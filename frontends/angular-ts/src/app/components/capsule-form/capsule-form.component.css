@@ -1,0 +1,45 @@
+.capsule-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.input-label {
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--color-text);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+.error-text {
+  font-size: var(--text-sm);
+  color: var(--color-error);
+  margin-top: var(--space-1);
+}
+
+.submit-btn {
+  width: 100%;
+  margin-top: var(--space-2);
+}
+
+@media (max-width: 640px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 暗色模式下反转日期选择器图标颜色 */
+:host-context([data-theme="dark"]) input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}

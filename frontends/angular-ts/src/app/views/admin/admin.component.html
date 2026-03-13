@@ -1,0 +1,41 @@
+<div class="page">
+  <div class="container">
+    <div class="page-header">
+      <h1>管理后台</h1>
+    </div>
+
+    @if (!adminService.isLoggedIn()) {
+      <app-admin-login
+        [loading]="adminService.loading()"
+        [error]="adminService.error()"
+        (login)="handleLogin($event)"
+      />
+    } @else {
+      <div class="admin-bar">
+        <p class="admin-hint">已登录为管理员</p>
+        <button type="button" class="btn btn-secondary" (click)="adminService.logout()">退出登录</button>
+      </div>
+
+      @if (adminService.error()) {
+        <div class="error-banner">{{ adminService.error() }}</div>
+      }
+
+      <app-capsule-table
+        [capsules]="adminService.capsules()"
+        [pageInfo]="adminService.pageInfo()"
+        [loading]="adminService.loading()"
+        (delete)="handleDelete($event)"
+        (page)="adminService.fetchCapsules($event)"
+        (refresh)="adminService.fetchCapsules(adminService.pageInfo().number)"
+      />
+
+      <app-confirm-dialog
+        [visible]="showDeleteConfirm()"
+        title="确认删除"
+        [message]="'确定要删除胶囊 ' + deleteTarget() + ' 吗？此操作不可恢复。'"
+        (confirm)="confirmDelete()"
+        (cancel)="showDeleteConfirm.set(false)"
+      />
+    }
+  </div>
+</div>

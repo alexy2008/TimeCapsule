@@ -1,0 +1,56 @@
+<template>
+  <form class="login-form card" @submit.prevent="handleLogin">
+    <h2 class="text-center mb-4">管理员登录</h2>
+    <div class="form-group">
+      <label class="input-label" for="password">密码</label>
+      <input
+        id="password"
+        v-model="password"
+        type="password"
+        class="input"
+        placeholder="输入管理员密码"
+        autocomplete="current-password"
+      />
+    </div>
+    <p v-if="error" class="input-error-text">{{ error }}</p>
+    <button type="submit" class="btn btn-primary btn-lg submit-btn" :disabled="loading || !password">
+      {{ loading ? '登录中...' : '登录' }}
+    </button>
+  </form>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+
+defineProps<{
+  loading?: boolean
+  error?: string | null
+}>()
+
+const emit = defineEmits<{
+  login: [password: string]
+}>()
+
+const password = ref('')
+
+function handleLogin() {
+  if (password.value) {
+    emit('login', password.value)
+  }
+}
+</script>
+
+<style scoped>
+.login-form {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.form-group {
+  margin-bottom: var(--space-4);
+}
+
+.submit-btn {
+  width: 100%;
+}
+</style>

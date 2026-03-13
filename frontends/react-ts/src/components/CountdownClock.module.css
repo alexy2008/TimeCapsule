@@ -1,0 +1,117 @@
+.clock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-6) var(--space-4);
+  gap: var(--space-4);
+}
+
+.clockTitle {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+.units {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.unitGroup {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 72px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+/* 翻牌分隔线 */
+.card::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: var(--color-border);
+}
+
+.number {
+  font-size: 2rem;
+  font-weight: var(--font-bold);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text);
+  line-height: 1;
+  z-index: 1;
+}
+
+.label {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  margin-top: var(--space-1);
+  align-self: flex-end;
+  padding-bottom: var(--space-1);
+}
+
+.colon {
+  font-size: 2rem;
+  font-weight: var(--font-bold);
+  color: var(--color-text-secondary);
+  line-height: 1;
+  padding-top: 4px;
+  /* 与数字卡片顶部对齐，视觉居中 */
+  align-self: flex-start;
+  margin-top: 18px;
+}
+
+/* 秒数卡片着重色 */
+.unitGroup:last-child .card {
+  border-color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 8%, var(--color-bg-secondary));
+}
+
+.unitGroup:last-child .number {
+  color: var(--color-primary);
+}
+
+/* 到期提示 */
+.expiredMsg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  color: var(--color-success);
+  font-size: var(--text-base);
+}
+
+.expiredIcon {
+  font-size: 1.5rem;
+}
+
+/* 响应式：小屏缩小卡片 */
+@media (max-width: 400px) {
+  .card {
+    width: 52px;
+    height: 60px;
+  }
+
+  .number {
+    font-size: 1.5rem;
+  }
+}
