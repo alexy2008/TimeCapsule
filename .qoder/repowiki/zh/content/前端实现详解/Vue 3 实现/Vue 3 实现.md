@@ -12,11 +12,15 @@
 - [src/composables/useCapsule.ts](file://frontends/vue3-ts/src/composables/useCapsule.ts)
 - [src/composables/useAdmin.ts](file://frontends/vue3-ts/src/composables/useAdmin.ts)
 - [src/composables/useTheme.ts](file://frontends/vue3-ts/src/composables/useTheme.ts)
+- [src/composables/useCountdown.ts](file://frontends/vue3-ts/src/composables/useCountdown.ts)
 - [src/views/HomeView.vue](file://frontends/vue3-ts/src/views/HomeView.vue)
 - [src/views/CreateView.vue](file://frontends/vue3-ts/src/views/CreateView.vue)
 - [src/views/AdminView.vue](file://frontends/vue3-ts/src/views/AdminView.vue)
+- [src/views/OpenView.vue](file://frontends/vue3-ts/src/views/OpenView.vue)
 - [src/components/CapsuleForm.vue](file://frontends/vue3-ts/src/components/CapsuleForm.vue)
 - [src/components/AppHeader.vue](file://frontends/vue3-ts/src/components/AppHeader.vue)
+- [src/components/CapsuleCard.vue](file://frontends/vue3-ts/src/components/CapsuleCard.vue)
+- [src/components/CountdownClock.vue](file://frontends/vue3-ts/src/components/CountdownClock.vue)
 </cite>
 
 ## 目录
@@ -32,15 +36,15 @@
 10. [附录](#附录)
 
 ## 简介
-本项目是一个基于 Vue 3 + TypeScript + Vite 的前端应用，采用 Composition API 设计模式，围绕“时间胶囊”业务提供创建、查看、管理与管理员后台等功能。项目强调可复用性与类型安全，通过组合式函数（Composables）抽象跨组件的业务逻辑，结合 Vue Router 实现页面导航，使用统一的 API 客户端封装与错误处理机制，并通过共享设计令牌与 CSS 工具类实现一致的样式体系。
+本项目是一个基于 Vue 3 + TypeScript + Vite 的前端应用，采用 Composition API 设计模式，围绕"时间胶囊"业务提供创建、查看、管理与管理员后台等功能。项目强调可复用性与类型安全，通过组合式函数（Composables）抽象跨组件的业务逻辑，结合 Vue Router 实现页面导航，使用统一的 API 客户端封装与错误处理机制，并通过共享设计令牌与 CSS 工具类实现一致的样式体系。
 
 ## 项目结构
 - 应用入口与根组件：main.ts、App.vue
 - 路由系统：router/index.ts
 - API 客户端：api/index.ts
-- 组合式函数：composables/useCapsule.ts、useAdmin.ts、useTheme.ts
-- 页面组件：views/HomeView.vue、CreateView.vue、AdminView.vue 等
-- 可复用组件：components/AppHeader.vue、CapsuleForm.vue 等
+- 组合式函数：composables/useCapsule.ts、useAdmin.ts、useTheme.ts、useCountdown.ts
+- 页面组件：views/HomeView.vue、CreateView.vue、AdminView.vue、OpenView.vue
+- 可复用组件：components/AppHeader.vue、CapsuleForm.vue、CapsuleCard.vue、CountdownClock.vue
 - 构建与别名：vite.config.ts
 - 依赖与脚本：package.json
 - 项目说明：README.md
@@ -61,29 +65,37 @@ subgraph "组合式函数"
 UC["useCapsule.ts"]
 UA["useAdmin.ts"]
 UT["useTheme.ts"]
+UTC["useCountdown.ts"]
 end
 subgraph "页面组件"
 HV["HomeView.vue"]
 CV["CreateView.vue"]
 AV["AdminView.vue"]
+OV["OpenView.vue"]
 end
 subgraph "可复用组件"
 AH["AppHeader.vue"]
 CF["CapsuleForm.vue"]
+CC["CapsuleCard.vue"]
+CDC["CountdownClock.vue"]
 end
 M --> A
 A --> R
 R --> HV
 R --> CV
 R --> AV
+R --> OV
 CV --> UC
 AV --> UA
+OV --> CC
+CC --> CDC
 AH --> UT
 UC --> API
 UA --> API
+UTC --> API
 ```
 
-图表来源
+**图表来源**
 - [src/main.ts:1-23](file://frontends/vue3-ts/src/main.ts#L1-L23)
 - [src/App.vue:1-19](file://frontends/vue3-ts/src/App.vue#L1-L19)
 - [src/router/index.ts:1-44](file://frontends/vue3-ts/src/router/index.ts#L1-L44)
@@ -91,13 +103,17 @@ UA --> API
 - [src/composables/useCapsule.ts:1-65](file://frontends/vue3-ts/src/composables/useCapsule.ts#L1-L65)
 - [src/composables/useAdmin.ts:1-132](file://frontends/vue3-ts/src/composables/useAdmin.ts#L1-L132)
 - [src/composables/useTheme.ts:1-57](file://frontends/vue3-ts/src/composables/useTheme.ts#L1-L57)
+- [src/composables/useCountdown.ts:1-39](file://frontends/vue3-ts/src/composables/useCountdown.ts#L1-L39)
 - [src/views/HomeView.vue:1-65](file://frontends/vue3-ts/src/views/HomeView.vue#L1-L65)
 - [src/views/CreateView.vue:1-106](file://frontends/vue3-ts/src/views/CreateView.vue#L1-L106)
 - [src/views/AdminView.vue:1-89](file://frontends/vue3-ts/src/views/AdminView.vue#L1-L89)
+- [src/views/OpenView.vue:1-51](file://frontends/vue3-ts/src/views/OpenView.vue#L1-L51)
 - [src/components/AppHeader.vue:1-75](file://frontends/vue3-ts/src/components/AppHeader.vue#L1-L75)
 - [src/components/CapsuleForm.vue:1-164](file://frontends/vue3-ts/src/components/CapsuleForm.vue#L1-L164)
+- [src/components/CapsuleCard.vue:1-89](file://frontends/vue3-ts/src/components/CapsuleCard.vue#L1-L89)
+- [src/components/CountdownClock.vue:1-167](file://frontends/vue3-ts/src/components/CountdownClock.vue#L1-L167)
 
-章节来源
+**章节来源**
 - [README.md:51-115](file://frontends/vue3-ts/README.md#L51-L115)
 - [package.json:1-30](file://frontends/vue3-ts/package.json#L1-L30)
 - [vite.config.ts:1-23](file://frontends/vue3-ts/vite.config.ts#L1-L23)
@@ -111,15 +127,19 @@ UA --> API
   - useCapsule：封装胶囊创建与查询的状态与流程。
   - useAdmin：封装管理员登录、登出、分页查询与删除胶囊的状态与流程，并持久化 token。
   - useTheme：封装主题切换与持久化。
+  - useCountdown：封装倒计时计算与定时器管理。
 - 页面组件：
   - HomeView：首页展示与导航。
   - CreateView：表单提交、二次确认与创建结果展示。
   - AdminView：管理员登录、列表展示与删除确认。
+  - OpenView：胶囊开启页面，支持通过胶囊码查看胶囊详情。
 - 可复用组件：
   - AppHeader：导航与主题切换入口。
   - CapsuleForm：表单校验与提交事件。
+  - CapsuleCard：胶囊卡片展示，包含倒计时功能。
+  - CountdownClock：倒计时显示组件。
 
-章节来源
+**章节来源**
 - [src/main.ts:1-23](file://frontends/vue3-ts/src/main.ts#L1-L23)
 - [src/App.vue:1-19](file://frontends/vue3-ts/src/App.vue#L1-L19)
 - [src/router/index.ts:1-44](file://frontends/vue3-ts/src/router/index.ts#L1-L44)
@@ -127,20 +147,24 @@ UA --> API
 - [src/composables/useCapsule.ts:1-65](file://frontends/vue3-ts/src/composables/useCapsule.ts#L1-L65)
 - [src/composables/useAdmin.ts:1-132](file://frontends/vue3-ts/src/composables/useAdmin.ts#L1-L132)
 - [src/composables/useTheme.ts:1-57](file://frontends/vue3-ts/src/composables/useTheme.ts#L1-L57)
+- [src/composables/useCountdown.ts:1-39](file://frontends/vue3-ts/src/composables/useCountdown.ts#L1-L39)
 - [src/views/HomeView.vue:1-65](file://frontends/vue3-ts/src/views/HomeView.vue#L1-L65)
 - [src/views/CreateView.vue:1-106](file://frontends/vue3-ts/src/views/CreateView.vue#L1-L106)
 - [src/views/AdminView.vue:1-89](file://frontends/vue3-ts/src/views/AdminView.vue#L1-L89)
+- [src/views/OpenView.vue:1-51](file://frontends/vue3-ts/src/views/OpenView.vue#L1-L51)
 - [src/components/AppHeader.vue:1-75](file://frontends/vue3-ts/src/components/AppHeader.vue#L1-L75)
 - [src/components/CapsuleForm.vue:1-164](file://frontends/vue3-ts/src/components/CapsuleForm.vue#L1-L164)
+- [src/components/CapsuleCard.vue:1-89](file://frontends/vue3-ts/src/components/CapsuleCard.vue#L1-L89)
+- [src/components/CountdownClock.vue:1-167](file://frontends/vue3-ts/src/components/CountdownClock.vue#L1-L167)
 
 ## 架构总览
-该应用采用“页面组件 + 可复用组件 + 组合式函数 + API 客户端”的分层架构。页面组件负责展示与用户交互；可复用组件提供通用 UI；组合式函数抽象跨组件的业务状态与流程；API 客户端集中处理网络请求与错误。路由系统负责页面导航与懒加载。
+该应用采用"页面组件 + 可复用组件 + 组合式函数 + API 客户端"的分层架构。页面组件负责展示与用户交互；可复用组件提供通用 UI；组合式函数抽象跨组件的业务状态与流程；API 客户端集中处理网络请求与错误。路由系统负责页面导航与懒加载。
 
 ```mermaid
 graph TB
-UI["页面组件<br/>HomeView / CreateView / AdminView"]
-CMP["可复用组件<br/>AppHeader / CapsuleForm / ..."]
-COM["组合式函数<br/>useCapsule / useAdmin / useTheme"]
+UI["页面组件<br/>HomeView / CreateView / AdminView / OpenView"]
+CMP["可复用组件<br/>AppHeader / CapsuleForm / CapsuleCard / CountdownClock"]
+COM["组合式函数<br/>useCapsule / useAdmin / useTheme / useCountdown"]
 API["API 客户端<br/>api/index.ts"]
 RT["路由系统<br/>router/index.ts"]
 UI --> CMP
@@ -151,15 +175,19 @@ CMP --> COM
 CMP --> API
 ```
 
-图表来源
+**图表来源**
 - [src/views/HomeView.vue:1-65](file://frontends/vue3-ts/src/views/HomeView.vue#L1-L65)
 - [src/views/CreateView.vue:1-106](file://frontends/vue3-ts/src/views/CreateView.vue#L1-L106)
 - [src/views/AdminView.vue:1-89](file://frontends/vue3-ts/src/views/AdminView.vue#L1-L89)
+- [src/views/OpenView.vue:1-51](file://frontends/vue3-ts/src/views/OpenView.vue#L1-L51)
 - [src/components/AppHeader.vue:1-75](file://frontends/vue3-ts/src/components/AppHeader.vue#L1-L75)
 - [src/components/CapsuleForm.vue:1-164](file://frontends/vue3-ts/src/components/CapsuleForm.vue#L1-L164)
+- [src/components/CapsuleCard.vue:1-89](file://frontends/vue3-ts/src/components/CapsuleCard.vue#L1-L89)
+- [src/components/CountdownClock.vue:1-167](file://frontends/vue3-ts/src/components/CountdownClock.vue#L1-L167)
 - [src/composables/useCapsule.ts:1-65](file://frontends/vue3-ts/src/composables/useCapsule.ts#L1-L65)
 - [src/composables/useAdmin.ts:1-132](file://frontends/vue3-ts/src/composables/useAdmin.ts#L1-L132)
 - [src/composables/useTheme.ts:1-57](file://frontends/vue3-ts/src/composables/useTheme.ts#L1-L57)
+- [src/composables/useCountdown.ts:1-39](file://frontends/vue3-ts/src/composables/useCountdown.ts#L1-L39)
 - [src/api/index.ts:1-120](file://frontends/vue3-ts/src/api/index.ts#L1-L120)
 - [src/router/index.ts:1-44](file://frontends/vue3-ts/src/router/index.ts#L1-L44)
 
@@ -176,21 +204,117 @@ participant U as "用户"
 participant H as "HomeView.vue"
 participant R as "router/index.ts"
 participant C as "CreateView.vue"
-U->>H : 点击“创建胶囊”
+U->>H : 点击"创建胶囊"
 H->>R : router-link 导航到 "/create"
 R-->>C : 加载 CreateView.vue
 C-->>U : 展示创建表单
 ```
 
-图表来源
+**图表来源**
 - [src/router/index.ts:13-23](file://frontends/vue3-ts/src/router/index.ts#L13-L23)
 - [src/views/HomeView.vue:10-13](file://frontends/vue3-ts/src/views/HomeView.vue#L10-L13)
 - [src/views/CreateView.vue:1-34](file://frontends/vue3-ts/src/views/CreateView.vue#L1-L34)
 
-章节来源
+**章节来源**
 - [src/router/index.ts:1-44](file://frontends/vue3-ts/src/router/index.ts#L1-L44)
 - [src/views/HomeView.vue:1-65](file://frontends/vue3-ts/src/views/HomeView.vue#L1-L65)
 - [src/views/CreateView.vue:1-106](file://frontends/vue3-ts/src/views/CreateView.vue#L1-L106)
+
+### 组合式函数：useCountdown（倒计时逻辑）
+- 状态管理：封装倒计时计算结果，包括天、小时、分钟、秒和过期状态。
+- 核心功能：
+  - calc：计算目标时间与当前时间的差值，返回格式化的倒计时对象。
+  - 定时器管理：每秒更新一次倒计时，过期后自动清理定时器。
+  - 生命周期：组件卸载时自动清理定时器，防止内存泄漏。
+- 计算逻辑：将毫秒差值转换为天、小时、分钟、秒的整数值，支持负数差值（表示已过期）。
+
+```mermaid
+flowchart TD
+Start(["接收 targetIso"]) --> Calc["calc() 计算差值"]
+Calc --> DiffCheck{"差值 <= 0？"}
+DiffCheck --> |是| Expired["返回 {expired: true}"]
+DiffCheck --> |否| CalcTime["计算天/时/分/秒"]
+CalcTime --> ReturnTime["返回倒计时对象"]
+Expired --> ReturnTime
+ReturnTime --> Timer["设置 1000ms 定时器"]
+Timer --> WatchExpired{"是否过期？"}
+WatchExpired --> |是| Clear["清理定时器"]
+WatchExpired --> |否| NextTick["下一次更新"]
+NextTick --> Timer
+```
+
+**图表来源**
+- [src/composables/useCountdown.ts:11-38](file://frontends/vue3-ts/src/composables/useCountdown.ts#L11-L38)
+
+**章节来源**
+- [src/composables/useCountdown.ts:1-39](file://frontends/vue3-ts/src/composables/useCountdown.ts#L1-L39)
+
+### 组件：CountdownClock（倒计时显示）
+- 功能特性：
+  - 显示倒计时：天、时、分、秒四个单位的数字卡片。
+  - 过期处理：倒计时结束后显示庆祝消息，3秒后触发 expired 事件。
+  - 响应式设计：支持小屏幕设备的自适应布局。
+- 交互逻辑：
+  - 接收 targetIso 属性作为目标时间。
+  - 通过 useCountdown 组合式函数获取倒计时状态。
+  - 使用 watch 监听过期状态，在过期时设置延时并发出事件。
+- 样式设计：
+  - 数字卡片采用圆角边框和阴影效果。
+  - 最后一个单位（秒）使用主色调突出显示。
+  - 支持媒体查询适配移动端。
+
+```mermaid
+sequenceDiagram
+participant P as "父组件"
+participant C as "CountdownClock.vue"
+participant U as "useCountdown"
+P->>C : 传入 targetIso
+C->>U : 调用 useCountdown(targetIso)
+U-->>C : 返回 time 状态
+C->>C : 每秒更新倒计时
+C->>P : 触发 expired 事件过期后
+```
+
+**图表来源**
+- [src/components/CountdownClock.vue:23-41](file://frontends/vue3-ts/src/components/CountdownClock.vue#L23-L41)
+- [src/composables/useCountdown.ts:27-33](file://frontends/vue3-ts/src/composables/useCountdown.ts#L27-L33)
+
+**章节来源**
+- [src/components/CountdownClock.vue:1-167](file://frontends/vue3-ts/src/components/CountdownClock.vue#L1-L167)
+- [src/composables/useCountdown.ts:1-39](file://frontends/vue3-ts/src/composables/useCountdown.ts#L1-L39)
+
+### 组件：CapsuleCard（胶囊卡片）
+- 功能增强：
+  - 集成 CountdownClock 组件，为未开启的胶囊显示倒计时。
+  - 处理倒计时过期事件，触发父组件的 expired 回调。
+  - 支持已开启胶囊的内容展示。
+- 界面设计：
+  - 采用卡片布局，包含标题、元信息、时间信息和内容区域。
+  - 使用徽章状态显示胶囊开启状态。
+  - 未开启时显示锁图标和倒计时组件。
+- 数据格式化：使用 formatTime 方法将 ISO 时间格式化为本地化显示。
+
+```mermaid
+classDiagram
+class CapsuleCard {
++props capsule : Capsule
++emits expired
++formatTime(iso) : string
+}
+class CountdownClock {
++props targetIso : string
++emits expired
+}
+CapsuleCard --> CountdownClock : "使用"
+```
+
+**图表来源**
+- [src/components/CapsuleCard.vue:32-52](file://frontends/vue3-ts/src/components/CapsuleCard.vue#L32-L52)
+- [src/components/CountdownClock.vue:23-31](file://frontends/vue3-ts/src/components/CountdownClock.vue#L23-L31)
+
+**章节来源**
+- [src/components/CapsuleCard.vue:1-89](file://frontends/vue3-ts/src/components/CapsuleCard.vue#L1-L89)
+- [src/components/CountdownClock.vue:1-167](file://frontends/vue3-ts/src/components/CountdownClock.vue#L1-L167)
 
 ### 组合式函数：useCapsule（胶囊业务逻辑）
 - 状态管理：封装当前胶囊、加载状态、错误信息。
@@ -210,10 +334,10 @@ SetError --> Finally
 Finally --> End(["返回/抛出异常"])
 ```
 
-图表来源
+**图表来源**
 - [src/composables/useCapsule.ts:24-60](file://frontends/vue3-ts/src/composables/useCapsule.ts#L24-L60)
 
-章节来源
+**章节来源**
 - [src/composables/useCapsule.ts:1-65](file://frontends/vue3-ts/src/composables/useCapsule.ts#L1-L65)
 
 ### 组合式函数：useAdmin（管理员认证）
@@ -240,12 +364,12 @@ API-->>UA : 返回分页数据
 UA-->>V : 更新 capsules/pageInfo
 ```
 
-图表来源
+**图表来源**
 - [src/views/AdminView.vue:49-71](file://frontends/vue3-ts/src/views/AdminView.vue#L49-L71)
 - [src/composables/useAdmin.ts:43-96](file://frontends/vue3-ts/src/composables/useAdmin.ts#L43-L96)
 - [src/api/index.ts:74-95](file://frontends/vue3-ts/src/api/index.ts#L74-L95)
 
-章节来源
+**章节来源**
 - [src/composables/useAdmin.ts:1-132](file://frontends/vue3-ts/src/composables/useAdmin.ts#L1-L132)
 - [src/views/AdminView.vue:1-89](file://frontends/vue3-ts/src/views/AdminView.vue#L1-L89)
 - [src/api/index.ts:63-111](file://frontends/vue3-ts/src/api/index.ts#L63-L111)
@@ -264,11 +388,11 @@ Toggle["toggle 切换主题"] --> SetState["更新 theme.value"]
 SetState --> Apply
 ```
 
-图表来源
+**图表来源**
 - [src/composables/useTheme.ts:13-38](file://frontends/vue3-ts/src/composables/useTheme.ts#L13-L38)
 - [src/composables/useTheme.ts:51-53](file://frontends/vue3-ts/src/composables/useTheme.ts#L51-L53)
 
-章节来源
+**章节来源**
 - [src/composables/useTheme.ts:1-57](file://frontends/vue3-ts/src/composables/useTheme.ts#L1-L57)
 - [src/components/AppHeader.vue:1-75](file://frontends/vue3-ts/src/components/AppHeader.vue#L1-L75)
 
@@ -296,11 +420,11 @@ S-->>API : 返回 ApiResponse
 API-->>C : 解析并返回 data 或抛错
 ```
 
-图表来源
+**图表来源**
 - [src/api/index.ts:19-54](file://frontends/vue3-ts/src/api/index.ts#L19-L54)
 - [src/composables/useCapsule.ts:24-37](file://frontends/vue3-ts/src/composables/useCapsule.ts#L24-L37)
 
-章节来源
+**章节来源**
 - [src/api/index.ts:1-120](file://frontends/vue3-ts/src/api/index.ts#L1-L120)
 - [src/composables/useCapsule.ts:1-65](file://frontends/vue3-ts/src/composables/useCapsule.ts#L1-L65)
 
@@ -308,7 +432,8 @@ API-->>C : 解析并返回 data 或抛错
 - HomeView：首页展示、功能引导与导航。
 - CreateView：表单提交、二次确认对话框、创建成功展示与复制胶囊码。
 - AdminView：管理员登录、列表展示、分页与删除确认。
-- 可复用组件：AppHeader（导航与主题切换）、CapsuleForm（表单校验与提交事件）。
+- OpenView：胶囊开启页面，支持通过胶囊码查看胶囊详情，集成倒计时过期后的自动刷新。
+- 可复用组件：AppHeader（导航与主题切换）、CapsuleForm（表单校验与提交事件）、CapsuleCard（胶囊卡片，含倒计时）、CountdownClock（倒计时显示）。
 
 ```mermaid
 classDiagram
@@ -325,6 +450,11 @@ class AdminView {
 +列表展示
 +分页与删除
 }
+class OpenView {
++胶囊码输入
++胶囊详情展示
++倒计时过期处理
+}
 class AppHeader {
 +导航链接
 +主题切换
@@ -333,34 +463,53 @@ class CapsuleForm {
 +表单校验
 +提交事件
 }
+class CapsuleCard {
++胶囊信息展示
++倒计时集成
++过期事件处理
+}
+class CountdownClock {
++倒计时显示
++过期事件触发
+}
 CreateView --> CapsuleForm : "使用"
 AdminView --> AppHeader : "使用"
+OpenView --> CapsuleCard : "使用"
+CapsuleCard --> CountdownClock : "使用"
 HomeView --> AppHeader : "使用"
 ```
 
-图表来源
+**图表来源**
 - [src/views/HomeView.vue:1-65](file://frontends/vue3-ts/src/views/HomeView.vue#L1-L65)
 - [src/views/CreateView.vue:1-106](file://frontends/vue3-ts/src/views/CreateView.vue#L1-L106)
 - [src/views/AdminView.vue:1-89](file://frontends/vue3-ts/src/views/AdminView.vue#L1-L89)
+- [src/views/OpenView.vue:1-51](file://frontends/vue3-ts/src/views/OpenView.vue#L1-L51)
 - [src/components/AppHeader.vue:1-75](file://frontends/vue3-ts/src/components/AppHeader.vue#L1-L75)
 - [src/components/CapsuleForm.vue:1-164](file://frontends/vue3-ts/src/components/CapsuleForm.vue#L1-L164)
+- [src/components/CapsuleCard.vue:1-89](file://frontends/vue3-ts/src/components/CapsuleCard.vue#L1-L89)
+- [src/components/CountdownClock.vue:1-167](file://frontends/vue3-ts/src/components/CountdownClock.vue#L1-L167)
 
-章节来源
+**章节来源**
 - [src/views/HomeView.vue:1-65](file://frontends/vue3-ts/src/views/HomeView.vue#L1-L65)
 - [src/views/CreateView.vue:1-106](file://frontends/vue3-ts/src/views/CreateView.vue#L1-L106)
 - [src/views/AdminView.vue:1-89](file://frontends/vue3-ts/src/views/AdminView.vue#L1-L89)
+- [src/views/OpenView.vue:1-51](file://frontends/vue3-ts/src/views/OpenView.vue#L1-L51)
 - [src/components/AppHeader.vue:1-75](file://frontends/vue3-ts/src/components/AppHeader.vue#L1-L75)
 - [src/components/CapsuleForm.vue:1-164](file://frontends/vue3-ts/src/components/CapsuleForm.vue#L1-L164)
+- [src/components/CapsuleCard.vue:1-89](file://frontends/vue3-ts/src/components/CapsuleCard.vue#L1-L89)
+- [src/components/CountdownClock.vue:1-167](file://frontends/vue3-ts/src/components/CountdownClock.vue#L1-L167)
 
 ### 样式系统与设计令牌
 - 全局样式：在 main.ts 中导入共享样式（tokens.css、base.css、components.css、layout.css），确保设计令牌与通用样式一致。
 - 组件样式：使用 scoped CSS，配合 CSS 变量与工具类（如 flex、justify、gap、grid 等）实现响应式布局。
 - 主题适配：通过 useTheme 在 html 上设置 data-theme，组件内使用 :global 与 :deep 选择器适配暗色模式下的特定元素（如日期选择器图标）。
+- 倒计时样式：CountdownClock 使用 CSS 变量实现主题适配，支持媒体查询优化移动端体验。
 
-章节来源
+**章节来源**
 - [src/main.ts:9-13](file://frontends/vue3-ts/src/main.ts#L9-L13)
 - [src/components/CapsuleForm.vue:159-162](file://frontends/vue3-ts/src/components/CapsuleForm.vue#L159-L162)
 - [src/views/CreateView.vue:101-104](file://frontends/vue3-ts/src/views/CreateView.vue#L101-L104)
+- [src/components/CountdownClock.vue:55-166](file://frontends/vue3-ts/src/components/CountdownClock.vue#L55-L166)
 
 ## 依赖关系分析
 - 构建与别名：vite.config.ts 配置了 @ 与 @spec 的路径别名，便于引用 src 与 spec 目录。
@@ -377,12 +526,12 @@ M["main.ts"] --> Styles["导入共享样式"]
 M --> RouterUse["app.use(router)"]
 ```
 
-图表来源
+**图表来源**
 - [package.json:13-28](file://frontends/vue3-ts/package.json#L13-L28)
 - [vite.config.ts:7-12](file://frontends/vue3-ts/vite.config.ts#L7-L12)
 - [src/main.ts:9-19](file://frontends/vue3-ts/src/main.ts#L9-L19)
 
-章节来源
+**章节来源**
 - [package.json:1-30](file://frontends/vue3-ts/package.json#L1-L30)
 - [vite.config.ts:1-23](file://frontends/vue3-ts/vite.config.ts#L1-L23)
 - [src/main.ts:1-23](file://frontends/vue3-ts/src/main.ts#L1-L23)
@@ -392,26 +541,31 @@ M --> RouterUse["app.use(router)"]
 - 组合式函数状态局部化：仅在需要的组件中使用，避免全局状态污染。
 - API 错误早返回：在未登录场景提前返回，减少无效请求。
 - 样式作用域：scoped CSS 降低样式冲突风险，同时保持组件边界清晰。
+- 倒计时优化：useCountdown 自动清理定时器，防止内存泄漏；CountdownClock 在过期后停止更新。
 
 ## 故障排查指南
 - 路由无法匹配：检查路由定义与路径参数是否正确，确认路由懒加载组件路径有效。
 - API 请求失败：查看统一错误处理逻辑，确认后端服务可达与响应格式符合预期。
 - 主题不生效：确认 useTheme 已在应用启动阶段初始化，且 html 上存在 data-theme 属性。
 - 管理员登录失效：检查 token 是否存储在 sessionStorage，以及在认证错误时是否触发了自动登出。
+- 倒计时不更新：检查 targetIso 格式是否正确，确认 useCountdown 定时器正常运行。
+- 倒计时过期未触发：确认 CountdownClock 组件正确监听 expired 事件并向上级组件传递。
 
-章节来源
+**章节来源**
 - [src/router/index.ts:13-40](file://frontends/vue3-ts/src/router/index.ts#L13-L40)
 - [src/api/index.ts:19-37](file://frontends/vue3-ts/src/api/index.ts#L19-L37)
 - [src/composables/useTheme.ts:20-28](file://frontends/vue3-ts/src/composables/useTheme.ts#L20-L28)
 - [src/composables/useAdmin.ts:88-92](file://frontends/vue3-ts/src/composables/useAdmin.ts#L88-L92)
+- [src/composables/useCountdown.ts:27-33](file://frontends/vue3-ts/src/composables/useCountdown.ts#L27-L33)
+- [src/components/CountdownClock.vue:35-41](file://frontends/vue3-ts/src/components/CountdownClock.vue#L35-L41)
 
 ## 结论
-本项目以 Vue 3 + TypeScript + Vite 为基础，通过 Composition API 将业务逻辑抽象为可复用的组合式函数，结合统一的 API 客户端与路由系统，实现了清晰的页面导航与状态管理。共享样式与设计令牌确保了视觉一致性与主题适配能力。整体架构具备良好的扩展性与可维护性，适合进一步引入状态管理库或进行更细粒度的模块拆分。
+本项目以 Vue 3 + TypeScript + Vite 为基础，通过 Composition API 将业务逻辑抽象为可复用的组合式函数，结合统一的 API 客户端与路由系统，实现了清晰的页面导航与状态管理。新增的倒计时功能通过 CountdownClock 组件和 useCountdown 组合式函数增强了用户体验，使用户能够直观地看到胶囊开启的剩余时间。共享样式与设计令牌确保了视觉一致性与主题适配能力。整体架构具备良好的扩展性与可维护性，适合进一步引入状态管理库或进行更细粒度的模块拆分。
 
 ## 附录
 - 快速开始与命令参考见项目说明文档。
 - 环境变量配置与代理设置见构建配置文件。
 
-章节来源
+**章节来源**
 - [README.md:22-115](file://frontends/vue3-ts/README.md#L22-L115)
 - [vite.config.ts:13-21](file://frontends/vue3-ts/vite.config.ts#L13-L21)

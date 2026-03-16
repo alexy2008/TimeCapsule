@@ -1,12 +1,9 @@
 package com.hellotime.dto;
 
-public class AdminTokenResponse {
-    private String token;
-
-    public AdminTokenResponse(String token) {
-        this.token = token;
-    }
-
-    public String getToken() { return token; }
-    public void setToken(String token) { this.token = token; }
-}
+/**
+ * 管理员登录成功响应 DTO
+ * 使用 Java 21 Record 实现
+ *
+ * @param token JWT Token
+ */
+public record AdminTokenResponse(String token) {}

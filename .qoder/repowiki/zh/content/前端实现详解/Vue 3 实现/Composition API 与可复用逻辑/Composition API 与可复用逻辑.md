@@ -5,12 +5,15 @@
 - [useCapsule.ts](file://frontends/vue3-ts/src/composables/useCapsule.ts)
 - [useAdmin.ts](file://frontends/vue3-ts/src/composables/useAdmin.ts)
 - [useTheme.ts](file://frontends/vue3-ts/src/composables/useTheme.ts)
+- [useCountdown.ts](file://frontends/vue3-ts/src/composables/useCountdown.ts)
 - [useCapsule.test.ts](file://frontends/vue3-ts/src/__tests__/composables/useCapsule.test.ts)
 - [useTheme.test.ts](file://frontends/vue3-ts/src/__tests__/composables/useTheme.test.ts)
 - [AdminView.vue](file://frontends/vue3-ts/src/views/AdminView.vue)
 - [CreateView.vue](file://frontends/vue3-ts/src/views/CreateView.vue)
 - [OpenView.vue](file://frontends/vue3-ts/src/views/OpenView.vue)
 - [ThemeToggle.vue](file://frontends/vue3-ts/src/components/ThemeToggle.vue)
+- [CountdownClock.vue](file://frontends/vue3-ts/src/components/CountdownClock.vue)
+- [CapsuleCard.vue](file://frontends/vue3-ts/src/components/CapsuleCard.vue)
 - [index.ts](file://frontends/vue3-ts/src/api/index.ts)
 - [index.ts](file://frontends/vue3-ts/src/types/index.ts)
 - [main.ts](file://frontends/vue3-ts/src/main.ts)
@@ -38,7 +41,7 @@
 - 实际使用示例与常见问题解决
 
 ## 项目结构
-Vue 3 前端采用“视图层 + 组合式函数 + API 客户端 + 类型定义”的分层组织方式：
+Vue 3 前端采用"视图层 + 组合式函数 + API 客户端 + 类型定义"的分层组织方式：
 - 视图层：各页面组件通过 script setup 使用组合式函数
 - 组合式函数：封装可复用的业务逻辑与状态
 - API 客户端：统一请求封装与错误处理
@@ -51,54 +54,66 @@ A["CreateView.vue"]
 B["OpenView.vue"]
 C["AdminView.vue"]
 D["ThemeToggle.vue"]
+E["CountdownClock.vue"]
+F["CapsuleCard.vue"]
 end
 subgraph "组合式函数"
-E["useCapsule.ts"]
-F["useAdmin.ts"]
-G["useTheme.ts"]
+G["useCapsule.ts"]
+H["useAdmin.ts"]
+I["useTheme.ts"]
+J["useCountdown.ts"]
 end
 subgraph "API 客户端"
-H["api/index.ts"]
+K["api/index.ts"]
 end
 subgraph "类型定义"
-I["types/index.ts"]
+L["types/index.ts"]
 end
-A --> E
-B --> E
-C --> F
-D --> G
-E --> H
-F --> H
-G --> H
-E --> I
-F --> I
-G --> I
+A --> G
+B --> G
+C --> H
+D --> I
+F --> J
+E --> J
+G --> K
+H --> K
+I --> K
+J --> K
+G --> L
+H --> L
+I --> L
+J --> L
 ```
 
-图表来源
+**图表来源**
 - [CreateView.vue:36-69](file://frontends/vue3-ts/src/views/CreateView.vue#L36-L69)
 - [OpenView.vue:23-44](file://frontends/vue3-ts/src/views/OpenView.vue#L23-L44)
 - [AdminView.vue:42-88](file://frontends/vue3-ts/src/views/AdminView.vue#L42-L88)
 - [ThemeToggle.vue:8-12](file://frontends/vue3-ts/src/components/ThemeToggle.vue#L8-L12)
+- [CountdownClock.vue:21-53](file://frontends/vue3-ts/src/components/CountdownClock.vue#L21-L53)
+- [CapsuleCard.vue:32-42](file://frontends/vue3-ts/src/components/CapsuleCard.vue#L32-L42)
 - [useCapsule.ts:10-64](file://frontends/vue3-ts/src/composables/useCapsule.ts#L10-L64)
 - [useAdmin.ts:18-131](file://frontends/vue3-ts/src/composables/useAdmin.ts#L18-L131)
 - [useTheme.ts:46-57](file://frontends/vue3-ts/src/composables/useTheme.ts#L46-L57)
+- [useCountdown.ts:11-38](file://frontends/vue3-ts/src/composables/useCountdown.ts#L11-L38)
 - [index.ts:19-37](file://frontends/vue3-ts/src/api/index.ts#L19-L37)
 - [index.ts:10-80](file://frontends/vue3-ts/src/types/index.ts#L10-L80)
 
-章节来源
+**章节来源**
 - [main.ts:1-23](file://frontends/vue3-ts/src/main.ts#L1-L23)
 
 ## 核心组件
-本项目围绕三个核心组合式函数构建：
+本项目围绕四个核心组合式函数构建：
 - useCapsule：封装胶囊的创建与查询逻辑，暴露响应式状态与异步方法
 - useAdmin：封装管理员登录、登出、分页查询与删除逻辑，并持久化 Token
 - useTheme：封装主题状态与切换逻辑，持久化用户偏好
+- **useCountdown**：封装倒计时逻辑，提供天、小时、分钟、秒的实时显示与过期状态
 
-章节来源
+**章节来源**
 - [useCapsule.ts:10-64](file://frontends/vue3-ts/src/composables/useCapsule.ts#L10-L64)
 - [useAdmin.ts:18-131](file://frontends/vue3-ts/src/composables/useAdmin.ts#L18-L131)
 - [useTheme.ts:46-57](file://frontends/vue3-ts/src/composables/useTheme.ts#L46-L57)
+- [useCountdown.ts:11-38](file://frontends/vue3-ts/src/composables/useCountdown.ts#L11-L38)
 
 ## 架构总览
 下图展示了视图层、组合式函数与 API 客户端之间的交互关系。
@@ -117,7 +132,7 @@ API-->>Hook : 解析并返回数据
 Hook-->>View : 更新响应式状态
 ```
 
-图表来源
+**图表来源**
 - [CreateView.vue:43-62](file://frontends/vue3-ts/src/views/CreateView.vue#L43-L62)
 - [OpenView.vue:31-44](file://frontends/vue3-ts/src/views/OpenView.vue#L31-L44)
 - [AdminView.vue:49-87](file://frontends/vue3-ts/src/views/AdminView.vue#L49-L87)
@@ -127,7 +142,7 @@ Hook-->>View : 更新响应式状态
 
 ### useCapsule 组合式函数
 - 设计理念
-  - 将“创建”和“查询”两个核心业务流程抽象为可复用的组合式函数
+  - 将"创建"和"查询"两个核心业务流程抽象为可复用的组合式函数
   - 通过响应式引用管理加载态、错误态与数据态
   - 将 API 调用封装在组合式函数内部，便于测试与复用
 - 关键实现要点
@@ -153,10 +168,10 @@ Throw --> Finally
 Finally --> End(["返回/结束"])
 ```
 
-图表来源
+**图表来源**
 - [useCapsule.ts:24-60](file://frontends/vue3-ts/src/composables/useCapsule.ts#L24-L60)
 
-章节来源
+**章节来源**
 - [useCapsule.ts:10-64](file://frontends/vue3-ts/src/composables/useCapsule.ts#L10-L64)
 - [CreateView.vue:36-69](file://frontends/vue3-ts/src/views/CreateView.vue#L36-L69)
 - [OpenView.vue:23-44](file://frontends/vue3-ts/src/views/OpenView.vue#L23-L44)
@@ -193,12 +208,12 @@ API-->>Hook : 返回分页数据
 Hook-->>View : 更新 capsules/pageInfo
 ```
 
-图表来源
+**图表来源**
 - [AdminView.vue:49-87](file://frontends/vue3-ts/src/views/AdminView.vue#L49-L87)
 - [useAdmin.ts:43-96](file://frontends/vue3-ts/src/composables/useAdmin.ts#L43-L96)
 - [index.ts:74-95](file://frontends/vue3-ts/src/api/index.ts#L74-L95)
 
-章节来源
+**章节来源**
 - [useAdmin.ts:18-131](file://frontends/vue3-ts/src/composables/useAdmin.ts#L18-L131)
 - [AdminView.vue:42-88](file://frontends/vue3-ts/src/views/AdminView.vue#L42-L88)
 - [useTheme.test.ts:4-22](file://frontends/vue3-ts/src/__tests__/composables/useTheme.test.ts#L4-L22)
@@ -225,14 +240,59 @@ ReApply --> Toggle["toggle()<br/>light <-> dark"]
 Toggle --> Apply
 ```
 
-图表来源
+**图表来源**
 - [useTheme.ts:13-38](file://frontends/vue3-ts/src/composables/useTheme.ts#L13-L38)
 - [useTheme.ts:51-53](file://frontends/vue3-ts/src/composables/useTheme.ts#L51-L53)
 
-章节来源
+**章节来源**
 - [useTheme.ts:46-57](file://frontends/vue3-ts/src/composables/useTheme.ts#L46-L57)
 - [ThemeToggle.vue:8-12](file://frontends/vue3-ts/src/components/ThemeToggle.vue#L8-L12)
 - [useTheme.test.ts:4-22](file://frontends/vue3-ts/src/__tests__/composables/useTheme.test.ts#L4-L22)
+
+### useCountdown 组合式函数
+- 设计理念
+  - 将倒计时逻辑抽象为纯组合式函数，提供天、小时、分钟、秒的实时显示
+  - 通过 ref 暴露响应式时间状态，自动处理定时器生命周期
+  - 支持过期状态检测与自动清理机制
+- 关键实现要点
+  - 类型定义：CountdownTime 接口包含 days、hours、minutes、seconds、expired 字段
+  - 计算逻辑：calc() 函数计算目标时间与当前时间的差值，转换为各个时间单位
+  - 响应式状态：time ref 存储当前倒计时状态，每秒自动更新
+  - 生命周期：使用 onUnmounted 清理定时器，防止内存泄漏
+  - 过期处理：当倒计时结束时自动停止定时器并标记 expired
+- 使用场景
+  - 时间胶囊开启前的倒计时显示
+  - 任何需要倒计时功能的 UI 组件
+- 测试策略
+  - 验证正常倒计时、过期状态、定时器清理等场景
+
+```mermaid
+flowchart TD
+Start(["useCountdown(targetIso)"]) --> Calc["calc()<br/>计算时间差"]
+Calc --> Expired{"diff <= 0?"}
+Expired --> |是| ReturnZero["返回 {days:0,hours:0,minutes:0,seconds:0,expired:true}"]
+Expired --> |否| CalcTime["计算总秒数<br/>转换为天/小时/分钟/秒"]
+CalcTime --> ReturnTime["返回 {days,hours,minutes,seconds,expired:false}"]
+ReturnZero --> InitRef["初始化 time.ref"]
+ReturnTime --> InitRef
+InitRef --> SetTimer["setInterval(1000)"]
+SetTimer --> Loop["循环更新：<br/>calc() -> time.value -> expired?"]
+Loop --> Clear{"expired?"}
+Clear --> |是| StopTimer["clearInterval(timer)"]
+Clear --> |否| Continue["继续循环"]
+StopTimer --> Cleanup["onUnmounted 清理"]
+Continue --> Loop
+Cleanup --> End(["返回 time.ref"])
+End --> End
+```
+
+**图表来源**
+- [useCountdown.ts:11-38](file://frontends/vue3-ts/src/composables/useCountdown.ts#L11-L38)
+
+**章节来源**
+- [useCountdown.ts:11-38](file://frontends/vue3-ts/src/composables/useCountdown.ts#L11-L38)
+- [CountdownClock.vue:21-53](file://frontends/vue3-ts/src/components/CountdownClock.vue#L21-L53)
+- [CapsuleCard.vue:24-28](file://frontends/vue3-ts/src/components/CapsuleCard.vue#L24-L28)
 
 ### API 客户端与类型定义
 - API 客户端
@@ -242,7 +302,7 @@ Toggle --> Apply
   - Capsule、CreateCapsuleForm、ApiResponse、PageData、AdminToken、HealthInfo 等
   - 保证前后端契约一致，提升开发效率与可维护性
 
-章节来源
+**章节来源**
 - [index.ts:19-37](file://frontends/vue3-ts/src/api/index.ts#L19-L37)
 - [index.ts:46-119](file://frontends/vue3-ts/src/api/index.ts#L46-L119)
 - [index.ts:10-80](file://frontends/vue3-ts/src/types/index.ts#L10-L80)
@@ -251,6 +311,7 @@ Toggle --> Apply
 - 组合式函数依赖 API 客户端进行网络请求
 - 视图组件通过组合式函数暴露的状态与方法进行数据绑定与事件处理
 - 类型定义贯穿于 API 客户端与组合式函数之间，确保类型安全
+- **CountdownClock 组件依赖 useCountdown 组合式函数提供倒计时状态**
 
 ```mermaid
 graph LR
@@ -258,33 +319,43 @@ V1["CreateView.vue"] --> U1["useCapsule.ts"]
 V2["OpenView.vue"] --> U1
 V3["AdminView.vue"] --> U2["useAdmin.ts"]
 V4["ThemeToggle.vue"] --> U3["useTheme.ts"]
+V5["CountdownClock.vue"] --> U4["useCountdown.ts"]
+V6["CapsuleCard.vue"] --> V5
 U1 --> A["api/index.ts"]
 U2 --> A
 U3 --> A
+U4 --> A
 U1 --> T["types/index.ts"]
 U2 --> T
 U3 --> T
+U4 --> T
 ```
 
-图表来源
+**图表来源**
 - [CreateView.vue:39-43](file://frontends/vue3-ts/src/views/CreateView.vue#L39-L43)
 - [OpenView.vue:31-31](file://frontends/vue3-ts/src/views/OpenView.vue#L31-L31)
 - [AdminView.vue:49-59](file://frontends/vue3-ts/src/views/AdminView.vue#L49-L59)
 - [ThemeToggle.vue:11-11](file://frontends/vue3-ts/src/components/ThemeToggle.vue#L11-L11)
+- [CountdownClock.vue:23-33](file://frontends/vue3-ts/src/components/CountdownClock.vue#L23-L33)
+- [CapsuleCard.vue:34-42](file://frontends/vue3-ts/src/components/CapsuleCard.vue#L34-L42)
 - [useCapsule.ts:10-14](file://frontends/vue3-ts/src/composables/useCapsule.ts#L10-L14)
 - [useAdmin.ts:18-28](file://frontends/vue3-ts/src/composables/useAdmin.ts#L18-L28)
 - [useTheme.ts:46-55](file://frontends/vue3-ts/src/composables/useTheme.ts#L46-L55)
+- [useCountdown.ts:11-11](file://frontends/vue3-ts/src/composables/useCountdown.ts#L11-L11)
 
-章节来源
+**章节来源**
 - [CreateView.vue:36-69](file://frontends/vue3-ts/src/views/CreateView.vue#L36-L69)
 - [OpenView.vue:23-44](file://frontends/vue3-ts/src/views/OpenView.vue#L23-L44)
 - [AdminView.vue:42-88](file://frontends/vue3-ts/src/views/AdminView.vue#L42-L88)
 - [ThemeToggle.vue:8-12](file://frontends/vue3-ts/src/components/ThemeToggle.vue#L8-L12)
+- [CountdownClock.vue:21-53](file://frontends/vue3-ts/src/components/CountdownClock.vue#L21-L53)
+- [CapsuleCard.vue:32-42](file://frontends/vue3-ts/src/components/CapsuleCard.vue#L32-L42)
 
 ## 性能考量
 - 响应式粒度控制：仅暴露必要的状态与方法，避免过度响应式导致的不必要重渲染
 - 异步流程优化：在 finally 中统一清理 loading，减少 UI 卡顿
 - 侦听器最小化：仅在必要时使用 watch/watchEffect，避免频繁 DOM 操作
+- **定时器管理优化**：useCountdown 自动清理定时器，防止内存泄漏
 - 缓存与去抖：对于高频查询可考虑引入缓存或节流策略（建议在具体场景中按需实现）
 
 ## 故障排查指南
@@ -300,36 +371,49 @@ U3 --> T
   - 现象：点击切换按钮后样式未变化
   - 排查：确认 data-theme 属性是否正确设置；检查 localStorage 是否写入
   - 参考：[useTheme.ts:20-23](file://frontends/vue3-ts/src/composables/useTheme.ts#L20-L23)
+- **倒计时不更新或内存泄漏**
+  - 现象：倒计时停止更新或组件卸载后仍有定时器运行
+  - 排查：确认 useCountdown 是否正确清理定时器；检查组件生命周期
+  - 参考：[useCountdown.ts:35-35](file://frontends/vue3-ts/src/composables/useCountdown.ts#L35-L35)
 
-章节来源
+**章节来源**
 - [useCapsule.ts:31-36](file://frontends/vue3-ts/src/composables/useCapsule.ts#L31-L36)
 - [useAdmin.ts:88-96](file://frontends/vue3-ts/src/composables/useAdmin.ts#L88-L96)
 - [useTheme.ts:20-23](file://frontends/vue3-ts/src/composables/useTheme.ts#L20-L23)
+- [useCountdown.ts:35-35](file://frontends/vue3-ts/src/composables/useCountdown.ts#L35-L35)
 
 ## 结论
 本项目通过组合式函数实现了业务逻辑的高内聚、低耦合与强可测性：
 - 将状态与副作用封装在组合式函数中，组件仅负责渲染与事件转发
 - 通过统一的 API 客户端与类型定义，保障了前后端契约的一致性
 - 以测试驱动的方式验证关键流程，提升了代码质量与可维护性
+- **新增的 useCountdown 组合式函数进一步丰富了可复用逻辑的生态，提供了完整的倒计时解决方案**
 
 ## 附录
 
 ### 最佳实践清单
 - 命名规范
-  - 组合式函数以 use 前缀命名，语义清晰（如 useCapsule、useAdmin、useTheme）
+  - 组合式函数以 use 前缀命名，语义清晰（如 useCapsule、useAdmin、useTheme、**useCountdown**）
 - 参数与返回值
   - 输入参数尽量使用类型定义，输出返回值明确且不可变
 - 副作用处理
   - 在 finally 中清理副作用（如 loading），确保 UI 状态一致性
+  - **在 onUnmounted 中清理定时器，防止内存泄漏**
 - 生命周期与依赖注入
   - 在 onMounted 等生命周期钩子中触发数据拉取；通过组合式函数注入依赖
 - 异步数据获取
   - 统一错误处理与重试策略，必要时引入缓存与分页优化
 - 测试隔离
   - 通过 mock API 与独立测试环境验证组合式函数的行为
+- **倒计时组件使用**
+  - **确保传入有效的 ISO 时间格式**
+  - **合理处理过期事件，避免重复触发**
+  - **在组件卸载时自动清理定时器**
 
 ### 实际使用示例路径
 - 创建胶囊：[CreateView.vue:36-69](file://frontends/vue3-ts/src/views/CreateView.vue#L36-L69) → [useCapsule.ts:24-37](file://frontends/vue3-ts/src/composables/useCapsule.ts#L24-L37)
 - 开启胶囊：[OpenView.vue:23-44](file://frontends/vue3-ts/src/views/OpenView.vue#L23-L44) → [useCapsule.ts:47-60](file://frontends/vue3-ts/src/composables/useCapsule.ts#L47-L60)
 - 管理后台：[AdminView.vue:42-88](file://frontends/vue3-ts/src/views/AdminView.vue#L42-L88) → [useAdmin.ts:43-116](file://frontends/vue3-ts/src/composables/useAdmin.ts#L43-L116)
 - 主题切换：[ThemeToggle.vue:8-12](file://frontends/vue3-ts/src/components/ThemeToggle.vue#L8-L12) → [useTheme.ts:51-53](file://frontends/vue3-ts/src/composables/useTheme.ts#L51-L53)
+- **倒计时显示**：[CountdownClock.vue:21-53](file://frontends/vue3-ts/src/components/CountdownClock.vue#L21-L53) → [useCountdown.ts:11-38](file://frontends/vue3-ts/src/composables/useCountdown.ts#L11-L38)
+- **胶囊卡片倒计时**：[CapsuleCard.vue:24-28](file://frontends/vue3-ts/src/components/CapsuleCard.vue#L24-L28) → [CountdownClock.vue:21-53](file://frontends/vue3-ts/src/components/CountdownClock.vue#L21-L53)

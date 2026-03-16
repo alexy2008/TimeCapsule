@@ -2,24 +2,21 @@ package com.hellotime.dto;
 
 import java.util.List;
 
-public class PageResponse<T> {
-    private List<T> content;
-    private long totalElements;
-    private int totalPages;
-    private int number;
-    private int size;
-
-    public PageResponse(List<T> content, long totalElements, int totalPages, int number, int size) {
-        this.content = content;
-        this.totalElements = totalElements;
-        this.totalPages = totalPages;
-        this.number = number;
-        this.size = size;
-    }
-
-    public List<T> getContent() { return content; }
-    public long getTotalElements() { return totalElements; }
-    public int getTotalPages() { return totalPages; }
-    public int getNumber() { return number; }
-    public int getSize() { return size; }
-}
+/**
+ * 分页响应 DTO
+ * 使用 Java 21 Record 实现
+ *
+ * @param content       当前页数据列表
+ * @param totalElements 总记录数
+ * @param totalPages    总页数
+ * @param number        当前页码（从 0 开始）
+ * @param size          每页大小
+ * @param <T>           数据类型
+ */
+public record PageResponse<T>(
+        List<T> content,
+        long totalElements,
+        int totalPages,
+        int number,
+        int size
+) {}

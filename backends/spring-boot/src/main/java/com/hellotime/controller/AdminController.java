@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
  * 处理管理员相关的 HTTP 请求
  * 基础路径：/api/v1/admin
  * 所有接口需要 Bearer Token 认证（除登录外）
+ * 
+ * 使用 Java 21 Record DTO 简化数据传输
  */
 @RestController
 @RequestMapping("/api/v1/admin")
@@ -32,13 +34,13 @@ public class AdminController {
      * 管理员登录
      * POST /api/v1/admin/login
      *
-     * @param request 登录请求（包含密码）
+     * @param request 登录请求（Record 类型，包含密码）
      * @return JWT Token
      * @throws UnauthorizedException 密码错误时抛出
      */
     @PostMapping("/login")
     public ApiResponse<AdminTokenResponse> login(@Valid @RequestBody AdminLoginRequest request) {
-        String token = adminService.login(request.getPassword());
+        String token = adminService.login(request.password());
         if (token == null) {
             throw new UnauthorizedException("密码错误");
         }

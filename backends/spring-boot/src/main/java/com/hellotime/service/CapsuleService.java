@@ -18,6 +18,10 @@ import java.util.List;
 /**
  * 胶囊服务类
  * 负责时间胶囊的核心业务逻辑：创建、查询、删除、分页列表
+ * 
+ * 使用 Java 21 特性：
+ * - 虚拟线程支持（通过 Spring 配置启用）
+ * - Record 类型 DTO 简化数据传输
  */
 @Service
 public class CapsuleService {
@@ -41,14 +45,14 @@ public class CapsuleService {
      * 创建时间胶囊
      * 事务方法，确保创建过程的原子性
      *
-     * @param request 创建请求参数
+     * @param request 创建请求参数（Record 类型）
      * @return 创建成功的胶囊响应（不含内容）
      * @throws IllegalArgumentException 当开启时间是过去时间时抛出
      */
     @Transactional
     public CapsuleResponse createCapsule(CreateCapsuleRequest request) {
         // 校验：开启时间必须在未来
-        if (request.getOpenAt().isBefore(Instant.now())) {
+        if (request.openAt().isBefore(Instant.now())) {
             throw new IllegalArgumentException("开启时间必须在未来");
         }
 
@@ -58,10 +62,10 @@ public class CapsuleService {
         // 构建胶囊实体
         Capsule capsule = new Capsule();
         capsule.setCode(code);
-        capsule.setTitle(request.getTitle());
-        capsule.setContent(request.getContent());
-        capsule.setCreator(request.getCreator());
-        capsule.setOpenAt(request.getOpenAt());
+        capsule.setTitle(request.title());
+        capsule.setContent(request.content());
+        capsule.setCreator(request.creator());
+        capsule.setOpenAt(request.openAt());
 
         // 保存到数据库
         capsule = capsuleRepository.save(capsule);
@@ -73,7 +77,7 @@ public class CapsuleService {
      * 核心业务逻辑：时间未到时，不返回内容
      *
      * @param code 8 位胶囊码
-     * @return 胶囊响应对象
+     * @return 胶囊响应对象（Record 类型）
      * @throws CapsuleNotFoundException 当胶囊不存在时抛出
      */
     public CapsuleResponse getCapsule(String code) {
@@ -88,7 +92,7 @@ public class CapsuleService {
      *
      * @param page 页码（从 0 开始）
      * @param size 每页大小
-     * @return 分页响应对象
+     * @return 分页响应对象（Record 类型）
      */
     public PageResponse<CapsuleResponse> listCapsules(int page, int size) {
         Page<Capsule> capsulePage = capsuleRepository.findAllByOrderByCreatedAtDesc(PageRequest.of(page, size));
@@ -142,16 +146,18 @@ public class CapsuleService {
 
     /**
      * 转换为创建成功响应对象
-     * 不包含 content 字段
+     * 使用 Record 构造函数创建，不包含 content 字段
      */
     private CapsuleResponse toCreatedResponse(Capsule capsule) {
-        CapsuleResponse response = new CapsuleResponse();
-        response.setCode(capsule.getCode());
-        response.setTitle(capsule.getTitle());
-        response.setCreator(capsule.getCreator());
-        response.setOpenAt(capsule.getOpenAt());
-        response.setCreatedAt(capsule.getCreatedAt());
-        return response;
+        return new CapsuleResponse(
+                capsule.getCode(),
+                capsule.getTitle(),
+                null,  // 创建响应不包含内容
+                capsule.getCreator(),
+                capsule.getOpenAt(),
+                capsule.getCreatedAt(),
+                null   // 创建响应不包含 opened 状态
+        );
     }
 
     /**
@@ -159,21 +165,16 @@ public class CapsuleService {
      * 核心逻辑：判断是否已到开启时间，未到则不返回 content
      */
     private CapsuleResponse toDetailResponse(Capsule capsule) {
-        CapsuleResponse response = new CapsuleResponse();
-        response.setCode(capsule.getCode());
-        response.setTitle(capsule.getTitle());
-        response.setCreator(capsule.getCreator());
-        response.setOpenAt(capsule.getOpenAt());
-        response.setCreatedAt(capsule.getCreatedAt());
-
-        // 判断是否已到开启时间
         boolean opened = Instant.now().isAfter(capsule.getOpenAt());
-        response.setOpened(opened);
-        // 只有到开启时间后才返回内容
-        if (opened) {
-            response.setContent(capsule.getContent());
-        }
-        return response;
+        return new CapsuleResponse(
+                capsule.getCode(),
+                capsule.getTitle(),
+                opened ? capsule.getContent() : null,  // 只有开启后才返回内容
+                capsule.getCreator(),
+                capsule.getOpenAt(),
+                capsule.getCreatedAt(),
+                opened
+        );
     }
 
     /**
@@ -181,14 +182,15 @@ public class CapsuleService {
      * 管理员可以看到所有内容，无论是否开启
      */
     private CapsuleResponse toAdminResponse(Capsule capsule) {
-        CapsuleResponse response = new CapsuleResponse();
-        response.setCode(capsule.getCode());
-        response.setTitle(capsule.getTitle());
-        response.setContent(capsule.getContent());
-        response.setCreator(capsule.getCreator());
-        response.setOpenAt(capsule.getOpenAt());
-        response.setCreatedAt(capsule.getCreatedAt());
-        response.setOpened(Instant.now().isAfter(capsule.getOpenAt()));
-        return response;
+        boolean opened = Instant.now().isAfter(capsule.getOpenAt());
+        return new CapsuleResponse(
+                capsule.getCode(),
+                capsule.getTitle(),
+                capsule.getContent(),  // 管理员可见所有内容
+                capsule.getCreator(),
+                capsule.getOpenAt(),
+                capsule.getCreatedAt(),
+                opened
+        );
     }
 }

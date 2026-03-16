@@ -17,6 +17,10 @@ import java.time.temporal.ChronoUnit;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * 管理员控制器测试类
+ * 使用 Java 21 Record 创建测试数据
+ */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
@@ -29,8 +33,7 @@ class AdminControllerTest {
     private ObjectMapper objectMapper;
 
     private String loginAndGetToken() throws Exception {
-        AdminLoginRequest loginRequest = new AdminLoginRequest();
-        loginRequest.setPassword("test-password");
+        AdminLoginRequest loginRequest = new AdminLoginRequest("test-password");
 
         String response = mockMvc.perform(post("/api/v1/admin/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -42,8 +45,7 @@ class AdminControllerTest {
 
     @Test
     void login_withCorrectPassword_shouldReturnToken() throws Exception {
-        AdminLoginRequest request = new AdminLoginRequest();
-        request.setPassword("test-password");
+        AdminLoginRequest request = new AdminLoginRequest("test-password");
 
         mockMvc.perform(post("/api/v1/admin/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -55,8 +57,7 @@ class AdminControllerTest {
 
     @Test
     void login_withWrongPassword_shouldReturn401() throws Exception {
-        AdminLoginRequest request = new AdminLoginRequest();
-        request.setPassword("wrong");
+        AdminLoginRequest request = new AdminLoginRequest("wrong");
 
         mockMvc.perform(post("/api/v1/admin/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -87,11 +88,12 @@ class AdminControllerTest {
         String token = loginAndGetToken();
 
         // Create a capsule first
-        CreateCapsuleRequest capsuleReq = new CreateCapsuleRequest();
-        capsuleReq.setTitle("待删除");
-        capsuleReq.setContent("内容");
-        capsuleReq.setCreator("测试者");
-        capsuleReq.setOpenAt(Instant.now().plus(1, ChronoUnit.DAYS));
+        CreateCapsuleRequest capsuleReq = new CreateCapsuleRequest(
+                "待删除",
+                "内容",
+                "测试者",
+                Instant.now().plus(1, ChronoUnit.DAYS)
+        );
 
         String createResponse = mockMvc.perform(post("/api/v1/capsules")
                         .contentType(MediaType.APPLICATION_JSON)

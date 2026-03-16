@@ -16,6 +16,10 @@ import java.time.temporal.ChronoUnit;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * 胶囊控制器测试类
+ * 使用 Java 21 Record 创建测试数据
+ */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
@@ -37,11 +41,12 @@ class CapsuleControllerTest {
 
     @Test
     void createCapsule_shouldReturn201() throws Exception {
-        CreateCapsuleRequest request = new CreateCapsuleRequest();
-        request.setTitle("测试胶囊");
-        request.setContent("这是内容");
-        request.setCreator("测试者");
-        request.setOpenAt(Instant.now().plus(1, ChronoUnit.DAYS));
+        CreateCapsuleRequest request = new CreateCapsuleRequest(
+                "测试胶囊",
+                "这是内容",
+                "测试者",
+                Instant.now().plus(1, ChronoUnit.DAYS)
+        );
 
         mockMvc.perform(post("/api/v1/capsules")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -72,11 +77,12 @@ class CapsuleControllerTest {
 
     @Test
     void getCapsule_notOpened_shouldHideContent() throws Exception {
-        CreateCapsuleRequest request = new CreateCapsuleRequest();
-        request.setTitle("未来胶囊");
-        request.setContent("秘密内容");
-        request.setCreator("测试者");
-        request.setOpenAt(Instant.now().plus(365, ChronoUnit.DAYS));
+        CreateCapsuleRequest request = new CreateCapsuleRequest(
+                "未来胶囊",
+                "秘密内容",
+                "测试者",
+                Instant.now().plus(365, ChronoUnit.DAYS)
+        );
 
         String responseBody = mockMvc.perform(post("/api/v1/capsules")
                         .contentType(MediaType.APPLICATION_JSON)

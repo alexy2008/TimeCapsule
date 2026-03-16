@@ -9,6 +9,10 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: false
+  # 启用虚拟线程 (Java 21+)
+  threads:
+    virtual:
+      enabled: true
 
 server:
   port: 8080

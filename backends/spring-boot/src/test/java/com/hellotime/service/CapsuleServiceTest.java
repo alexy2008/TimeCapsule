@@ -14,6 +14,10 @@ import java.time.temporal.ChronoUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * 胶囊服务测试类
+ * 使用 Java 21 Record 创建测试数据
+ */
 @SpringBootTest
 @Transactional
 class CapsuleServiceTest {
@@ -26,46 +30,49 @@ class CapsuleServiceTest {
 
     @Test
     void createCapsule_shouldReturnCodeAndTitle() {
-        CreateCapsuleRequest request = new CreateCapsuleRequest();
-        request.setTitle("测试胶囊");
-        request.setContent("这是内容");
-        request.setCreator("测试者");
-        request.setOpenAt(Instant.now().plus(1, ChronoUnit.DAYS));
+        CreateCapsuleRequest request = new CreateCapsuleRequest(
+                "测试胶囊",
+                "这是内容",
+                "测试者",
+                Instant.now().plus(1, ChronoUnit.DAYS)
+        );
 
         CapsuleResponse response = capsuleService.createCapsule(request);
 
-        assertNotNull(response.getCode());
-        assertEquals(8, response.getCode().length());
-        assertEquals("测试胶囊", response.getTitle());
-        assertEquals("测试者", response.getCreator());
-        assertNotNull(response.getCreatedAt());
+        assertNotNull(response.code());
+        assertEquals(8, response.code().length());
+        assertEquals("测试胶囊", response.title());
+        assertEquals("测试者", response.creator());
+        assertNotNull(response.createdAt());
     }
 
     @Test
     void createCapsule_withPastOpenAt_shouldThrow() {
-        CreateCapsuleRequest request = new CreateCapsuleRequest();
-        request.setTitle("测试");
-        request.setContent("内容");
-        request.setCreator("测试者");
-        request.setOpenAt(Instant.now().minus(1, ChronoUnit.DAYS));
+        CreateCapsuleRequest request = new CreateCapsuleRequest(
+                "测试",
+                "内容",
+                "测试者",
+                Instant.now().minus(1, ChronoUnit.DAYS)
+        );
 
         assertThrows(IllegalArgumentException.class, () -> capsuleService.createCapsule(request));
     }
 
     @Test
     void getCapsule_notOpened_shouldHideContent() {
-        CreateCapsuleRequest request = new CreateCapsuleRequest();
-        request.setTitle("未来胶囊");
-        request.setContent("秘密内容");
-        request.setCreator("测试者");
-        request.setOpenAt(Instant.now().plus(365, ChronoUnit.DAYS));
+        CreateCapsuleRequest request = new CreateCapsuleRequest(
+                "未来胶囊",
+                "秘密内容",
+                "测试者",
+                Instant.now().plus(365, ChronoUnit.DAYS)
+        );
 
         CapsuleResponse created = capsuleService.createCapsule(request);
-        CapsuleResponse fetched = capsuleService.getCapsule(created.getCode());
+        CapsuleResponse fetched = capsuleService.getCapsule(created.code());
 
-        assertEquals("未来胶囊", fetched.getTitle());
-        assertNull(fetched.getContent());
-        assertFalse(fetched.getOpened());
+        assertEquals("未来胶囊", fetched.title());
+        assertNull(fetched.content());
+        assertFalse(fetched.opened());
     }
 
     @Test
@@ -75,16 +82,17 @@ class CapsuleServiceTest {
 
     @Test
     void deleteCapsule_shouldRemoveFromDb() {
-        CreateCapsuleRequest request = new CreateCapsuleRequest();
-        request.setTitle("待删除");
-        request.setContent("内容");
-        request.setCreator("测试者");
-        request.setOpenAt(Instant.now().plus(1, ChronoUnit.DAYS));
+        CreateCapsuleRequest request = new CreateCapsuleRequest(
+                "待删除",
+                "内容",
+                "测试者",
+                Instant.now().plus(1, ChronoUnit.DAYS)
+        );
 
         CapsuleResponse created = capsuleService.createCapsule(request);
-        capsuleService.deleteCapsule(created.getCode());
+        capsuleService.deleteCapsule(created.code());
 
-        assertThrows(CapsuleNotFoundException.class, () -> capsuleService.getCapsule(created.getCode()));
+        assertThrows(CapsuleNotFoundException.class, () -> capsuleService.getCapsule(created.code()));
     }
 
     @Test

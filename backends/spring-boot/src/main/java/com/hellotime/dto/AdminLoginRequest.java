@@ -2,11 +2,13 @@ package com.hellotime.dto;
 
 import jakarta.validation.constraints.NotBlank;
 
-public class AdminLoginRequest {
-
-    @NotBlank(message = "密码不能为空")
-    private String password;
-
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
-}
+/**
+ * 管理员登录请求 DTO
+ * 使用 Java 21 Record 实现，支持 Jakarta Validation 注解
+ *
+ * @param password 管理员密码
+ */
+public record AdminLoginRequest(
+        @NotBlank(message = "密码不能为空")
+        String password
+) {}
