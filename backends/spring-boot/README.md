@@ -5,7 +5,7 @@
 ## 技术栈
 
 - **框架**: Spring Boot 3.2.5
-- **语言**: Java 17
+- **语言**: Java 21
 - **数据库**: SQLite + Spring Data JPA
 - **安全**: JWT 认证
 - **构建工具**: Maven

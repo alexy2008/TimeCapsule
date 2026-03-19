@@ -1,5 +1,8 @@
 import { Link } from 'react-router-dom'
 import logoSvg from '@spec/assets/logo.svg'
+import reactLogo from '/react-logo.svg'
+import springBootLogo from '/spring-boot-logo.svg'
+import sqliteLogo from '/sqlite-logo.svg'
 import styles from './HomeView.module.css'
 
 export default function HomeView() {
@@ -37,19 +40,19 @@ export default function HomeView() {
         <div className="features mt-16">
           <div className="grid grid-cols-3 gap-6">
             <div className="card text-center">
-              <div className={styles.featureIcon}>&#9993;</div>
-              <h3>写下心意</h3>
-              <p className="text-sm text-secondary mt-2">把想对未来说的话封存在时间胶囊中</p>
+              <img src={reactLogo} alt="React" className={styles.techLogo} />
+              <h3>前端</h3>
+              <p className="text-sm text-secondary mt-2">React 19 + TypeScript，组件化开发，声明式 UI</p>
             </div>
             <div className="card text-center">
-              <div className={styles.featureIcon}>&#9200;</div>
-              <h3>设定时间</h3>
-              <p className="text-sm text-secondary mt-2">选择胶囊开启的日期，在此之前内容将被隐藏</p>
+              <img src={springBootLogo} alt="Spring Boot" className={styles.techLogo} />
+              <h3>后端</h3>
+              <p className="text-sm text-secondary mt-2">Spring Boot 3 + Java 21，企业级 REST API</p>
             </div>
             <div className="card text-center">
-              <div className={styles.featureIcon}>&#127873;</div>
-              <h3>分享胶囊码</h3>
-              <p className="text-sm text-secondary mt-2">将专属胶囊码分享给想要收到惊喜的人</p>
+              <img src={sqliteLogo} alt="SQLite" className={styles.techLogo} />
+              <h3>数据库</h3>
+              <p className="text-sm text-secondary mt-2">SQLite，轻量级嵌入式数据库，零配置部署</p>
             </div>
           </div>
         </div>

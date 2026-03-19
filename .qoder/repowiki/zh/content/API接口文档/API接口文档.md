@@ -7,14 +7,17 @@
 - [health.py](file://backends/fastapi/app/routers/health.py)
 - [capsule.py](file://backends/fastapi/app/routers/capsule.py)
 - [admin.py](file://backends/fastapi/app/routers/admin.py)
-- [HealthController.java](file://backends/spring-boot/src/main/java/com/hellotime/controller/HealthController.java)
+- [schemas.py](file://backends/fastapi/app/schemas.py)
+- [test_capsule_api.py](file://backends/fastapi/tests/test_capsule_api.py)
+- [router.go](file://backends/gin/router/router.go)
+- [auth.go](file://backends/gin/middleware/auth.go)
+- [capsule.go](file://backends/gin/handler/capsule.go)
+- [admin.go](file://backends/gin/handler/admin.go)
+- [config.go](file://backends/gin/config/config.go)
 - [CapsuleController.java](file://backends/spring-boot/src/main/java/com/hellotime/controller/CapsuleController.java)
 - [AdminController.java](file://backends/spring-boot/src/main/java/com/hellotime/controller/AdminController.java)
-- [CorsConfig.java](file://backends/spring-boot/src/main/java/com/hellotime/config/CorsConfig.java)
 - [application.yml](file://backends/spring-boot/src/main/resources/application.yml)
-- [index.ts](file://frontends/react-ts/src/api/index.ts)
-- [index.ts](file://frontends/vue3-ts/src/api/index.ts)
-- [index.ts](file://frontends/angular-ts/src/app/api/index.ts)
+- [HelloTimeApplication.java](file://backends/spring-boot/src/main/java/com/hellotime/HelloTimeApplication.java)
 - [api-spec.md](file://docs/api-spec.md)
 </cite>
 
@@ -31,146 +34,197 @@
 10. [附录](#附录)
 
 ## 简介
-HelloTime是一个时间胶囊应用，允许用户创建未来可开启的消息胶囊，并在指定时间自动解锁。本项目提供了两套后端实现（FastAPI和Spring Boot）以及三套前端实现（React、Vue3、Angular），均遵循统一的REST API规范。
+HelloTime是一个时间胶囊应用，允许用户创建未来可开启的消息胶囊，并在指定时间自动解锁。本项目提供了三种后端实现（FastAPI、Gin、Spring Boot），均遵循统一的OpenAPI 3.0规范，提供一致的RESTful API体验。
 
 ## 项目结构
-项目采用多后端、多前端的架构设计，核心API接口在两个后端实现中保持一致：
+项目采用多后端架构，每个后端实现都遵循相同的API规范和响应格式：
 
 ```mermaid
 graph TB
-subgraph "前端应用"
-React[React TypeScript]
-Vue3[Vue3 TypeScript]
-Angular[Angular TypeScript]
+subgraph "前端"
+FE[前端应用]
 end
 subgraph "后端实现"
-FastAPI[FastAPI 实现]
-SpringBoot[Spring Boot 实现]
+subgraph "FastAPI"
+FAPI[FastAPI应用]
+FRoutes[路由层]
+FSvc[业务服务层]
 end
-subgraph "API规范"
-OpenAPI[OpenAPI 3.0.3]
-Unified[统一响应格式]
+subgraph "Gin"
+GApp[Gin应用]
+GRoutes[路由层]
+GHandlers[处理器层]
 end
-React --> OpenAPI
-Vue3 --> OpenAPI
-Angular --> OpenAPI
-OpenAPI --> FastAPI
-OpenAPI --> SpringBoot
-FastAPI --> Unified
-SpringBoot --> Unified
+subgraph "Spring Boot"
+SBA[Spring Boot应用]
+SBControllers[控制器层]
+SBService[服务层]
+end
+end
+subgraph "基础设施"
+DB[(SQLite数据库)]
+Config[配置管理]
+end
+FE --> FAPI
+FE --> GApp
+FE --> SBA
+FAPI --> FRoutes
+FRoutes --> FSvc
+FSvc --> DB
+GApp --> GRoutes
+GRoutes --> GHandlers
+GHandlers --> DB
+SBA --> SBControllers
+SBControllers --> SBService
+SBService --> DB
+Config --> FAPI
+Config --> GApp
+Config --> SBA
 ```
 
 **图表来源**
-- [openapi.yaml:1-349](file://spec/api/openapi.yaml#L1-L349)
 - [main.py:19-34](file://backends/fastapi/app/main.py#L19-L34)
+- [router.go:11-45](file://backends/gin/router/router.go#L11-L45)
+- [HelloTimeApplication.java:6-11](file://backends/spring-boot/src/main/java/com/hellotime/HelloTimeApplication.java#L6-L11)
 
 **章节来源**
-- [openapi.yaml:1-349](file://spec/api/openapi.yaml#L1-L349)
-- [main.py:19-34](file://backends/fastapi/app/main.py#L19-L34)
+- [main.py:1-89](file://backends/fastapi/app/main.py#L1-L89)
+- [router.go:1-46](file://backends/gin/router/router.go#L1-L46)
+- [HelloTimeApplication.java:1-12](file://backends/spring-boot/src/main/java/com/hellotime/HelloTimeApplication.java#L1-L12)
 
 ## 核心组件
-系统的核心组件包括健康检查、时间胶囊管理和管理员认证三个主要功能模块：
+本项目的核心组件包括统一响应格式、JWT认证机制、分页查询系统和错误处理策略。
 
 ### 统一响应格式
-所有API响应都遵循统一的JSON格式：
+所有API响应都遵循统一的JSON结构：
 
 ```mermaid
 classDiagram
 class ApiResponse {
 +boolean success
-+Object data
-+String message
-+String errorCode
++T data
++string message
++string errorCode
++ok(data, message) ApiResponse
++error(message, errorCode) ApiResponse
 }
-class HealthResponse {
-+String status
-+String timestamp
-+TechStack techStack
-}
-class TechStack {
-+String framework
-+String language
-+String database
-}
-class CapsuleCreated {
-+String code
-+String title
-+String creator
-+String openAt
-+String createdAt
-}
-class CapsuleDetail {
-+String code
-+String title
-+String content
-+String creator
-+String openAt
-+String createdAt
+class CapsuleResponse {
++string code
++string title
++string content
++string creator
++string openAt
++string createdAt
 +boolean opened
 }
-ApiResponse --> HealthResponse
-ApiResponse --> CapsuleCreated
-ApiResponse --> CapsuleDetail
+class AdminTokenResponse {
++string token
+}
+class PageResponse {
++T[] content
++int totalElements
++int totalPages
++int number
++int size
+}
+ApiResponse --> CapsuleResponse : "包含"
+ApiResponse --> AdminTokenResponse : "包含"
+ApiResponse --> PageResponse : "包含"
 ```
 
 **图表来源**
-- [openapi.yaml:196-349](file://spec/api/openapi.yaml#L196-L349)
+- [schemas.py:81-96](file://backends/fastapi/app/schemas.py#L81-L96)
+- [schemas.py:54-65](file://backends/fastapi/app/schemas.py#L54-L65)
+- [schemas.py:67-69](file://backends/fastapi/app/schemas.py#L67-L69)
+- [schemas.py:71-79](file://backends/fastapi/app/schemas.py#L71-L79)
 
-### 错误响应格式
-系统定义了标准的错误响应格式，包含业务错误码映射：
-
-| 错误码 | HTTP状态码 | 说明 |
-|--------|-------------|------|
-| VALIDATION_ERROR | 400 | 参数校验失败 |
-| BAD_REQUEST | 400 | 请求参数错误 |
-| UNAUTHORIZED | 401 | 认证失败 |
-| CAPSULE_NOT_FOUND | 404 | 胶囊不存在 |
-| INTERNAL_ERROR | 500 | 服务器内部错误 |
-
-**章节来源**
-- [openapi.yaml:336-349](file://spec/api/openapi.yaml#L336-L349)
-- [api-spec.md:186-195](file://docs/api-spec.md#L186-L195)
-
-## 架构概览
-系统采用前后端分离架构，通过REST API进行通信：
+### JWT认证机制
+系统使用JWT进行管理员身份验证，支持多种后端实现的一致行为：
 
 ```mermaid
 sequenceDiagram
-participant Client as 客户端应用
-participant Frontend as 前端API客户端
-participant Backend as 后端服务
-participant Database as SQLite数据库
-Client->>Frontend : 用户操作
-Frontend->>Backend : HTTP请求
-Backend->>Database : 数据查询/更新
-Database-->>Backend : 数据结果
-Backend-->>Frontend : 统一响应格式
-Frontend-->>Client : 展示结果
-Note over Backend : 支持两种后端实现
-Note over Frontend : 支持三种前端框架
+participant Client as 客户端
+participant Admin as 管理员控制器
+participant Service as 认证服务
+participant Token as JWT令牌
+participant Middleware as 认证中间件
+Client->>Admin : POST /api/v1/admin/login
+Admin->>Service : 验证密码
+Service->>Token : 生成JWT令牌
+Token-->>Admin : 返回令牌
+Admin-->>Client : {success : true, data : {token}}
+Client->>Middleware : 带令牌请求受保护资源
+Middleware->>Middleware : 验证Authorization头
+Middleware->>Service : 验证JWT签名
+Service-->>Middleware : 验证通过
+Middleware->>Admin : 放行请求
+Admin-->>Client : 受保护资源数据
 ```
 
 **图表来源**
-- [main.py:31-34](file://backends/fastapi/app/main.py#L31-L34)
-- [HealthController.java:15-26](file://backends/spring-boot/src/main/java/com/hellotime/controller/HealthController.java#L15-L26)
+- [admin.go:20-35](file://backends/gin/handler/admin.go#L20-L35)
+- [auth.go:13-36](file://backends/gin/middleware/auth.go#L13-L36)
+- [AdminController.java:41-48](file://backends/spring-boot/src/main/java/com/hellotime/controller/AdminController.java#L41-L48)
+
+**章节来源**
+- [schemas.py:81-96](file://backends/fastapi/app/schemas.py#L81-L96)
+- [auth.go:13-36](file://backends/gin/middleware/auth.go#L13-L36)
+- [config.go:32-43](file://backends/gin/config/config.go#L32-L43)
+
+## 架构概览
+系统采用分层架构设计，确保各组件职责清晰分离：
+
+```mermaid
+graph TB
+subgraph "API层"
+Health[健康检查]
+CapsuleAPI[胶囊API]
+AdminAPI[管理员API]
+end
+subgraph "业务逻辑层"
+CapsuleService[胶囊服务]
+AdminService[管理员服务]
+end
+subgraph "数据访问层"
+Repository[数据仓库]
+Database[(SQLite)]
+end
+subgraph "配置层"
+Config[应用配置]
+JWT[JWT配置]
+end
+Health --> CapsuleService
+CapsuleAPI --> CapsuleService
+AdminAPI --> AdminService
+CapsuleService --> Repository
+AdminService --> Repository
+Repository --> Database
+Config --> JWT
+```
+
+**图表来源**
+- [health.py:14-24](file://backends/fastapi/app/routers/health.py#L14-L24)
+- [capsule.py:17-30](file://backends/fastapi/app/routers/capsule.py#L17-L30)
+- [admin.py:25-54](file://backends/fastapi/app/routers/admin.py#L25-L54)
 
 ## 详细组件分析
 
 ### 健康检查接口
-提供系统健康状态检查功能，用于监控服务可用性。
+提供系统健康状态监控功能，无需认证即可访问。
 
-#### 接口定义
-- **HTTP方法**: GET
-- **URL模式**: `/api/v1/health`
-- **认证要求**: 无需认证
-- **响应格式**: HealthResponse
+**接口定义**
+- 方法: GET
+- 路径: `/api/v1/health`
+- 认证: 无需认证
+- 成功响应: 200 OK
+- 响应数据: 包含服务状态、时间戳和技术栈信息
 
-#### 请求示例
+**请求示例**
 ```json
 GET /api/v1/health
 ```
 
-#### 成功响应示例
+**响应示例**
 ```json
 {
   "success": true,
@@ -178,8 +232,8 @@ GET /api/v1/health
     "status": "UP",
     "timestamp": "2024-01-01T00:00:00Z",
     "techStack": {
-      "framework": "Spring Boot 3.2.5",
-      "language": "Java 17",
+      "framework": "FastAPI >=0.115",
+      "language": "Python 3.12",
       "database": "SQLite"
     }
   }
@@ -187,27 +241,40 @@ GET /api/v1/health
 ```
 
 **章节来源**
-- [openapi.yaml:10-23](file://spec/api/openapi.yaml#L10-L23)
 - [health.py:14-24](file://backends/fastapi/app/routers/health.py#L14-L24)
-- [HealthController.java:15-26](file://backends/spring-boot/src/main/java/com/hellotime/controller/HealthController.java#L15-L26)
+- [api-spec.md:18-31](file://docs/api-spec.md#L18-L31)
 
-### 时间胶囊管理接口
+### 胶囊创建接口
+允许用户创建新的时间胶囊，包含标题、内容、创建者和开启时间等信息。
 
-#### 创建时间胶囊
-- **HTTP方法**: POST
-- **URL模式**: `/api/v1/capsules`
-- **认证要求**: 无需认证
-- **请求体**: CreateCapsuleRequest
+**接口定义**
+- 方法: POST
+- 路径: `/api/v1/capsules`
+- 认证: 无需认证
+- 成功响应: 201 Created
+- 请求体: CreateCapsuleRequest
+- 响应数据: CapsuleResponse
 
-##### 请求参数定义
-| 字段名 | 类型 | 必填 | 最大长度 | 说明 |
-|--------|------|------|----------|------|
-| title | string | 是 | 100字符 | 胶囊标题 |
-| content | string | 是 | 无限制 | 胶囊内容 |
-| creator | string | 是 | 30字符 | 创建者昵称 |
-| openAt | string (ISO 8601) | 是 | 无限制 | 开启时间（未来时间） |
+**请求参数**
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| title | string | 是 | 标题，最多100字符 |
+| content | string | 是 | 内容，不能为空 |
+| creator | string | 是 | 创建者昵称，最多30字符 |
+| openAt | string | 是 | 开启时间（ISO 8601格式），必须为未来时间 |
 
-##### 成功响应示例
+**请求示例**
+```json
+POST /api/v1/capsules
+{
+  "title": "给未来的信",
+  "content": "希望你一切都好...",
+  "creator": "小明",
+  "openAt": "2025-06-01T00:00:00Z"
+}
+```
+
+**响应示例**
 ```json
 {
   "success": true,
@@ -222,24 +289,63 @@ GET /api/v1/health
 }
 ```
 
+**错误处理**
+- 400 Bad Request: 参数校验失败
+- 500 Internal Server Error: 服务器内部错误
+
 **章节来源**
-- [openapi.yaml:24-48](file://spec/api/openapi.yaml#L24-L48)
 - [capsule.py:17-24](file://backends/fastapi/app/routers/capsule.py#L17-L24)
-- [CapsuleController.java:37-42](file://backends/spring-boot/src/main/java/com/hellotime/controller/CapsuleController.java#L37-L42)
+- [schemas.py:26-45](file://backends/fastapi/app/schemas.py#L26-L45)
+- [api-spec.md:35-69](file://docs/api-spec.md#L35-L69)
 
-#### 查询时间胶囊
-- **HTTP方法**: GET
-- **URL模式**: `/api/v1/capsules/{code}`
-- **路径参数**: code (8位字母数字组合)
-- **认证要求**: 无需认证
+### 胶囊查询接口
+根据8位胶囊码查询胶囊详情，未到开启时间时content字段为null。
 
-##### 响应状态说明
-- **200 OK**: 查询成功
-  - 时间未到：content为null
-  - 已到时间：content包含实际内容
-- **404 Not Found**: 胶囊不存在
+**接口定义**
+- 方法: GET
+- 路径: `/api/v1/capsules/{code}`
+- 路径参数: code (8位字母数字组合)
+- 认证: 无需认证
+- 成功响应: 200 OK
 
-##### 成功响应示例
+**查询流程**
+```mermaid
+flowchart TD
+Start([开始查询]) --> ValidateCode["验证胶囊码格式"]
+ValidateCode --> CodeValid{"格式有效?"}
+CodeValid --> |否| Return404["返回404错误"]
+CodeValid --> |是| CheckCapsule["检查胶囊是否存在"]
+CheckCapsule --> Exists{"存在?"}
+Exists --> |否| Return404
+Exists --> |是| CheckTime["检查是否到达开启时间"]
+CheckTime --> IsOpen{"已到时间?"}
+IsOpen --> |是| ReturnFull["返回完整胶囊信息"]
+IsOpen --> |否| ReturnPartial["返回部分胶囊信息<br/>content为null"]
+Return404 --> End([结束])
+ReturnFull --> End
+ReturnPartial --> End
+```
+
+**图表来源**
+- [capsule.py:27-30](file://backends/fastapi/app/routers/capsule.py#L27-L30)
+
+**响应示例**
+未到开启时间：
+```json
+{
+  "success": true,
+  "data": {
+    "code": "Ab3xK9mZ",
+    "title": "给未来的信",
+    "creator": "小明",
+    "openAt": "2025-06-01T00:00:00Z",
+    "createdAt": "2024-01-01T12:00:00Z",
+    "opened": false
+  }
+}
+```
+
+已到开启时间：
 ```json
 {
   "success": true,
@@ -256,24 +362,32 @@ GET /api/v1/health
 ```
 
 **章节来源**
-- [openapi.yaml:49-74](file://spec/api/openapi.yaml#L49-L74)
 - [capsule.py:27-30](file://backends/fastapi/app/routers/capsule.py#L27-L30)
-- [CapsuleController.java:51-55](file://backends/spring-boot/src/main/java/com/hellotime/controller/CapsuleController.java#L51-L55)
+- [api-spec.md:73-109](file://docs/api-spec.md#L73-L109)
 
-### 管理员认证接口
+### 管理员登录接口
+管理员使用密码进行身份验证，成功后返回JWT访问令牌。
 
-#### 管理员登录
-- **HTTP方法**: POST
-- **URL模式**: `/api/v1/admin/login`
-- **认证要求**: 无需认证
-- **请求体**: AdminLoginRequest
+**接口定义**
+- 方法: POST
+- 路径: `/api/v1/admin/login`
+- 认证: 无需认证
+- 成功响应: 200 OK
 
-##### 请求参数
-| 字段名 | 类型 | 必填 | 说明 |
-|--------|------|------|------|
+**请求参数**
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
 | password | string | 是 | 管理员密码 |
 
-##### 成功响应示例
+**请求示例**
+```json
+POST /api/v1/admin/login
+{
+  "password": "your-admin-password"
+}
+```
+
+**响应示例**
 ```json
 {
   "success": true,
@@ -285,30 +399,48 @@ GET /api/v1/health
 ```
 
 **章节来源**
-- [openapi.yaml:75-99](file://spec/api/openapi.yaml#L75-L99)
 - [admin.py:25-30](file://backends/fastapi/app/routers/admin.py#L25-L30)
-- [AdminController.java:39-46](file://backends/spring-boot/src/main/java/com/hellotime/controller/AdminController.java#L39-L46)
+- [admin.go:20-35](file://backends/gin/handler/admin.go#L20-L35)
+- [AdminController.java:41-48](file://backends/spring-boot/src/main/java/com/hellotime/controller/AdminController.java#L41-L48)
 
-#### 管理员功能接口
+### 管理员分页查询接口
+管理员可分页查询所有胶囊，支持页码和页面大小参数控制。
 
-##### 分页查询胶囊列表
-- **HTTP方法**: GET
-- **URL模式**: `/api/v1/admin/capsules?page={page}&size={size}`
-- **认证要求**: Bearer Token
-- **请求头**: Authorization: Bearer {token}
+**接口定义**
+- 方法: GET
+- 路径: `/api/v1/admin/capsules`
+- 认证: 需要JWT令牌
+- 请求头: `Authorization: Bearer {token}`
+- 成功响应: 200 OK
 
-##### 请求参数
-| 参数名 | 类型 | 默认值 | 说明 |
-|--------|------|--------|------|
-| page | integer | 0 | 页码（从0开始） |
-| size | integer | 20 | 每页大小（1-100） |
+**查询参数**
+| 参数 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| page | integer | 0 | 页码，从0开始 |
+| size | integer | 20 | 页面大小，最大100 |
 
-##### 成功响应示例
+**请求示例**
+```json
+GET /api/v1/admin/capsules?page=0&size=20
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
+```
+
+**响应示例**
 ```json
 {
   "success": true,
   "data": {
-    "content": [...],
+    "content": [
+      {
+        "code": "Ab3xK9mZ",
+        "title": "给未来的信",
+        "content": "希望你一切都好...",
+        "creator": "小明",
+        "openAt": "2025-06-01T00:00:00Z",
+        "createdAt": "2024-01-01T12:00:00Z",
+        "opened": false
+      }
+    ],
     "totalElements": 1,
     "totalPages": 1,
     "number": 0,
@@ -317,160 +449,167 @@ GET /api/v1/health
 }
 ```
 
-##### 删除胶囊
-- **HTTP方法**: DELETE
-- **URL模式**: `/api/v1/admin/capsules/{code}`
-- **认证要求**: Bearer Token
-- **请求头**: Authorization: Bearer {token}
+**章节来源**
+- [admin.py:33-44](file://backends/fastapi/app/routers/admin.py#L33-L44)
+- [admin.go:37-59](file://backends/gin/handler/admin.go#L37-L59)
+- [AdminController.java:59-64](file://backends/spring-boot/src/main/java/com/hellotime/controller/AdminController.java#L59-L64)
+
+### 管理员删除接口
+管理员可删除指定的胶囊，删除后无法恢复。
+
+**接口定义**
+- 方法: DELETE
+- 路径: `/api/v1/admin/capsules/{code}`
+- 认证: 需要JWT令牌
+- 请求头: `Authorization: Bearer {token}`
+- 成功响应: 200 OK
+
+**请求示例**
+```json
+DELETE /api/v1/admin/capsules/Ab3xK9mZ
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
+```
+
+**响应示例**
+```json
+{
+  "success": true,
+  "data": null,
+  "message": "删除成功"
+}
+```
 
 **章节来源**
-- [openapi.yaml:100-164](file://spec/api/openapi.yaml#L100-L164)
-- [admin.py:33-54](file://backends/fastapi/app/routers/admin.py#L33-L54)
-- [AdminController.java:57-76](file://backends/spring-boot/src/main/java/com/hellotime/controller/AdminController.java#L57-L76)
+- [admin.py:47-54](file://backends/fastapi/app/routers/admin.py#L47-L54)
+- [admin.go:61-76](file://backends/gin/handler/admin.go#L61-L76)
+- [AdminController.java:74-78](file://backends/spring-boot/src/main/java/com/hellotime/controller/AdminController.java#L74-L78)
 
 ## 依赖分析
-
-### CORS配置
-系统支持跨域资源共享，配置如下：
+系统各组件间的依赖关系如下：
 
 ```mermaid
-graph LR
-subgraph "CORS配置"
-Origin[http://localhost:*]
-Methods[GET, POST, PUT, DELETE, OPTIONS]
-Headers[*]
-Credentials[允许]
-MaxAge[3600秒]
+graph TB
+subgraph "FastAPI实现"
+FMain[main.py]
+FRoutes[routers/*]
+FSchemas[schemas.py]
+FServices[services/*]
 end
-subgraph "安全考虑"
-Regex[正则表达式匹配]
-Path[/api/**]
+subgraph "Gin实现"
+GMain[main.go]
+GRoutes[router/router.go]
+GHandlers[handler/*]
+GMiddleware[middleware/*]
 end
-Origin --> Regex
-Path --> Methods
-Path --> Headers
-Credentials --> MaxAge
+subgraph "Spring Boot实现"
+SMain[HelloTimeApplication.java]
+SControllers[controller/*]
+SService[service/*]
+SConfig[resources/application.yml]
+end
+subgraph "共享组件"
+Config[config.go]
+DB[(SQLite数据库)]
+JWT[JWT配置]
+end
+FMain --> FRoutes
+FRoutes --> FSchemas
+FRoutes --> FServices
+GMain --> GRoutes
+GRoutes --> GHandlers
+GHandlers --> GMiddleware
+SMain --> SControllers
+SControllers --> SService
+SService --> SConfig
+FRoutes --> DB
+GHandlers --> DB
+SService --> DB
+Config --> JWT
 ```
 
 **图表来源**
-- [main.py:21-29](file://backends/fastapi/app/main.py#L21-L29)
-- [CorsConfig.java:14-26](file://backends/spring-boot/src/main/java/com/hellotime/config/CorsConfig.java#L14-L26)
-
-### JWT Bearer Token认证
-管理员接口采用JWT Bearer Token认证机制：
-
-```mermaid
-sequenceDiagram
-participant Admin as 管理员
-participant Login as 登录接口
-participant Token as JWT Token
-participant Protected as 受保护接口
-Admin->>Login : POST /api/v1/admin/login
-Login->>Token : 生成JWT Token
-Token-->>Admin : 返回Token
-Admin->>Protected : 携带Authorization头访问
-Protected-->>Admin : 返回受保护资源
-Note over Token : 有效期2小时
-```
-
-**图表来源**
-- [application.yml:19-21](file://backends/spring-boot/src/main/resources/application.yml#L19-L21)
-- [openapi.yaml:166-170](file://spec/api/openapi.yaml#L166-L170)
+- [main.py:10-14](file://backends/fastapi/app/main.py#L10-L14)
+- [router.go:12-17](file://backends/gin/router/router.go#L12-L17)
+- [HelloTimeApplication.java:6-11](file://backends/spring-boot/src/main/java/com/hellotime/HelloTimeApplication.java#L6-L11)
 
 **章节来源**
-- [main.py:21-29](file://backends/fastapi/app/main.py#L21-L29)
-- [CorsConfig.java:14-26](file://backends/spring-boot/src/main/java/com/hellotime/config/CorsConfig.java#L14-L26)
-- [application.yml:19-21](file://backends/spring-boot/src/main/resources/application.yml#L19-L21)
+- [main.py:1-89](file://backends/fastapi/app/main.py#L1-L89)
+- [router.go:1-46](file://backends/gin/router/router.go#L1-L46)
+- [HelloTimeApplication.java:1-12](file://backends/spring-boot/src/main/java/com/hellotime/HelloTimeApplication.java#L1-L12)
 
 ## 性能考虑
-- **CORS预检缓存**: max-age设置为3600秒，减少预检请求次数
-- **数据库连接**: 使用SQLAlchemy ORM，支持连接池管理
-- **响应缓存**: 健康检查接口可利用浏览器缓存
-- **分页查询**: 管理员接口支持分页，避免大量数据传输
+系统在设计时充分考虑了性能优化：
+
+### 数据库优化
+- 使用SQLite作为轻量级数据库，适合小型到中型应用
+- 采用连接池管理数据库连接
+- 合理的索引设计提升查询性能
+
+### 缓存策略
+- 未开启的胶囊内容不缓存，避免敏感信息泄露
+- 已开启的胶囊内容可根据需要进行缓存
+
+### 并发处理
+- Spring Boot使用虚拟线程提升并发性能
+- Gin框架的高性能HTTP处理能力
+- FastAPI的异步处理支持
 
 ## 故障排除指南
 
-### 常见错误处理
-系统提供统一的错误响应格式，便于前端处理：
+### 常见错误及解决方案
 
-```mermaid
-flowchart TD
-Request[HTTP请求] --> Validate[参数验证]
-Validate --> Valid{验证通过?}
-Valid --> |否| ValidationError[400 错误]
-Valid --> |是| Process[业务处理]
-Process --> Success{处理成功?}
-Success --> |否| BusinessError[业务错误]
-Success --> |是| SuccessResponse[200 正常响应]
-ValidationError --> ErrorResponse[统一错误格式]
-BusinessError --> ErrorResponse
-ErrorResponse --> Client[前端处理]
-SuccessResponse --> Client
-```
+**认证相关错误**
+- 401 Unauthorized: 检查Authorization头格式是否正确，确认JWT令牌未过期
+- 403 Forbidden: 确认管理员权限和令牌有效性
 
-**图表来源**
-- [main.py:37-89](file://backends/fastapi/app/main.py#L37-L89)
+**参数验证错误**
+- 400 Bad Request: 检查请求参数格式，确保必填字段完整
+- 参数长度限制：标题最多100字符，创建者昵称最多30字符
 
-### 前端API调用示例
+**数据访问错误**
+- 404 Not Found: 确认胶囊码格式正确且存在
+- 500 Internal Server Error: 检查数据库连接和服务器状态
 
-#### React TypeScript实现
-```typescript
-// 创建时间胶囊
-await createCapsule({
-  title: "测试胶囊",
-  content: "这是测试内容",
-  creator: "测试用户",
-  openAt: new Date("2025-01-01T00:00:00Z")
-});
-
-// 管理员登录
-const { data } = await adminLogin("your-admin-password");
-const token = data.token;
-
-// 获取管理员胶囊列表
-await getAdminCapsules(token, 0, 20);
-```
-
-#### Vue3 TypeScript实现
-```typescript
-// 删除胶囊示例
-await deleteAdminCapsule(token, "Ab3xK9mZ");
-```
-
-#### Angular TypeScript实现
-```typescript
-// 查询胶囊详情
-await getCapsule("Ab3xK9mZ");
-```
+### 调试建议
+1. 启用详细的日志记录
+2. 使用Postman或curl进行API测试
+3. 检查环境变量配置
+4. 验证数据库文件权限
 
 **章节来源**
-- [index.ts:37-93](file://frontends/react-ts/src/api/index.ts#L37-L93)
-- [index.ts:46-119](file://frontends/vue3-ts/src/api/index.ts#L46-L119)
-- [index.ts:29-71](file://frontends/angular-ts/src/app/api/index.ts#L29-L71)
+- [main.py:37-89](file://backends/fastapi/app/main.py#L37-L89)
+- [auth.go:13-36](file://backends/gin/middleware/auth.go#L13-L36)
+- [api-spec.md:186-195](file://docs/api-spec.md#L186-L195)
 
 ## 结论
-HelloTime项目提供了完整的时间胶囊管理解决方案，具有以下特点：
+HelloTime项目提供了完整的时间胶囊API解决方案，具有以下特点：
 
-1. **统一规范**: 两套后端实现遵循相同的OpenAPI规范
-2. **跨平台支持**: 三种前端框架均可无缝集成
-3. **安全可靠**: 完善的JWT认证和CORS配置
-4. **易于扩展**: 清晰的架构设计便于功能扩展
+1. **一致性**: 三种后端实现遵循相同的API规范和响应格式
+2. **安全性**: 完整的JWT认证机制保护管理员操作
+3. **可靠性**: 统一的错误处理和响应格式
+4. **可扩展性**: 清晰的分层架构便于功能扩展
 
-该API设计确保了良好的开发者体验和稳定的生产环境表现。
+该API设计满足了时间胶囊应用的核心需求，为用户提供了安全、可靠的服务体验。
 
 ## 附录
 
-### API版本控制策略
-- **当前版本**: v1.0.0
-- **版本路径**: `/api/v1`
-- **向后兼容性**: 保持现有接口不变，新增功能通过新版本实现
+### API版本管理
+- 当前版本: 1.0.0
+- 版本路径: `/api/v1`
+- 向后兼容性: 保持现有API不变，新增功能通过新版本实现
 
-### 数据库配置
-- **数据库类型**: SQLite
-- **连接字符串**: `jdbc:sqlite:../../data/hellotime.db`
-- **自动迁移**: 启用DDL自动更新
+### 安全最佳实践
+- JWT令牌过期时间: 2小时
+- 管理员密码: 通过环境变量配置
+- HTTPS部署: 生产环境建议启用TLS
+- 输入验证: 严格的参数校验和过滤
 
-### 环境变量配置
-- **管理员密码**: `ADMIN_PASSWORD` (默认: `timecapsule-admin`)
-- **JWT密钥**: `JWT_SECRET` (默认: 长度足够的随机密钥)
-- **JWT过期时间**: 2小时
+### 部署配置
+- 默认端口: 8080
+- 数据库: SQLite文件存储
+- 管理员密码: 默认值可通过环境变量修改
+
+**章节来源**
+- [config.go:32-43](file://backends/gin/config/config.go#L32-L43)
+- [application.yml:17-26](file://backends/spring-boot/src/main/resources/application.yml#L17-L26)
+- [openapi.yaml:1-6](file://spec/api/openapi.yaml#L1-L6)

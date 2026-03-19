@@ -26,8 +26,15 @@ cd "$ROOT_DIR/frontends/angular-ts"
 npm run build
 echo "[Angular 前端] 构建完成: dist/angular-ts/"
 
+# 构建 Svelte 前端
+echo "[前端] 构建 Svelte 5..."
+cd "$ROOT_DIR/frontends/svelte-ts"
+npm run build
+echo "[Svelte 前端] 构建完成: dist/"
+
 echo ""
 echo "=== 构建完成 ==="
 echo "  后端 JAR:       backends/spring-boot/target/hellotime-backend-1.0.0.jar"
 echo "  Vue 静态文件:   frontends/vue3-ts/dist/"
 echo "  Angular 静态:   frontends/angular-ts/dist/angular-ts/"
+echo "  Svelte 静态:    frontends/svelte-ts/dist/"

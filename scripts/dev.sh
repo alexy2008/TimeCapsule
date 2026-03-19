@@ -30,15 +30,22 @@ cd "$ROOT_DIR/frontends/angular-ts"
 npm run dev &
 ANGULAR_PID=$!
 
+# 启动 Svelte 前端
+echo "[前端] 启动 Svelte 5 开发服务器..."
+cd "$ROOT_DIR/frontends/svelte-ts"
+npm run dev &
+SVELTE_PID=$!
+
 echo ""
 echo "=== 开发环境已启动 ==="
 echo "  后端:    http://localhost:8080"
 echo "  Vue 3:   http://localhost:5173"
 echo "  Angular: http://localhost:5175"
+echo "  Svelte:  http://localhost:5176"
 echo ""
 echo "按 Ctrl+C 停止所有服务"
 
 # 捕获退出信号
-trap "kill $BACKEND_PID $VUE_PID $ANGULAR_PID 2>/dev/null; exit" SIGINT SIGTERM
+trap "kill $BACKEND_PID $VUE_PID $ANGULAR_PID $SVELTE_PID 2>/dev/null; exit" SIGINT SIGTERM
 
 wait

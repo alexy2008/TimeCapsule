@@ -108,7 +108,9 @@
   }
 }
 
-.featureIcon {
-  font-size: 2rem;
-  margin-bottom: var(--space-3);
+.techLogo {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto var(--space-4);
+  object-fit: contain;
 }

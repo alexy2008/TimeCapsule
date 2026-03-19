@@ -1,0 +1,7 @@
+# Bun configuration
+[install]
+auto = "auto"
+
+[run]
+# Enable hot reload for development
+silent = true

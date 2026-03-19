@@ -16,11 +16,17 @@ HelloTime (时间胶囊) is a time capsule application where users create messag
 # Backend only (port 8080)
 cd backends/spring-boot && ./mvnw spring-boot:run
 
+# Gin backend (port 8080)
+cd backends/gin && go run main.go
+
 # Vue 3 frontend (port 5173)
 cd frontends/vue3-ts && npm run dev
 
 # Angular frontend (port 5175)
 cd frontends/angular-ts && npm run dev
+
+# Svelte frontend (port 5176)
+cd frontends/svelte-ts && npm run dev
 
 # React frontend (port 5174)
 cd frontends/react-ts && npm run dev
@@ -34,11 +40,17 @@ cd frontends/react-ts && npm run dev
 # Backend tests only
 cd backends/spring-boot && ./mvnw test
 
+# Gin backend tests
+cd backends/gin && go test ./tests/ -v
+
 # Vue 3 tests only
 cd frontends/vue3-ts && npm run test
 
 # Angular tests only (Karma + Jasmine)
 cd frontends/angular-ts && npm run test
+
+# Svelte tests only (Typecheck)
+cd frontends/svelte-ts && npm run check
 
 # React tests only
 cd frontends/react-ts && npm run test
@@ -55,10 +67,12 @@ cd frontends/react-ts && npm run test
 - **backends/** - Backend implementations
   - `spring-boot/` - Spring Boot 3 + Java 17 + SQLite
   - `fastapi/` - FastAPI + Python 3.12 + SQLite
+  - `gin/` - Gin 1.10 + Go 1.24 + SQLite
 - **frontends/** - Frontend implementations
   - `vue3-ts/` - Vue 3 + TypeScript + Vite (port 5173)
   - `react-ts/` - React 19 + TypeScript + Vite (port 5174)
   - `angular-ts/` - Angular 18 + TypeScript + Angular CLI (port 5175)
+  - `svelte-ts/` - Svelte 5 + TypeScript + Vite (port 5176)
 - **spec/** - Shared specifications (OpenAPI, design tokens, styles)
 - **docs/** - Documentation (API spec, database schema, deployment, design tokens)
 
@@ -83,6 +97,19 @@ Key configuration in `application.yml`:
 - **Dependencies** (`dependencies.py`) - Dependency injection (DB session, JWT auth)
 
 Key configuration in `config.py`:
+- SQLite database (`hellotime.db`)
+- Admin password via `ADMIN_PASSWORD` env var (default: `timecapsule-admin`)
+- JWT secret via `JWT_SECRET` env var
+
+### Backend (Gin)
+- **Handlers** (`handler/`) - REST endpoints (health, capsule, admin)
+- **Services** (`service/`) - Business logic (capsule_service, admin_service)
+- **Models** (`model/`) - GORM model (Capsule)
+- **DTOs** (`dto/`) - Request/response objects with camelCase JSON tags
+- **Middleware** (`middleware/`) - CORS + JWT auth
+- **Router** (`router/`) - Route registration with middleware
+
+Key configuration in `config/config.go`:
 - SQLite database (`hellotime.db`)
 - Admin password via `ADMIN_PASSWORD` env var (default: `timecapsule-admin`)
 - JWT secret via `JWT_SECRET` env var
@@ -116,6 +143,13 @@ Key configuration in `config.py`:
 - **Types** (`types/index.ts`) - Identical shared TypeScript interfaces
 - **Routes** (`app.routes.ts`) - 6 lazy-loaded routes with `withComponentInputBinding()` for param binding
 - **Config** (`app.config.ts`) - Standalone bootstrap config with providers for routing, HTTP, animations
+
+### Frontend (Svelte 5 + TypeScript)
+- **Stores** (`lib/`) - Application state uses Svelte runes and straightforward module exports
+- **Components** (`components/`) - Native Svelte components with reactive data binding
+- **Views** (`views/`) - Application pages linked via `svelte-routing`
+- **API** (`api/index.ts`) - Identical fetch-based API client as Vue/React/Angular
+- **Types** (`types/index.ts`) - Identical shared TypeScript interfaces
 
 ### API Contract
 All implementations must follow `spec/api/openapi.yaml`. Key endpoints:
@@ -155,6 +189,11 @@ SQLite with JPA auto-DDL. Single table `capsules`:
 - **Identical Routes**: All frontends implement `/`, `/create`, `/open/:code`, `/about`, `/admin`
 - **Unified Design System**: All frontends import shared CSS tokens from `spec/styles/`
 - **Theme Persistence**: All frontends sync theme to localStorage and apply `[data-theme="dark"]` attribute
+
+### Svelte 5 Patterns
+- **Reactivity**: Svelte 5 runes (`$state`, `$derived`, `$effect`) for fine-grained reactivity.
+- **Components**: Scoped CSS directly in `.svelte` files.
+- **Routing**: `svelte-routing` used for dynamic client side routing.
 
 ### Vue 3 Patterns
 - **Composables**: `ref()` for reactive state, `computed()` for derived values, `watchEffect()` for side effects

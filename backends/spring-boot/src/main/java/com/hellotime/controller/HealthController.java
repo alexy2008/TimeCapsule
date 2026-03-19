@@ -19,7 +19,7 @@ public class HealthController {
                 "timestamp", Instant.now().toString(),
                 "techStack", Map.of(
                         "framework", "Spring Boot 3.2.5",
-                        "language", "Java 17",
+                        "language", "Java 21",
                         "database", "SQLite"
                 )
         ));

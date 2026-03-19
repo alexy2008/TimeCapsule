@@ -21,12 +21,16 @@
 | **Vue 3** | `frontends/vue3-ts/` | Vite 7 | 5173 |
 | **React 19** | `frontends/react-ts/` | Vite 7 | 5174 |
 | **Angular 18** | `frontends/angular-ts/` | Angular CLI | 5175 |
+| **Svelte 5** | `frontends/svelte-ts/` | Vite 7 | 5176 |
 
 ### 后端框架
 | 框架 | 路径 | 语言 | 数据库 |
 |------|------|------|--------|
 | **Spring Boot 3** | `backends/spring-boot/` | Java 21 | SQLite |
-| **FastAPI** | `backends/fastapi/` | Python 3.10+ | SQLite |
+| **FastAPI** | `backends/fastapi/` | Python 3.12+ | SQLite |
+| **Gin** | `backends/gin/` | Go 1.24+ | SQLite |
+
+> 📊 **后端对比分析**：查看 [FastAPI vs Gin vs Spring Boot 对比报告](docs/backend-comparison.md) 了解更多细节。
 
 > 💡 所有实现遵循统一的 [API 规范](spec/api/openapi.yaml) 和 [设计系统](spec/styles/)，确保功能完全一致。
 
@@ -46,10 +50,12 @@ HelloTimeByClaude/
 ├── frontends/               # 前端实现（可独立运行）
 │   ├── vue3-ts/             # Vue 3 + TypeScript + Vite
 │   ├── react-ts/            # React 19 + TypeScript + Vite
-│   └── angular-ts/          # Angular 18 + TypeScript + Angular CLI
+│   ├── angular-ts/          # Angular 18 + TypeScript + Angular CLI
+│   └── svelte-ts/           # Svelte 5 + TypeScript + Vite
 ├── backends/                # 后端实现（可独立运行）
 │   ├── spring-boot/         # Spring Boot 3 + Java 17
-│   └── fastapi/             # FastAPI + Python 3.10
+│   ├── fastapi/             # FastAPI + Python 3.10
+│   └── gin/                 # Gin + Go 1.24
 └── scripts/                 # 开发/构建/测试脚本
     ├── dev.sh               # 启动所有开发服务
     ├── build.sh             # 构建所有项目
@@ -115,10 +121,29 @@ npm run dev
 
 ---
 
-### 方式四：一键启动所有服务
+### 方式四：Gin + Vue 3
+
+**启动后端**
+```bash
+cd backends/gin
+go run main.go
+```
+> 🌐 服务地址：http://localhost:8080
+
+**启动前端**
+```bash
+cd frontends/vue3-ts
+npm install
+npm run dev
+```
+> 🌐 开发服务器：http://localhost:5173
+
+---
+
+### 方式五：一键启动所有服务
 
 ```bash
-# 同时启动后端 + 全部前端（Vue 5173, React 5174, Angular 5175）
+# 同时启动后端 + 全部前端（Vue 5173, React 5174, Angular 5175, Svelte 5176）
 ./scripts/dev.sh
 ```
 
@@ -144,6 +169,10 @@ cd backends/spring-boot
 # FastAPI 测试
 cd backends/fastapi
 pytest
+
+# Gin 测试
+cd backends/gin
+go test ./tests/ -v
 ```
 
 **前端测试**
