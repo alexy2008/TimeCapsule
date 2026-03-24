@@ -31,6 +31,8 @@ __pycache__/
 # Database
 *.db
 *.sqlite
+*.db-wal
+*.db-shm
 
 # Environment
 .env
@@ -39,3 +41,7 @@ __pycache__/
 # Build cache
 .angular/
 *.tsbuildinfo
+
+# Local runtime
+.runtime/
+verification/test-results/
