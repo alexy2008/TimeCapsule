@@ -1,26 +1,12 @@
-import { useRef, useState, useEffect } from 'react'
+import { useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styles from './AboutView.module.css'
-import { getHealthInfo } from '@/api'
-import type { TechStack } from '@/types'
+import { useTechStack } from '@/hooks/useTechStack'
 
 export default function AboutView() {
   const navigate = useNavigate()
   const clickCount = useRef(0)
-  const [techStack, setTechStack] = useState<TechStack | null>(null)
-
-  useEffect(() => {
-    getHealthInfo()
-      .then(response => setTechStack(response.data.techStack))
-      .catch(() => {
-        // 如果获取失败，使用默认值
-        setTechStack({
-          framework: 'Unknown',
-          language: 'Unknown',
-          database: 'Unknown'
-        })
-      })
-  }, [])
+  const { techStack, loading, error } = useTechStack()
 
   function handleSecretClick() {
     clickCount.current++
@@ -50,11 +36,12 @@ export default function AboutView() {
           <h3 className="mb-4">当前技术栈</h3>
           <ul className={styles.techList}>
             <li><strong>前端:</strong> React 19 + TypeScript (Vite)</li>
-            <li><strong>后端:</strong> {techStack ? techStack.framework : '加载中...'}</li>
-            <li><strong>语言:</strong> {techStack ? techStack.language : '加载中...'}</li>
-            <li><strong>数据库:</strong> {techStack ? techStack.database : '加载中...'}</li>
+            <li><strong>后端:</strong> {loading ? '加载中...' : techStack?.framework ?? '技术栈信息暂不可用'}</li>
+            <li><strong>语言:</strong> {loading ? '加载中...' : techStack?.language ?? '技术栈信息暂不可用'}</li>
+            <li><strong>数据库:</strong> {loading ? '加载中...' : techStack?.database ?? '技术栈信息暂不可用'}</li>
             <li><strong>样式:</strong> 共享 CSS Design Tokens</li>
           </ul>
+          {error ? <p className="text-sm text-secondary mt-4">当前无法获取服务端技术栈详情。</p> : null}
         </div>
 
         <div className="card">

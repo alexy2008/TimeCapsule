@@ -65,14 +65,24 @@ function generateUniqueCode(): string {
  * 格式化时间为 ISO 8601 字符串 (Z 结尾)
  */
 function formatTimeISO(date: Date): string {
-  return date.toISOString();
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(date.getUTCDate()).padStart(2, "0");
+  const hours = String(date.getUTCHours()).padStart(2, "0");
+  const minutes = String(date.getUTCMinutes()).padStart(2, "0");
+  const seconds = String(date.getUTCSeconds()).padStart(2, "0");
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}Z`;
 }
 
 /**
  * 解析 ISO 8601 时间字符串
  */
 function parseISOTime(isoString: string): Date {
-  return new Date(isoString);
+  let normalized = isoString.trim().replace(" ", "T");
+  if (!/[zZ]$|[+-]\d{2}:\d{2}$/.test(normalized)) {
+    normalized += "Z";
+  }
+  return new Date(normalized);
 }
 
 /**

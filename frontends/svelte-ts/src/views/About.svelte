@@ -1,23 +1,12 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { push } from 'svelte-spa-router';
-  import { getHealthInfo } from '../lib/api';
-  import type { TechStack } from '../lib/types';
+  import { loadTechStack, techStack, techStackLoading, techStackError } from '../lib/tech-stack';
 
   let clickCount = 0;
-  let techStack: TechStack | null = null;
 
   onMount(async () => {
-    try {
-      const response = await getHealthInfo();
-      techStack = response.data.techStack;
-    } catch {
-      techStack = {
-        framework: 'Unknown',
-        language: 'Unknown',
-        database: 'Unknown'
-      } as any;
-    }
+    await loadTechStack();
   });
 
   function handleSecretClick() {
@@ -48,11 +37,14 @@
       <h3 class="mb-4">当前技术栈</h3>
       <ul class="tech-list">
         <li><strong>前端:</strong> Svelte 5 + Vite</li>
-        <li><strong>后端:</strong> {techStack?.framework || '加载中...'}</li>
-        <li><strong>语言:</strong> {techStack?.language || '加载中...'}</li>
-        <li><strong>数据库:</strong> {techStack?.database || '加载中...'}</li>
+        <li><strong>后端:</strong> {$techStackLoading ? '加载中...' : $techStack?.framework || '技术栈信息暂不可用'}</li>
+        <li><strong>语言:</strong> {$techStackLoading ? '加载中...' : $techStack?.language || '技术栈信息暂不可用'}</li>
+        <li><strong>数据库:</strong> {$techStackLoading ? '加载中...' : $techStack?.database || '技术栈信息暂不可用'}</li>
         <li><strong>样式:</strong> 共享 CSS Design Tokens</li>
       </ul>
+      {#if $techStackError}
+        <p class="text-sm text-secondary mt-4">当前无法获取服务端技术栈详情。</p>
+      {/if}
     </div>
 
     <div class="card">

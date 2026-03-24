@@ -1,6 +1,5 @@
-import { Component, OnInit, signal } from '@angular/core';
-import { getHealthInfo } from '../../api';
-import type { TechStack } from '../../types';
+import { Component, OnInit, inject } from '@angular/core';
+import { TechStackService } from '../../services/tech-stack.service';
 
 @Component({
   selector: 'app-footer',
@@ -10,11 +9,13 @@ import type { TechStack } from '../../types';
   styleUrl: './app-footer.component.css',
 })
 export class AppFooterComponent implements OnInit {
-  techStack = signal<TechStack | null>(null);
+  private readonly techStackService = inject(TechStackService);
+
+  readonly techStack = this.techStackService.techStack;
+  readonly loading = this.techStackService.loading;
+  readonly error = this.techStackService.error;
 
   ngOnInit(): void {
-    getHealthInfo()
-      .then(res => this.techStack.set(res.data.techStack))
-      .catch(() => this.techStack.set(null));
+    this.techStackService.load();
   }
 }

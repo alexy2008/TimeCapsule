@@ -15,7 +15,7 @@ spring:
       enabled: true
 
 server:
-  port: 8080
+  port: ${SERVER_PORT:18000}
 
 app:
   admin:

@@ -116,11 +116,6 @@
   padding: var(--space-8) var(--space-6);
 }
 
-.feature-icon {
-  font-size: 2.5rem;
-  margin-bottom: var(--space-4);
-}
-
 .feature-card h3 {
   font-size: var(--text-lg);
   font-weight: var(--font-semibold);
@@ -131,6 +126,14 @@
   font-size: var(--text-sm);
   color: var(--color-text-secondary);
   line-height: var(--leading-relaxed);
+}
+
+.tech-logo {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto var(--space-4);
+  object-fit: contain;
+  display: block;
 }
 
 @media (max-width: 768px) {

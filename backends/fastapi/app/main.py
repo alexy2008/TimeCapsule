@@ -2,10 +2,13 @@
 FastAPI 应用入口
 CORS 配置、异常处理、路由注册
 """
+from pathlib import Path
+
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.database import engine, Base
 from app.schemas import ApiResponse
@@ -27,6 +30,9 @@ app.add_middleware(
     allow_credentials=True,
     max_age=3600,
 )
+
+tech_logos_dir = Path(__file__).resolve().parent.parent / "static" / "tech-logos"
+app.mount("/tech-logos", StaticFiles(directory=tech_logos_dir), name="tech-logos")
 
 # ===== 注册路由 =====
 app.include_router(health.router)

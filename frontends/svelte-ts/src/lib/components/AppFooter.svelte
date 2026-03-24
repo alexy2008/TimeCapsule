@@ -1,17 +1,9 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { getHealthInfo } from '../api';
-  import type { TechStack } from '../types';
-
-  let techStack: TechStack | null = null;
+  import { loadTechStack, techStack, techStackLoading, techStackError } from '../tech-stack';
 
   onMount(async () => {
-    try {
-      const res = await getHealthInfo();
-      techStack = res.data.techStack;
-    } catch {
-      techStack = null;
-    }
+    await loadTechStack();
   });
 </script>
 
@@ -20,10 +12,12 @@
     <p class="text-sm text-secondary">
       <span>Powered By:</span>
       <span class="tech-stack">
-        {#if techStack}
-          Svelte 5 | {techStack.framework} | {techStack.language} | {techStack.database}
-        {:else}
+        {#if $techStackLoading}
           加载中...
+        {:else if $techStackError || !$techStack}
+          技术栈信息暂不可用
+        {:else}
+          Svelte 5 | {$techStack.framework} | {$techStack.language} | {$techStack.database}
         {/if}
       </span>
     </p>

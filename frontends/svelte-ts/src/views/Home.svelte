@@ -1,7 +1,13 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import ObjectLink from "@/lib/components/Link.svelte";
+  import { loadTechStack, techStack, techStackLoading, techStackError } from '../lib/tech-stack';
   const Link = ObjectLink;
   import logoUrl from "@spec/assets/logo.svg";
+
+  onMount(async () => {
+    await loadTechStack();
+  });
 </script>
 
 <div class="page">
@@ -37,19 +43,31 @@
     <div class="features mt-16">
       <div class="grid grid-cols-3 gap-6">
         <div class="card text-center">
-          <div class="feature-icon">&#9993;</div>
-          <h3>写下心意</h3>
-          <p class="text-sm text-secondary mt-2">把想对未来说的话封存在时间胶囊中</p>
+          <img src="/frontend.svg" alt="前端技术栈" class="tech-logo" />
+          <h3>前端</h3>
+          <p class="text-sm text-secondary mt-2">Svelte 5 + TypeScript</p>
         </div>
         <div class="card text-center">
-          <div class="feature-icon">&#9200;</div>
-          <h3>设定时间</h3>
-          <p class="text-sm text-secondary mt-2">选择胶囊开启的日期，在此之前内容将被隐藏</p>
+          <img src="/tech-logos/backend.svg" alt="后端技术栈" class="tech-logo" />
+          <h3>后端</h3>
+          <p class="text-sm text-secondary mt-2">
+            {$techStackLoading
+              ? '加载中...'
+              : $techStackError || !$techStack
+                ? '技术栈信息暂不可用'
+                : `${$techStack.framework} · ${$techStack.language}`}
+          </p>
         </div>
         <div class="card text-center">
-          <div class="feature-icon">&#127873;</div>
-          <h3>分享胶囊码</h3>
-          <p class="text-sm text-secondary mt-2">将专属胶囊码分享给想要收到惊喜的人</p>
+          <img src="/tech-logos/database.svg" alt="数据库技术栈" class="tech-logo" />
+          <h3>数据库</h3>
+          <p class="text-sm text-secondary mt-2">
+            {$techStackLoading
+              ? '加载中...'
+              : $techStackError || !$techStack
+                ? '技术栈信息暂不可用'
+                : $techStack.database}
+          </p>
         </div>
       </div>
     </div>
@@ -77,15 +95,17 @@
     margin-bottom: var(--space-8);
   }
 
-  .feature-icon {
-    font-size: 2rem;
-    margin-bottom: var(--space-3);
-  }
-
   .hero-actions {
     display: flex;
     justify-content: center;
     gap: var(--space-5);
+  }
+
+  .tech-logo {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto var(--space-4);
+    object-fit: contain;
   }
 
   :global(.action-btn) {

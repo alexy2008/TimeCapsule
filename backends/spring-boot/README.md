@@ -1,6 +1,6 @@
 # HelloTime Spring Boot Backend
 
-时间胶囊应用的后端服务，基于 Spring Boot 3 和 Java 17 构建。
+时间胶囊应用的后端服务，基于 Spring Boot 3 和 Java 21 构建。
 
 ## 技术栈
 
@@ -22,7 +22,7 @@
 
 ### 前置要求
 
-- Java 17+
+- Java 21+
 - Maven 3.6+
 
 ### 运行应用
@@ -35,12 +35,19 @@
 mvn spring-boot:run
 ```
 
-应用将在 `http://localhost:8080` 启动。
+应用默认将在 `http://localhost:18000` 启动。
+
+如需保持前端仍访问 `http://localhost:8080`，可在仓库根目录执行：
+
+```bash
+./scripts/switch-backend.sh spring-boot
+```
 
 ### 环境变量配置
 
 | 变量名 | 默认值 | 描述 |
 |--------|--------|------|
+| `SERVER_PORT` | `18000` | 服务端口 |
 | `ADMIN_PASSWORD` | `timecapsule-admin` | 管理员登录密码 |
 | `JWT_SECRET` | `hellotime-jwt-secret-key-that-is-long-enough-for-hs256` | JWT 签名密钥 |
 
@@ -48,6 +55,7 @@ mvn spring-boot:run
 ```bash
 export ADMIN_PASSWORD=my-secure-password
 export JWT_SECRET=my-jwt-secret
+export SERVER_PORT=18000
 ./mvnw spring-boot:run
 ```
 
@@ -72,7 +80,7 @@ export JWT_SECRET=my-jwt-secret
 
 | 方法 | 路径 | 描述 |
 |------|------|------|
-| GET | `/health` | 健康检查端点（返回技术栈信息） |
+| GET | `/api/v1/health` | 健康检查端点（返回技术栈信息） |
 
 ## 项目结构
 
@@ -108,7 +116,7 @@ java -jar target/hellotime-backend-1.0.0.jar
 
 ## 数据库
 
-应用使用 SQLite 数据库，数据库文件 `hellotime.db` 会在首次运行时自动创建。
+应用使用 SQLite 数据库，默认数据库文件为共享路径 `../../data/hellotime.db`。
 
 ### Capsule 表结构
 
@@ -118,8 +126,8 @@ java -jar target/hellotime-backend-1.0.0.jar
 | title | VARCHAR(255) | 胶囊标题 |
 | content | TEXT | 胶囊内容 |
 | creator | VARCHAR(100) | 创建者 |
-| open_at | DATETIME | 解锁时间（UTC） |
-| created_at | DATETIME | 创建时间（UTC） |
+| open_at | TEXT | 解锁时间（UTC ISO 8601） |
+| created_at | TEXT | 创建时间（UTC ISO 8601） |
 
 ## 响应格式
 

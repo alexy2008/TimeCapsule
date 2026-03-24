@@ -18,11 +18,12 @@
         <h3 class="mb-4">当前技术栈</h3>
         <ul class="tech-list">
           <li><strong>前端:</strong> Vue 3 + TypeScript (Vite)</li>
-          <li><strong>后端:</strong> {{ techStack?.framework || '加载中...' }}</li>
-          <li><strong>语言:</strong> {{ techStack?.language || '加载中...' }}</li>
-          <li><strong>数据库:</strong> {{ techStack?.database || '加载中...' }}</li>
+          <li><strong>后端:</strong> {{ loading ? '加载中...' : techStack?.framework || '技术栈信息暂不可用' }}</li>
+          <li><strong>语言:</strong> {{ loading ? '加载中...' : techStack?.language || '技术栈信息暂不可用' }}</li>
+          <li><strong>数据库:</strong> {{ loading ? '加载中...' : techStack?.database || '技术栈信息暂不可用' }}</li>
           <li><strong>样式:</strong> 共享 CSS Design Tokens</li>
         </ul>
+        <p v-if="error" class="text-sm text-secondary mt-4">当前无法获取服务端技术栈详情。</p>
       </div>
 
       <div class="card">
@@ -43,29 +44,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { getHealthInfo } from '@/api'
-import type { TechStack } from '@/types'
+import { useTechStack } from '@/composables/useTechStack'
 
 const router = useRouter()
 const clickCount = ref(0)
-const techStack = ref<TechStack | null>(null)
-
-onMounted(() => {
-  getHealthInfo()
-    .then(response => {
-      techStack.value = response.data.techStack
-    })
-    .catch(() => {
-      // 如果获取失败，使用默认值
-      techStack.value = {
-        framework: 'Unknown',
-        language: 'Unknown',
-        database: 'Unknown'
-      }
-    })
-})
+const { techStack, loading, error } = useTechStack()
 
 function handleSecretClick() {
   clickCount.value++

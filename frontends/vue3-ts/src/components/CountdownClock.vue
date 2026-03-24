@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed, onUnmounted, watch } from 'vue'
 import { useCountdown } from '@/composables/useCountdown'
 
 const props = defineProps<{
@@ -36,7 +36,16 @@ let expiredTimer: ReturnType<typeof setTimeout> | null = null
 
 watch(() => time.value.expired, (val) => {
   if (val) {
+    if (expiredTimer) {
+      clearTimeout(expiredTimer)
+    }
     expiredTimer = setTimeout(() => emit('expired'), 3000)
+  }
+})
+
+onUnmounted(() => {
+  if (expiredTimer) {
+    clearTimeout(expiredTimer)
   }
 })
 

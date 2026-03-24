@@ -17,12 +17,15 @@
       <h3>当前技术栈</h3>
       <ul class="tech-list">
         <li><strong>前端框架:</strong> Angular 18 + TypeScript</li>
-        <li><strong>后端框架:</strong> {{ techStack()?.framework || '加载中...' }}</li>
-        <li><strong>后端语言:</strong> {{ techStack()?.language || '加载中...' }}</li>
-        <li><strong>数据库:</strong> {{ techStack()?.database || '加载中...' }}</li>
+        <li><strong>后端框架:</strong> {{ loading() ? '加载中...' : techStack()?.framework || '技术栈信息暂不可用' }}</li>
+        <li><strong>后端语言:</strong> {{ loading() ? '加载中...' : techStack()?.language || '技术栈信息暂不可用' }}</li>
+        <li><strong>数据库:</strong> {{ loading() ? '加载中...' : techStack()?.database || '技术栈信息暂不可用' }}</li>
         <li><strong>样式系统:</strong> 共享 CSS Design Tokens</li>
         <li><strong>状态管理:</strong> Angular Signals</li>
       </ul>
+      @if (error()) {
+        <p class="text-sm text-secondary mt-4">当前无法获取服务端技术栈详情。</p>
+      }
     </div>
 
     <div class="card about-section">

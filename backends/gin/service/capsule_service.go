@@ -63,14 +63,31 @@ func formatTimeISO(t time.Time) string {
 	return t.UTC().Format("2006-01-02T15:04:05Z")
 }
 
+func parseStoredTime(value string) (time.Time, error) {
+	normalized := strings.TrimSpace(strings.ReplaceAll(value, " ", "T"))
+	if !strings.HasSuffix(normalized, "Z") && !strings.Contains(normalized[10:], "+") && !strings.Contains(normalized[10:], "-") {
+		normalized += "Z"
+	}
+	return time.Parse(time.RFC3339Nano, normalized)
+}
+
 // toResponse 将 Capsule 实体转换为响应 DTO
 func toResponse(capsule *model.Capsule, includeContent bool) dto.CapsuleResponse {
 	now := time.Now().UTC()
-	openAt := capsule.OpenAt.UTC()
+	openAt, err := parseStoredTime(capsule.OpenAt)
+	if err != nil {
+		openAt = now
+	}
+	createdAt, err := parseStoredTime(capsule.CreatedAt)
+	if err != nil {
+		createdAt = now
+	}
+	openAt = openAt.UTC()
+	createdAt = createdAt.UTC()
 	opened := now.After(openAt)
 
 	openAtStr := formatTimeISO(openAt)
-	createdAtStr := formatTimeISO(capsule.CreatedAt)
+	createdAtStr := formatTimeISO(createdAt)
 
 	resp := dto.CapsuleResponse{
 		Code:      capsule.Code,
@@ -113,8 +130,8 @@ func CreateCapsule(db *gorm.DB, req dto.CreateCapsuleRequest) (*dto.CapsuleRespo
 		Title:     req.Title,
 		Content:   req.Content,
 		Creator:   req.Creator,
-		OpenAt:    openAt.UTC(),
-		CreatedAt: now,
+		OpenAt:    formatTimeISO(openAt.UTC()),
+		CreatedAt: formatTimeISO(now),
 	}
 
 	if err := db.Create(&capsule).Error; err != nil {

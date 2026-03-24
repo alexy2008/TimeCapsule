@@ -1,16 +1,8 @@
-import { useEffect, useState } from 'react'
-import { getHealthInfo } from '@/api'
-import type { TechStack } from '@/types'
+import { useTechStack } from '@/hooks/useTechStack'
 import styles from './AppFooter.module.css'
 
 export default function AppFooter() {
-  const [techStack, setTechStack] = useState<TechStack | null>(null)
-
-  useEffect(() => {
-    getHealthInfo()
-      .then(res => setTechStack(res.data.techStack))
-      .catch(() => setTechStack(null))
-  }, [])
+  const { techStack, loading, error } = useTechStack()
 
   return (
     <footer className={styles.footer}>
@@ -18,9 +10,11 @@ export default function AppFooter() {
         <p className="text-sm text-secondary">
           <span>Powered By:</span>
           <span className={styles.techStack}>
-            {techStack
-              ? `React 19 | ${techStack.framework} | ${techStack.language} | ${techStack.database}`
-              : '加载中...'}
+            {loading
+              ? '加载中...'
+              : error || !techStack
+                ? '技术栈信息暂不可用'
+                : `React 19 | ${techStack.framework} | ${techStack.language} | ${techStack.database}`}
           </span>
         </p>
       </div>

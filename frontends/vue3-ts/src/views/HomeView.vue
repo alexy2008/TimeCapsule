@@ -32,25 +32,59 @@
       <div class="features mt-16">
         <div class="grid grid-cols-3 gap-6">
           <div class="card text-center">
-            <div class="feature-icon">&#9993;</div>
-            <h3>写下心意</h3>
-            <p class="text-sm text-secondary mt-2">把想对未来说的话封存在时间胶囊中</p>
+            <img :src="frontendLogoUrl" alt="前端技术栈" class="tech-logo" />
+            <h3>前端</h3>
+            <p class="text-sm text-secondary mt-2">Vue 3 + TypeScript</p>
           </div>
           <div class="card text-center">
-            <div class="feature-icon">&#9200;</div>
-            <h3>设定时间</h3>
-            <p class="text-sm text-secondary mt-2">选择胶囊开启的日期，在此之前内容将被隐藏</p>
+            <img :src="backendLogoUrl" alt="后端技术栈" class="tech-logo" />
+            <h3>后端</h3>
+            <p class="text-sm text-secondary mt-2">{{ backendDescription }}</p>
           </div>
           <div class="card text-center">
-            <div class="feature-icon">&#127873;</div>
-            <h3>分享胶囊码</h3>
-            <p class="text-sm text-secondary mt-2">将专属胶囊码分享给想要收到惊喜的人</p>
+            <img :src="databaseLogoUrl" alt="数据库技术栈" class="tech-logo" />
+            <h3>数据库</h3>
+            <p class="text-sm text-secondary mt-2">{{ databaseDescription }}</p>
           </div>
         </div>
       </div>
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useTechStack } from '@/composables/useTechStack'
+
+const { techStack, loading, error } = useTechStack()
+const frontendLogoUrl = '/frontend.svg'
+const backendLogoUrl = '/tech-logos/backend.svg'
+const databaseLogoUrl = '/tech-logos/database.svg'
+
+const backendDescription = computed(() => {
+  if (loading.value) {
+    return '加载中...'
+  }
+
+  if (error.value || !techStack.value) {
+    return '技术栈信息暂不可用'
+  }
+
+  return `${techStack.value.framework} · ${techStack.value.language}`
+})
+
+const databaseDescription = computed(() => {
+  if (loading.value) {
+    return '加载中...'
+  }
+
+  if (error.value || !techStack.value) {
+    return '技术栈信息暂不可用'
+  }
+
+  return techStack.value.database
+})
+</script>
 
 <style scoped>
 .hero {
@@ -71,11 +105,6 @@
 .hero-subtitle {
   font-size: var(--text-xl);
   margin-bottom: var(--space-8);
-}
-
-.feature-icon {
-  font-size: 2rem;
-  margin-bottom: var(--space-3);
 }
 
 .hero-actions {
@@ -150,6 +179,13 @@
     width: 100%;
     max-width: 280px;
   }
+}
+
+.tech-logo {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto var(--space-4);
+  object-fit: contain;
 }
 </style>
 

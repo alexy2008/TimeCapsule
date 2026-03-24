@@ -1,19 +1,19 @@
 # 时间胶囊 (HelloTime)
 
-> 🕰️ 封存此刻的心意，在未来的某个时刻开启
+> 封存此刻的心意，在未来的某个时刻开启
 
-灵感来自 RealWorld 的技术展示项目，通过统一的 API 规范和可复用的设计系统，展示多种前后端技术栈的自由组合能力。
+HelloTime 是一个 RealWorld 风格的多实现技术展示项目。仓库中的前后端实现彼此独立，但遵循同一套 API 契约、设计系统和验证标准，从而支持任意前端与任意后端自由组合。
 
-## ✨ 特性亮点
+## 特性亮点
 
-- 🎯 **前后端完全解耦** - 任意前端 + 任意后端自由组合
-- 📐 **统一规范** - OpenAPI 3.0 + CSS Design Tokens
-- 🎨 **响应式设计** - 完美支持 PC 和移动端
-- 🌓 **主题切换** - 明亮/深色主题一键切换
-- 🧪 **完整测试** - 前后端单元测试 + 集成测试
-- 📚 **详尽文档** - API 文档、架构设计、部署指南
+- 前后端完全解耦，支持多技术栈自由组合
+- 统一 API 规范，基于 OpenAPI 3.0
+- 统一视觉系统，基于共享 CSS Design Tokens
+- 支持明亮 / 深色主题切换
+- 覆盖后端共享契约验证与前端流程验证
+- 提供交互式本地服务管理工具
 
-## 🛠️ 技术栈
+## 技术栈
 
 ### 前端框架
 | 框架 | 路径 | 构建工具 | 端口 |
@@ -24,15 +24,21 @@
 | **Svelte 5** | `frontends/svelte-ts/` | Vite 7 | 5176 |
 
 ### 后端框架
-| 框架 | 路径 | 语言 | 数据库 |
-|------|------|------|--------|
-| **Spring Boot 3** | `backends/spring-boot/` | Java 21 | SQLite |
-| **FastAPI** | `backends/fastapi/` | Python 3.12+ | SQLite |
-| **Gin** | `backends/gin/` | Go 1.24+ | SQLite |
+| 框架 | 路径 | 语言 / 运行时 | 默认端口 |
+|------|------|---------------|----------|
+| **Spring Boot 3** | `backends/spring-boot/` | Java 21 | 18000 |
+| **FastAPI** | `backends/fastapi/` | Python 3.12+ | 18010 |
+| **Gin** | `backends/gin/` | Go 1.24+ | 18020 |
+| **Elysia** | `backends/elysia/` | TypeScript + Bun | 18030 |
 
-> 📊 **后端对比分析**：查看 [FastAPI vs Gin vs Spring Boot 对比报告](docs/backend-comparison.md) 了解更多细节。
+前端开发环境始终通过 `http://localhost:8080` 访问后端，可使用 [scripts/switch-backend.sh](/Users/alex/AiWork/HelloTimeByClaude/scripts/switch-backend.sh) 动态切换 `8080 -> 18xxx` 的映射。
 
-> 💡 所有实现遵循统一的 [API 规范](spec/api/openapi.yaml) 和 [设计系统](spec/styles/)，确保功能完全一致。
+相关文档：
+
+- [后端对比分析](docs/backend-comparison.md)
+- [部署指南](docs/deployment.md)
+- [后端共享契约验证](verification/README.md)
+- [API 规范](spec/api/openapi.yaml)
 
 ## 📁 项目结构
 
@@ -53,112 +59,104 @@ HelloTimeByClaude/
 │   ├── angular-ts/          # Angular 18 + TypeScript + Angular CLI
 │   └── svelte-ts/           # Svelte 5 + TypeScript + Vite
 ├── backends/                # 后端实现（可独立运行）
-│   ├── spring-boot/         # Spring Boot 3 + Java 17
-│   ├── fastapi/             # FastAPI + Python 3.10
-│   └── gin/                 # Gin + Go 1.24
+│   ├── spring-boot/         # Spring Boot 3 + Java 21
+│   ├── fastapi/             # FastAPI + Python 3.12
+│   ├── gin/                 # Gin + Go 1.24
+│   └── elysia/              # Elysia + Bun + TypeScript
+├── verification/            # 共享验证脚本与验证矩阵
 └── scripts/                 # 开发/构建/测试脚本
     ├── dev.sh               # 启动所有开发服务
+    ├── dev-manager.py       # 交互式服务管理工具
+    ├── switch-backend.sh    # 切换 8080 -> 指定后端
     ├── build.sh             # 构建所有项目
     └── test.sh              # 运行所有测试
 ```
 
 ## 🚀 快速开始
 
-### 方式一：Spring Boot + Vue 3
+### 推荐方式：交互式管理
 
-**启动后端**
 ```bash
+./scripts/dev-manager.py
+```
+
+这个工具会显示：
+
+- 所有前后端服务的启动状态
+- 各自监听端口
+- 当前 `8080` 映射到哪个后端
+- 启动 / 停止 / 重启 / 查看日志 / 切换后端映射
+
+### 手动启动单个后端
+
+```bash
+# Spring Boot
 cd backends/spring-boot
-./mvnw spring-boot:run
-```
-> 🌐 服务地址：http://localhost:8080
+./run
 
-**启动前端**
-```bash
-cd frontends/vue3-ts
-npm install
-npm run dev
-```
-> 🌐 开发服务器：http://localhost:5173
-
----
-
-### 方式二：FastAPI + React
-
-**启动后端**
-```bash
+# FastAPI
 cd backends/fastapi
-pip install -r requirements.txt
-uvicorn app.main:app --port 8080
-```
-> 🌐 服务地址：http://localhost:8080
+./run
 
-**启动前端**
-```bash
-cd frontends/react-ts
-npm install
-npm run dev
-```
-> 🌐 开发服务器：http://localhost:5174
-
----
-
-### 方式三：Spring Boot + Angular
-
-**启动后端**
-```bash
-cd backends/spring-boot
-./mvnw spring-boot:run
-```
-
-**启动前端**
-```bash
-cd frontends/angular-ts
-npm install
-npm run dev
-```
-> 🌐 开发服务器：http://localhost:5175
-
----
-
-### 方式四：Gin + Vue 3
-
-**启动后端**
-```bash
+# Gin
 cd backends/gin
-go run main.go
-```
-> 🌐 服务地址：http://localhost:8080
+./run
 
-**启动前端**
+# Elysia
+cd backends/elysia
+./run
+```
+
+### 切换前端当前连接的后端
+
 ```bash
+./scripts/switch-backend.sh spring-boot
+./scripts/switch-backend.sh fastapi
+./scripts/switch-backend.sh gin
+./scripts/switch-backend.sh elysia
+```
+
+### 启动前端
+
+```bash
+# Vue 3
 cd frontends/vue3-ts
-npm install
+npm run dev
+
+# React
+cd frontends/react-ts
+npm run dev
+
+# Angular
+cd frontends/angular-ts
+npm run dev
+
+# Svelte
+cd frontends/svelte-ts
 npm run dev
 ```
-> 🌐 开发服务器：http://localhost:5173
 
----
-
-### 方式五：一键启动所有服务
+### 一键启动默认开发组合
 
 ```bash
-# 同时启动后端 + 全部前端（Vue 5173, React 5174, Angular 5175, Svelte 5176）
 ./scripts/dev.sh
 ```
 
-> 💡 **提示**：任意前端都可以与任意后端组合使用，只需确保后端 API 地址配置正确即可。
+该脚本会：
 
-## 🧪 测试
+- 启动 Spring Boot（18000）
+- 启动 Vue 3 / Angular / Svelte 前端
+- 自动将 `localhost:8080` 转发到 Spring Boot
 
-### 运行所有测试
+> 任意前端都可以与任意后端组合使用；开发时建议始终通过 `8080` 这一固定后端入口来切换。
+
+## 🧪 测试与验证
+
+### 运行实现自身测试
 
 ```bash
-# 一键运行前后端所有测试
 ./scripts/test.sh
 ```
-
-### 单独运行测试
 
 **后端测试**
 ```bash
@@ -173,6 +171,10 @@ pytest
 # Gin 测试
 cd backends/gin
 go test ./tests/ -v
+
+# Elysia 测试
+cd backends/elysia
+bun test
 ```
 
 **前端测试**
@@ -188,21 +190,35 @@ npm run test
 # React 测试
 cd frontends/react-ts
 npm run test
+
+# Svelte 检查
+cd frontends/svelte-ts
+npm run check
 ```
 
-> ✅ 所有测试均包含单元测试和集成测试，覆盖核心业务逻辑。
+### 运行共享验证
 
-## 🎯 核心功能
+```bash
+# 后端共享契约验证
+bash verification/scripts/verify-backend-contract.sh
 
-- 📦 **创建胶囊** - 设置标题、内容、开启时间和创建者昵称
-- 🔍 **查询胶囊** - 通过 8 位唯一码查询，未到开启时间自动隐藏内容
-- 🔐 **管理员认证** - JWT Token 认证（2 小时有效期）
-- 📋 **胶囊管理** - 分页查看所有胶囊、删除胶囊
-- 📱 **响应式设计** - 自适应 PC、平板、移动端
-- 🌓 **主题切换** - 明亮/深色主题无缝切换
-- 🎨 **现代 UI** - 简洁美观的界面设计
+# 前端静态 / 本地命令验证
+bash verification/scripts/verify-frontend-flows.sh
 
-## 💾 数据库设计
+# 前端浏览器主流程验证
+bash verification/scripts/verify-frontend-browser-flows.sh
+```
+
+## 核心功能
+
+- 创建胶囊：设置标题、内容、开启时间和创建者昵称
+- 查询胶囊：通过 8 位唯一码查询，未到开启时间自动隐藏内容
+- 管理员认证：JWT Bearer Token（默认 2 小时）
+- 胶囊管理：分页查看所有胶囊、删除胶囊
+- 主题切换：明亮 / 深色主题
+- 响应式布局：适配桌面端与移动端
+
+## 数据库设计
 
 所有实现使用 SQLite，单表结构：
 
@@ -213,10 +229,10 @@ npm run test
 | `title` | VARCHAR(100) | 胶囊标题 |
 | `content` | TEXT | 胶囊内容 |
 | `creator` | VARCHAR(30) | 创建者昵称 |
-| `open_at` | DATETIME | 开启时间（UTC） |
-| `created_at` | DATETIME | 创建时间（UTC） |
+| `open_at` | TEXT | 开启时间（UTC ISO 8601，示例 `2026-03-24T08:43:47Z`） |
+| `created_at` | TEXT | 创建时间（UTC ISO 8601，示例 `2026-03-24T08:42:17Z`） |
 
-## 🔌 API 接口
+## API 接口
 
 所有实现提供统一的 REST API：
 
@@ -229,23 +245,23 @@ npm run test
 | `GET` | `/api/v1/admin/capsules` | 分页列表 | ✅ |
 | `DELETE` | `/api/v1/admin/capsules/{code}` | 删除胶囊 | ✅ |
 
-> 📖 完整 API 规范：[`spec/api/openapi.yaml`](spec/api/openapi.yaml)
+完整 API 规范见 [spec/api/openapi.yaml](spec/api/openapi.yaml)。
 
-## 🔐 认证机制
+## 认证机制
 
-采用 **JWT Bearer Token** 认证：
+采用 JWT Bearer Token：
 
-**请求头格式**
+请求头格式：
 ```
 Authorization: Bearer <token>
 ```
 
-**Token 特性**
+Token 特性：
 - 有效期：2 小时
 - 签名算法：HS256
 - 生成方式：管理员登录端点获取
 
-**错误响应格式**
+错误响应格式：
 ```json
 {
   "success": false,
@@ -254,7 +270,7 @@ Authorization: Bearer <token>
 }
 ```
 
-**常见错误码**
+常见错误码：
 | 错误码 | HTTP 状态码 | 说明 |
 |--------|------------|------|
 | `VALIDATION_ERROR` | 400 | 参数验证失败 |
@@ -275,7 +291,7 @@ Authorization: Bearer <token>
 
 | 变量 | 默认值 | 说明 |
 |------|--------|------|
-| `DATABASE_URL` | `sqlite:///hellotime.db` | 数据库连接 |
+| `DATABASE_URL` | `sqlite:///../../data/hellotime.db` | 数据库连接 |
 | `ADMIN_PASSWORD` | `timecapsule-admin` | 管理员密码 |
 | `JWT_SECRET` | `hellotime-jwt-secret-key-that-is-long-enough-for-hs256` | JWT 签名密钥 |
 | `JWT_EXPIRATION_HOURS` | `2` | Token 有效期（小时） |

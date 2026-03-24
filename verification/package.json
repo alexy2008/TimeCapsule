@@ -1,0 +1,11 @@
+{
+  "name": "hellotime-verification",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.54.2"
+  }
+}

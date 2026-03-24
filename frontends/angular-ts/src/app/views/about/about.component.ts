@@ -1,7 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { getHealthInfo } from '../../api';
-import type { TechStack } from '../../types';
+import { TechStackService } from '../../services/tech-stack.service';
 
 @Component({
   selector: 'app-about',
@@ -12,14 +11,15 @@ import type { TechStack } from '../../types';
 })
 export class AboutComponent implements OnInit {
   private readonly router = inject(Router);
+  private readonly techStackService = inject(TechStackService);
 
-  techStack = signal<TechStack | null>(null);
+  techStack = this.techStackService.techStack;
+  loading = this.techStackService.loading;
+  error = this.techStackService.error;
   clickCount = signal(0);
 
   ngOnInit(): void {
-    getHealthInfo()
-      .then(res => this.techStack.set(res.data.techStack))
-      .catch(() => this.techStack.set({ framework: 'Unknown', language: 'Unknown', database: 'Unknown' }));
+    this.techStackService.load();
   }
 
   handleSecretClick(): void {

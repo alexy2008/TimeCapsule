@@ -1,11 +1,24 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useTheme } from '@/hooks/useTheme'
+
+// Mock localStorage for test environment
+const localStorageMock = (() => {
+  let store: Record<string, string> = {}
+  return {
+    getItem: (key: string) => store[key] || null,
+    setItem: (key: string, value: string) => { store[key] = value },
+    removeItem: (key: string) => { delete store[key] },
+    clear: () => { store = {} },
+  }
+})()
+
+vi.stubGlobal('localStorage', localStorageMock)
 
 describe('useTheme', () => {
   beforeEach(() => {
     document.documentElement.removeAttribute('data-theme')
-    localStorage.clear()
+    localStorageMock.clear()
   })
 
   it('should default to light theme', () => {

@@ -7,21 +7,44 @@ import { useSyncExternalStore, useCallback } from 'react'
 
 type Theme = 'light' | 'dark'
 
-// 模块级共享状态
-let theme: Theme = (typeof localStorage !== 'undefined' && localStorage.getItem('theme') as Theme) || 'light'
+// 模块级共享状态 - 延迟初始化
+let theme: Theme = 'light'
+let initialized = false
 const listeners = new Set<() => void>()
 
-function applyTheme(t: Theme) {
-  document.documentElement.setAttribute('data-theme', t)
-  localStorage.setItem('theme', t)
+function getStoredTheme(): Theme {
+  try {
+    const stored = localStorage.getItem('theme')
+    if (stored === 'light' || stored === 'dark') {
+      return stored
+    }
+  } catch {
+    // localStorage 不可用时忽略
+  }
+  return 'light'
 }
 
-// 初始化
-if (typeof document !== 'undefined') {
+function applyTheme(t: Theme) {
+  if (typeof document !== 'undefined') {
+    document.documentElement.setAttribute('data-theme', t)
+  }
+  try {
+    localStorage.setItem('theme', t)
+  } catch {
+    // localStorage 不可用时忽略
+  }
+}
+
+function initTheme() {
+  if (initialized) return
+  initialized = true
+  theme = getStoredTheme()
   applyTheme(theme)
 }
 
 function subscribe(callback: () => void) {
+  // 首次订阅时初始化
+  initTheme()
   listeners.add(callback)
   return () => { listeners.delete(callback) }
 }

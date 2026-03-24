@@ -4,7 +4,7 @@
       <p class="text-sm text-secondary">
         <span>Powered By:</span>
         <span class="tech-stack">
-          {{ techStack ? `Vue 3 | ${techStack.framework} | ${techStack.language} | ${techStack.database}` : '加载中...' }}
+          {{ loading ? '加载中...' : error || !techStack ? '技术栈信息暂不可用' : `Vue 3 | ${techStack.framework} | ${techStack.language} | ${techStack.database}` }}
         </span>
       </p>
     </div>
@@ -12,17 +12,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { getHealthInfo } from '@/api'
-import type { TechStack } from '@/types'
+import { useTechStack } from '@/composables/useTechStack'
 
-const techStack = ref<TechStack | null>(null)
-
-onMounted(() => {
-  getHealthInfo()
-    .then(res => { techStack.value = res.data.techStack })
-    .catch(() => { techStack.value = null })
-})
+const { techStack, loading, error } = useTechStack()
 </script>
 
 <style scoped>

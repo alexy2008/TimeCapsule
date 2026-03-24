@@ -1,0 +1,118 @@
+const { test, expect } = require('@playwright/test')
+
+const frontendName = process.env.FRONTEND_NAME || 'unknown'
+const adminPassword = process.env.ADMIN_PASSWORD || 'timecapsule-admin'
+const backendUrl = process.env.BACKEND_URL || 'http://127.0.0.1:8080'
+
+function futureDateTimeLocal() {
+  const date = new Date(Date.now() + 24 * 60 * 60 * 1000)
+  date.setSeconds(0, 0)
+  const local = new Date(date.getTime() - date.getTimezoneOffset() * 60 * 1000)
+  return local.toISOString().slice(0, 16)
+}
+
+test.describe.configure({ mode: 'serial' })
+
+test(`首页展示技术栈卡片 [${frontendName}]`, async ({ page }) => {
+  await page.goto('/')
+
+  await expect(page.getByRole('heading', { name: '时间胶囊' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '前端' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '后端' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '数据库' })).toBeVisible()
+
+  await expect(page.locator('img[src="/frontend.svg"]')).toBeVisible()
+  await expect(page.locator('img[src="/tech-logos/backend.svg"]')).toBeVisible()
+  await expect(page.locator('img[src="/tech-logos/database.svg"]')).toBeVisible()
+})
+
+test(`创建胶囊并验证锁定态 [${frontendName}]`, async ({ page }) => {
+  const title = `E2E-${frontendName}-${Date.now()}`
+  const content = `browser-flow-${frontendName}-${Date.now()}`
+  const creator = 'Playwright'
+
+  await page.goto('/')
+  await page.getByRole('link', { name: /创建胶囊/ }).click()
+
+  await page.getByLabel('标题').fill(title)
+  await page.getByLabel('内容').fill(content)
+  await page.getByLabel('发布者').fill(creator)
+  await page.getByLabel('开启时间').fill(futureDateTimeLocal())
+
+  await page.getByRole('button', { name: '封存时间胶囊' }).click()
+  await page.getByRole('button', { name: '确认' }).click()
+
+  await expect(page.getByRole('heading', { name: '胶囊创建成功！' })).toBeVisible()
+
+  const successCard = page.locator('body')
+  const codeMatch = (await successCard.textContent()).match(/\b[A-Za-z0-9]{8}\b/)
+  expect(codeMatch).not.toBeNull()
+  const capsuleCode = codeMatch[0]
+
+  await page.goto('/')
+  await page.getByRole('link', { name: /开启胶囊/ }).click()
+  await page.getByPlaceholder('输入 8 位胶囊码').fill(capsuleCode)
+  await page.getByRole('button', { name: '开启' }).click()
+
+  await expect(page.getByText(title)).toBeVisible()
+  await expect(page.getByText('未到时间')).toBeVisible()
+  await expect(page.getByText('胶囊尚未到开启时间')).toBeVisible()
+  await expect(page.getByText(content)).toHaveCount(0)
+})
+
+test(`到时间后成功打开胶囊 [${frontendName}]`, async ({ page, request }) => {
+  const title = `Timed-${frontendName}-${Date.now()}`
+  const content = `timed-open-${frontendName}-${Date.now()}`
+  const createResponse = await request.post(`${backendUrl}/api/v1/capsules`, {
+    data: {
+      title,
+      content,
+      creator: 'Playwright',
+      openAt: new Date(Date.now() + 5000).toISOString(),
+    },
+  })
+
+  expect(createResponse.ok()).toBeTruthy()
+  const createBody = await createResponse.json()
+  expect(createBody.success).toBeTruthy()
+
+  const capsuleCode = createBody.data.code
+
+  await page.goto('/')
+  await page.getByRole('link', { name: /开启胶囊/ }).click()
+  await page.getByPlaceholder('输入 8 位胶囊码').fill(capsuleCode)
+  await page.getByRole('button', { name: '开启' }).click()
+
+  await expect(page.getByText(title)).toBeVisible()
+
+  const openedBadge = page.getByText('已开启')
+  const lockedBadge = page.getByText('未到时间')
+
+  if (await lockedBadge.count()) {
+    await expect(lockedBadge).toBeVisible()
+    await expect(page.getByText('胶囊尚未到开启时间')).toBeVisible()
+    await expect(page.getByText('时间已到，胶囊即将开启…')).toBeVisible({ timeout: 15000 })
+  }
+
+  await expect(page.getByText(content)).toBeVisible({ timeout: 10000 })
+  await expect(openedBadge).toBeVisible()
+})
+
+test(`隐藏入口进入管理员并登录 [${frontendName}]`, async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('link', { name: '关于' }).click()
+
+  const versionEntry = page.getByText('HelloTime v1.0.0')
+  await expect(versionEntry).toBeVisible()
+
+  for (let i = 0; i < 5; i += 1) {
+    await versionEntry.click()
+  }
+
+  await expect(page.getByRole('heading', { name: '管理员登录' })).toBeVisible()
+  await page.getByLabel('密码').fill(adminPassword)
+  await page.getByRole('button', { name: '登录' }).click()
+
+  await expect(page.getByText('已登录为管理员')).toBeVisible()
+  await expect(page.getByRole('heading', { name: /胶囊列表/ })).toBeVisible()
+})

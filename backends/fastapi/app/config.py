@@ -15,3 +15,5 @@ JWT_SECRET: str = os.getenv(
 )
 
 JWT_EXPIRATION_HOURS: int = int(os.getenv("JWT_EXPIRATION_HOURS", "2"))
+
+PORT: int = int(os.getenv("PORT", "18010"))

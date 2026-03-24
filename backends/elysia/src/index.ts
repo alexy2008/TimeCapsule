@@ -57,6 +57,46 @@ const app = new Elysia()
     UNAUTHORIZED: UnauthorizedError,
   })
   .onError(({ code, error, set }) => {
+    if (error instanceof CapsuleNotFoundError) {
+      set.status = 404;
+      return {
+        success: false,
+        data: null,
+        message: error.message,
+        errorCode: "CAPSULE_NOT_FOUND",
+      };
+    }
+
+    if (error instanceof InvalidOpenAtError) {
+      set.status = 400;
+      return {
+        success: false,
+        data: null,
+        message: error.message,
+        errorCode: "BAD_REQUEST",
+      };
+    }
+
+    if (error instanceof CodeGenerationError) {
+      set.status = 500;
+      return {
+        success: false,
+        data: null,
+        message: error.message,
+        errorCode: "INTERNAL_ERROR",
+      };
+    }
+
+    if (error instanceof UnauthorizedError) {
+      set.status = 401;
+      return {
+        success: false,
+        data: null,
+        message: error.message,
+        errorCode: "UNAUTHORIZED",
+      };
+    }
+
     switch (code) {
       case "CAPSULE_NOT_FOUND":
         set.status = 404;
@@ -109,6 +149,20 @@ const app = new Elysia()
         };
     }
   })
+  .get("/tech-logos/:file", ({ params, set }) => {
+    const techLogos: Record<string, string> = {
+      "backend.svg": "static/tech-logos/backend.svg",
+      "database.svg": "static/tech-logos/database.svg",
+    };
+
+    const asset = techLogos[params.file];
+    if (!asset) {
+      set.status = 404;
+      return "Not Found";
+    }
+
+    return Bun.file(asset);
+  })
   // 注册路由
   .use(healthRoutes)
   .use(capsuleRoutes)
@@ -121,5 +175,3 @@ console.log(`
   > Local:   http://localhost:${PORT}
   > Docs:    http://localhost:${PORT}/api/docs
 `);
-
-export default app;

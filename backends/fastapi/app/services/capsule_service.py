@@ -29,6 +29,12 @@ class CapsuleNotFoundException(Exception):
         super().__init__(f"胶囊不存在：{code}")
 
 
+def _format_utc(dt: datetime) -> str:
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc).replace(microsecond=0).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
 def _generate_code() -> str:
     """生成 8 位 base62 随机码"""
     return "".join(secrets.choice(CODE_CHARS) for _ in range(CODE_LENGTH))
@@ -55,9 +61,8 @@ def _to_response_dict(
         open_at = open_at.replace(tzinfo=timezone.utc)
     opened = now > open_at
 
-    # 时间格式化为 ISO 8601 字符串
-    open_at_str = open_at.isoformat().replace("+00:00", "Z")
-    created_at_str = capsule.created_at.isoformat().replace("+00:00", "Z") if capsule.created_at else None
+    open_at_str = _format_utc(open_at)
+    created_at_str = _format_utc(capsule.created_at) if capsule.created_at else None
 
     result = {
         "code": capsule.code,

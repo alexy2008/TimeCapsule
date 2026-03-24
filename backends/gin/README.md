@@ -39,7 +39,13 @@ go run main.go
 go build -o hellotime-gin && ./hellotime-gin
 ```
 
-应用将在 `http://localhost:8080` 启动。
+应用默认将在 `http://localhost:18020` 启动。
+
+如需保持前端仍访问 `http://localhost:8080`，可在仓库根目录执行：
+
+```bash
+./scripts/switch-backend.sh gin
+```
 
 ### 环境变量配置
 
@@ -49,12 +55,13 @@ go build -o hellotime-gin && ./hellotime-gin
 | `ADMIN_PASSWORD` | `timecapsule-admin` | 管理员登录密码 |
 | `JWT_SECRET` | `hellotime-jwt-secret-key-that-is-long-enough-for-hs256` | JWT 签名密钥 |
 | `JWT_EXPIRATION_HOURS` | `2` | JWT 过期时间（小时） |
-| `PORT` | `8080` | 服务端口 |
+| `PORT` | `18020` | 服务端口 |
 
 示例：
 ```bash
 export ADMIN_PASSWORD=my-secure-password
 export JWT_SECRET=my-jwt-secret
+export PORT=18020
 go run main.go
 ```
 
@@ -124,7 +131,7 @@ go test ./tests/ -run TestCreateCapsule -v
 
 ```bash
 # 创建胶囊
-curl -X POST http://localhost:8080/api/v1/capsules \
+curl -X POST http://localhost:18020/api/v1/capsules \
   -H "Content-Type: application/json" \
   -d '{
     "title": "给未来的自己",
@@ -134,10 +141,10 @@ curl -X POST http://localhost:8080/api/v1/capsules \
   }'
 
 # 查询胶囊
-curl http://localhost:8080/api/v1/capsules/{code}
+curl http://localhost:18020/api/v1/capsules/{code}
 
 # 管理员登录
-curl -X POST http://localhost:8080/api/v1/admin/login \
+curl -X POST http://localhost:18020/api/v1/admin/login \
   -H "Content-Type: application/json" \
   -d '{"password": "timecapsule-admin"}'
 ```
@@ -167,4 +174,4 @@ curl -X POST http://localhost:8080/api/v1/admin/login \
 
 ---
 
-> 📊 **多端实现对比**：查看 [FastAPI vs Gin vs Spring Boot 对比报告](../../docs/backend-comparison.md) 以获取更多详细分析。
+> 📊 **多端实现对比**：查看 [四后端实现对比报告](../../docs/backend-comparison.md) 以获取更多详细分析。

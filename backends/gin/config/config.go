@@ -33,7 +33,7 @@ func Load() {
 	DatabasePath = getEnv("DATABASE_URL", "../../data/hellotime.db")
 	AdminPassword = getEnv("ADMIN_PASSWORD", "timecapsule-admin")
 	JWTSecret = getEnv("JWT_SECRET", "hellotime-jwt-secret-key-that-is-long-enough-for-hs256")
-	Port = getEnv("PORT", "8080")
+	Port = getEnv("PORT", "18020")
 
 	hours, err := strconv.Atoi(getEnv("JWT_EXPIRATION_HOURS", "2"))
 	if err != nil {

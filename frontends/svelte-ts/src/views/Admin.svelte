@@ -16,7 +16,7 @@
   let loading = false;
   let error: string | null = null;
   
-  let token = typeof localStorage !== 'undefined' ? localStorage.getItem('token') : null;
+  let token = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('admin_token') : null;
   $: isLoggedIn = !!token;
 
   let showDeleteConfirm = false;
@@ -53,7 +53,7 @@
       const res = await adminLogin(password);
       if (res.success && res.data.token) {
         token = res.data.token;
-        localStorage.setItem('token', token!);
+        sessionStorage.setItem('admin_token', token!);
         await fetchCapsules(0);
       } else {
         error = res.message || '登录失败';
@@ -67,7 +67,7 @@
 
   function logout() {
     token = null;
-    localStorage.removeItem('token');
+    sessionStorage.removeItem('admin_token');
     capsules = [];
   }
 

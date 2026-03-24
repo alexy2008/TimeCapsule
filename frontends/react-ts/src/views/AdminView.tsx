@@ -66,6 +66,8 @@ export default function AdminView() {
               <button className="btn btn-secondary btn-sm" onClick={logout}>退出登录</button>
             </div>
 
+            {error ? <div className={styles.errorBanner}>{error}</div> : null}
+
             <CapsuleTable
               capsules={capsules}
               pageInfo={pageInfo}

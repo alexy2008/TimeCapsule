@@ -1,0 +1,185 @@
+#!/bin/bash
+# 前端通用验证脚本
+# 兼容 macOS 默认 Bash 3.x
+
+set -u
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+ROOT_DIR="$(dirname "$(dirname "$SCRIPT_DIR")")"
+
+if [ "$#" -eq 0 ]; then
+  SELECTED_FRONTENDS="react-ts vue3-ts angular-ts svelte-ts"
+else
+  SELECTED_FRONTENDS="$*"
+fi
+
+FAILED_COUNT=0
+SUMMARY_LINES=""
+
+print_divider() {
+  echo "------------------------------------------------------------"
+}
+
+label_for() {
+  case "$1" in
+    react-ts) echo "React" ;;
+    vue3-ts) echo "Vue" ;;
+    angular-ts) echo "Angular" ;;
+    svelte-ts) echo "Svelte" ;;
+    *) echo "Unknown" ;;
+  esac
+}
+
+dir_for() {
+  case "$1" in
+    react-ts) echo "$ROOT_DIR/frontends/react-ts" ;;
+    vue3-ts) echo "$ROOT_DIR/frontends/vue3-ts" ;;
+    angular-ts) echo "$ROOT_DIR/frontends/angular-ts" ;;
+    svelte-ts) echo "$ROOT_DIR/frontends/svelte-ts" ;;
+    *) return 1 ;;
+  esac
+}
+
+home_file_for() {
+  case "$1" in
+    react-ts) echo "$ROOT_DIR/frontends/react-ts/src/views/HomeView.tsx" ;;
+    vue3-ts) echo "$ROOT_DIR/frontends/vue3-ts/src/views/HomeView.vue" ;;
+    angular-ts) echo "$ROOT_DIR/frontends/angular-ts/src/app/views/home/home.component.html" ;;
+    svelte-ts) echo "$ROOT_DIR/frontends/svelte-ts/src/views/Home.svelte" ;;
+    *) return 1 ;;
+  esac
+}
+
+frontend_logo_for() {
+  case "$1" in
+    react-ts) echo "$ROOT_DIR/frontends/react-ts/public/frontend.svg" ;;
+    vue3-ts) echo "$ROOT_DIR/frontends/vue3-ts/public/frontend.svg" ;;
+    angular-ts) echo "$ROOT_DIR/frontends/angular-ts/src/assets/frontend.svg" ;;
+    svelte-ts) echo "$ROOT_DIR/frontends/svelte-ts/public/frontend.svg" ;;
+    *) return 1 ;;
+  esac
+}
+
+verify_command_for() {
+  case "$1" in
+    react-ts) echo "npm run test" ;;
+    vue3-ts) echo "npm run build" ;;
+    angular-ts) echo "CI=1 ./node_modules/.bin/ng build --configuration development" ;;
+    svelte-ts) echo "npm run build" ;;
+    *) return 1 ;;
+  esac
+}
+
+run_static_checks() {
+  frontend="$1"
+  home_file="$(home_file_for "$frontend")" || return 1
+  logo_file="$(frontend_logo_for "$frontend")" || return 1
+
+  if [ ! -f "$home_file" ]; then
+    echo "  缺少首页文件: $home_file"
+    return 1
+  fi
+
+  if [ ! -f "$logo_file" ]; then
+    echo "  缺少前端 logo 文件: $logo_file"
+    return 1
+  fi
+
+  if ! rg -q '/frontend\.svg' "$home_file"; then
+    echo "  首页未引用本地前端 logo: $home_file"
+    return 1
+  fi
+
+  if ! rg -q '/tech-logos/backend\.svg' "$home_file"; then
+    echo "  首页未引用后端 logo: $home_file"
+    return 1
+  fi
+
+  if ! rg -q '/tech-logos/database\.svg' "$home_file"; then
+    echo "  首页未引用数据库 logo: $home_file"
+    return 1
+  fi
+
+  return 0
+}
+
+run_verify_command() {
+  frontend="$1"
+  workdir="$(dir_for "$frontend")" || return 1
+  command="$(verify_command_for "$frontend")" || return 1
+
+  (
+    cd "$workdir" &&
+    eval "$command"
+  )
+}
+
+append_summary() {
+  frontend="$1"
+  static_result="$2"
+  command_result="$3"
+  overall_result="$4"
+  SUMMARY_LINES="${SUMMARY_LINES}${frontend}|${static_result}|${command_result}|${overall_result}
+"
+}
+
+echo "=== HelloTime 前端通用验证 ==="
+echo "验证对象: $SELECTED_FRONTENDS"
+echo ""
+
+for frontend in $SELECTED_FRONTENDS; do
+  label="$(label_for "$frontend")"
+
+  if [ "$label" = "Unknown" ]; then
+    echo "[未知实现] $frontend"
+    append_summary "$frontend" "N/A" "N/A" "FAIL"
+    FAILED_COUNT=$((FAILED_COUNT + 1))
+    continue
+  fi
+
+  print_divider
+  echo "[$label] 静态约束检查"
+
+  static_result="FAIL"
+  if run_static_checks "$frontend"; then
+    static_result="PASS"
+    echo "  通过"
+  fi
+
+  command_result="FAIL"
+  command="$(verify_command_for "$frontend")"
+  echo "[$label] 执行本地验证命令"
+  echo "  命令: $command"
+  if run_verify_command "$frontend"; then
+    command_result="PASS"
+    echo "  通过"
+  else
+    echo "  失败"
+  fi
+
+  overall_result="FAIL"
+  if [ "$static_result" = "PASS" ] && [ "$command_result" = "PASS" ]; then
+    overall_result="PASS"
+  else
+    FAILED_COUNT=$((FAILED_COUNT + 1))
+  fi
+
+  append_summary "$frontend" "$static_result" "$command_result" "$overall_result"
+done
+
+echo ""
+print_divider
+echo "验证矩阵"
+printf "%-12s %-10s %-10s %-10s\n" "实现" "静态检查" "本地命令" "总状态"
+printf "%s" "$SUMMARY_LINES" | while IFS='|' read -r frontend static_result command_result overall_result; do
+  [ -z "$frontend" ] && continue
+  printf "%-12s %-10s %-10s %-10s\n" "$frontend" "$static_result" "$command_result" "$overall_result"
+done
+
+echo ""
+if [ "$FAILED_COUNT" -gt 0 ]; then
+  echo "前端验证失败: $FAILED_COUNT 个实现未通过"
+  exit 1
+fi
+
+echo "前端验证通过"

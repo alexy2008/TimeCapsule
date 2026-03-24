@@ -4,7 +4,7 @@
  */
 
 // 服务端口
-export const PORT = parseInt(process.env.PORT || "8080");
+export const PORT = parseInt(process.env.PORT || "18030");
 
 // 数据库路径：使用相对于项目根目录的路径
 export const DATABASE_URL = process.env.DATABASE_URL || "../../data/hellotime.db";

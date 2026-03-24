@@ -1,11 +1,21 @@
 import { Link } from 'react-router-dom'
 import logoSvg from '@spec/assets/logo.svg'
-import reactLogo from '/react-logo.svg'
-import springBootLogo from '/spring-boot-logo.svg'
-import sqliteLogo from '/sqlite-logo.svg'
+import { useTechStack } from '@/hooks/useTechStack'
 import styles from './HomeView.module.css'
 
 export default function HomeView() {
+  const { techStack, loading, error } = useTechStack()
+  const backendDescription = loading
+    ? '加载中...'
+    : error || !techStack
+      ? '技术栈信息暂不可用'
+      : `${techStack.framework} · ${techStack.language}`
+  const databaseDescription = loading
+    ? '加载中...'
+    : error || !techStack
+      ? '技术栈信息暂不可用'
+      : techStack.database
+
   return (
     <div className="page">
       <div className="container text-center">
@@ -40,19 +50,19 @@ export default function HomeView() {
         <div className="features mt-16">
           <div className="grid grid-cols-3 gap-6">
             <div className="card text-center">
-              <img src={reactLogo} alt="React" className={styles.techLogo} />
+              <img src="/frontend.svg" alt="前端技术栈" className={styles.techLogo} />
               <h3>前端</h3>
-              <p className="text-sm text-secondary mt-2">React 19 + TypeScript，组件化开发，声明式 UI</p>
+              <p className="text-sm text-secondary mt-2">React 19 + TypeScript</p>
             </div>
             <div className="card text-center">
-              <img src={springBootLogo} alt="Spring Boot" className={styles.techLogo} />
+              <img src="/tech-logos/backend.svg" alt="后端技术栈" className={styles.techLogo} />
               <h3>后端</h3>
-              <p className="text-sm text-secondary mt-2">Spring Boot 3 + Java 21，企业级 REST API</p>
+              <p className="text-sm text-secondary mt-2">{backendDescription}</p>
             </div>
             <div className="card text-center">
-              <img src={sqliteLogo} alt="SQLite" className={styles.techLogo} />
+              <img src="/tech-logos/database.svg" alt="数据库技术栈" className={styles.techLogo} />
               <h3>数据库</h3>
-              <p className="text-sm text-secondary mt-2">SQLite，轻量级嵌入式数据库，零配置部署</p>
+              <p className="text-sm text-secondary mt-2">{databaseDescription}</p>
             </div>
           </div>
         </div>

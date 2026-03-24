@@ -42,35 +42,43 @@ pip install -r requirements.txt
 
 ```bash
 # 开发模式（自动重载）
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8080
+uvicorn app.main:app --reload --host 0.0.0.0 --port 18010
 
 # 生产模式
-uvicorn app.main:app --host 0.0.0.0 --port 8080 --workers 4
+uvicorn app.main:app --host 0.0.0.0 --port 18010 --workers 4
 ```
 
-应用将在 `http://localhost:8080` 启动。
+应用默认将在 `http://localhost:18010` 启动。
+
+如需保持前端仍访问 `http://localhost:8080`，可在仓库根目录执行：
+
+```bash
+./scripts/switch-backend.sh fastapi
+```
 
 ### 访问 API 文档
 
 FastAPI 自动生成 OpenAPI 文档：
-- Swagger UI: `http://localhost:8080/docs`
-- ReDoc: `http://localhost:8080/redoc`
-- OpenAPI JSON: `http://localhost:8080/openapi.json`
+- Swagger UI: `http://localhost:18010/docs`
+- ReDoc: `http://localhost:18010/redoc`
+- OpenAPI JSON: `http://localhost:18010/openapi.json`
 
 ### 环境变量配置
 
 | 变量名 | 默认值 | 描述 |
 |--------|--------|------|
-| `DATABASE_URL` | `sqlite:///hellotime.db` | 数据库连接 URL |
+| `DATABASE_URL` | `sqlite:///../../data/hellotime.db` | 数据库连接 URL |
 | `ADMIN_PASSWORD` | `timecapsule-admin` | 管理员登录密码 |
 | `JWT_SECRET` | `hellotime-jwt-secret-key-that-is-long-enough-for-hs256` | JWT 签名密钥 |
 | `JWT_EXPIRATION_HOURS` | `2` | JWT 过期时间（小时） |
+| `PORT` | `18010` | 服务端口 |
 
 示例：
 ```bash
 export ADMIN_PASSWORD=my-secure-password
 export JWT_SECRET=my-jwt-secret
-uvicorn app.main:app --reload
+export PORT=18010
+uvicorn app.main:app --reload --host 0.0.0.0 --port "$PORT"
 ```
 
 ## API 端点
@@ -94,7 +102,7 @@ uvicorn app.main:app --reload
 
 | 方法 | 路径 | 描述 |
 |------|------|------|
-| GET | `/health` | 健康检查端点（返回技术栈信息） |
+| GET | `/api/v1/health` | 健康检查端点（返回技术栈信息） |
 
 ## 项目结构
 
@@ -132,7 +140,7 @@ pytest tests/test_capsule_api.py
 
 ```bash
 # 创建胶囊
-curl -X POST http://localhost:8080/api/v1/capsules \
+curl -X POST http://localhost:18010/api/v1/capsules \
   -H "Content-Type: application/json" \
   -d '{
     "title": "给未来的自己",
@@ -142,10 +150,10 @@ curl -X POST http://localhost:8080/api/v1/capsules \
   }'
 
 # 查询胶囊
-curl http://localhost:8080/api/v1/capsules/{code}
+curl http://localhost:18010/api/v1/capsules/{code}
 
 # 管理员登录
-curl -X POST http://localhost:8080/api/v1/admin/login \
+curl -X POST http://localhost:18010/api/v1/admin/login \
   -H "Content-Type: application/json" \
   -d '{"password": "timecapsule-admin"}'
 ```

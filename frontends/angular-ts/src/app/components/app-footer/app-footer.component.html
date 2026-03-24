@@ -3,7 +3,7 @@
     <p class="footer-text">
       <span>Powered By:</span>
       <span class="tech-stack">
-        {{ techStack() ? 'Angular 18 | ' + techStack()!.framework + ' | ' + techStack()!.language + ' | ' + techStack()!.database : '加载中...' }}
+        {{ loading() ? '加载中...' : error() || !techStack() ? '技术栈信息暂不可用' : 'Angular 18 | ' + techStack()!.framework + ' | ' + techStack()!.language + ' | ' + techStack()!.database }}
       </span>
     </p>
   </div>

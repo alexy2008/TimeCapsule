@@ -12,6 +12,7 @@ import (
 func Setup(r *gin.Engine, db *gorm.DB) {
 	// CORS 中间件
 	r.Use(middleware.CORS())
+	r.Static("/tech-logos", "./static/tech-logos")
 
 	capsuleHandler := &handler.CapsuleHandler{DB: db}
 	adminHandler := &handler.AdminHandler{DB: db}

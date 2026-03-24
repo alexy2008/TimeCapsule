@@ -1,5 +1,6 @@
 package com.hellotime.entity;
 
+import com.hellotime.config.InstantStringConverter;
 import jakarta.persistence.*;
 import java.time.Instant;
 
@@ -47,13 +48,15 @@ public class Capsule {
      * 胶囊开启时间（UTC 时间戳）
      * 只有到达此时间后，用户才能查看胶囊内容
      */
-    @Column(name = "open_at", nullable = false)
+    @Convert(converter = InstantStringConverter.class)
+    @Column(name = "open_at", nullable = false, columnDefinition = "TEXT")
     private Instant openAt;
 
     /**
      * 胶囊创建时间（UTC 时间戳）
      */
-    @Column(name = "created_at", nullable = false)
+    @Convert(converter = InstantStringConverter.class)
+    @Column(name = "created_at", nullable = false, columnDefinition = "TEXT")
     private Instant createdAt;
 
     /**
