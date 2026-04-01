@@ -30,21 +30,40 @@
       </div>
 
       <div class="features mt-16">
-        <div class="grid grid-cols-3 gap-6">
-          <div class="card text-center">
-            <img :src="frontendLogoUrl" alt="前端技术栈" class="tech-logo" />
-            <h3>前端</h3>
-            <p class="text-sm text-secondary mt-2">Vue 3 + TypeScript</p>
-          </div>
-          <div class="card text-center">
-            <img :src="backendLogoUrl" alt="后端技术栈" class="tech-logo" />
-            <h3>后端</h3>
-            <p class="text-sm text-secondary mt-2">{{ backendDescription }}</p>
-          </div>
-          <div class="card text-center">
-            <img :src="databaseLogoUrl" alt="数据库技术栈" class="tech-logo" />
-            <h3>数据库</h3>
-            <p class="text-sm text-secondary mt-2">{{ databaseDescription }}</p>
+        <div class="tech-section">
+          <div class="card text-center tech-card">
+            <h3 class="tech-card-title">技术栈</h3>
+
+            <div class="tech-block">
+              <div class="tech-logo-group" aria-label="前端技术栈图标">
+                <span class="tech-logo-item">
+                  <img :src="frontendLogoUrl" alt="Vue Logo" class="tech-logo" />
+                </span>
+                <span class="tech-logo-item">
+                  <img src="/typescript-logo.svg" alt="TypeScript Logo" class="tech-logo" />
+                </span>
+              </div>
+              <p class="tech-label">前端</p>
+              <p class="text-sm text-secondary mt-2">Vue 3 · TypeScript</p>
+            </div>
+
+            <div class="tech-divider" aria-hidden="true" />
+
+            <div class="tech-block">
+              <div class="tech-logo-group" aria-label="后端技术栈图标">
+                <span class="tech-logo-item">
+                  <img :src="getTechLogoUrl('backend.svg')" alt="后端框架 Logo" class="tech-logo" />
+                </span>
+                <span class="tech-logo-item">
+                  <img :src="getTechLogoUrl('language.svg')" alt="后端语言 Logo" class="tech-logo" />
+                </span>
+                <span class="tech-logo-item">
+                  <img :src="getTechLogoUrl('database.svg')" alt="后端数据库 Logo" class="tech-logo" />
+                </span>
+              </div>
+              <p class="tech-label">后端</p>
+              <p class="text-sm text-secondary mt-2">{{ backendDescription }}</p>
+            </div>
           </div>
         </div>
       </div>
@@ -58,8 +77,7 @@ import { useTechStack } from '@/composables/useTechStack'
 
 const { techStack, loading, error } = useTechStack()
 const frontendLogoUrl = '/frontend.svg'
-const backendLogoUrl = '/tech-logos/backend.svg'
-const databaseLogoUrl = '/tech-logos/database.svg'
+const getTechLogoUrl = (file: string) => `/tech-logos/${file}`
 
 const backendDescription = computed(() => {
   if (loading.value) {
@@ -70,19 +88,7 @@ const backendDescription = computed(() => {
     return '技术栈信息暂不可用'
   }
 
-  return `${techStack.value.framework} · ${techStack.value.language}`
-})
-
-const databaseDescription = computed(() => {
-  if (loading.value) {
-    return '加载中...'
-  }
-
-  if (error.value || !techStack.value) {
-    return '技术栈信息暂不可用'
-  }
-
-  return techStack.value.database
+  return `${techStack.value.framework} · ${techStack.value.language} · ${techStack.value.database}`
 })
 </script>
 
@@ -182,10 +188,67 @@ const databaseDescription = computed(() => {
 }
 
 .tech-logo {
-  width: 64px;
-  height: 64px;
-  margin: 0 auto var(--space-4);
+  width: 52px;
+  height: 52px;
   object-fit: contain;
+  display: block;
+}
+
+.tech-section {
+  display: flex;
+  justify-content: center;
+}
+
+.tech-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: min(100%, 440px);
+  min-height: 220px;
+  margin: 0 auto;
+}
+
+.tech-card-title {
+  margin-bottom: var(--space-5);
+}
+
+.tech-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.tech-logo-group {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-5);
+  margin: 0 auto var(--space-4);
+  flex-wrap: wrap;
+}
+
+.tech-logo-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tech-logo-item + .tech-logo-item {
+  padding-left: var(--space-5);
+  margin-left: var(--space-1);
+  border-left: 1px solid var(--color-border);
+}
+
+.tech-label {
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+}
+
+.tech-divider {
+  width: 100%;
+  height: 1px;
+  margin: var(--space-6) 0;
+  background: var(--color-border);
 }
 </style>
 

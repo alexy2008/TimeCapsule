@@ -4,6 +4,36 @@ const frontendName = process.env.FRONTEND_NAME || 'unknown'
 const adminPassword = process.env.ADMIN_PASSWORD || 'timecapsule-admin'
 const backendUrl = process.env.BACKEND_URL || 'http://127.0.0.1:8080'
 
+function frameworkLogoSelector() {
+  switch (frontendName) {
+    case 'react-ts':
+      return 'React Logo'
+    case 'vue3-ts':
+      return 'Vue Logo'
+    case 'angular-ts':
+      return 'Angular Logo'
+    case 'svelte-ts':
+      return 'Svelte Logo'
+    default:
+      return '前端框架 Logo'
+  }
+}
+
+function frameworkLabel() {
+  switch (frontendName) {
+    case 'react-ts':
+      return 'React 19'
+    case 'vue3-ts':
+      return 'Vue 3'
+    case 'angular-ts':
+      return 'Angular 18'
+    case 'svelte-ts':
+      return 'Svelte 5'
+    default:
+      return ''
+  }
+}
+
 function futureDateTimeLocal() {
   const date = new Date(Date.now() + 24 * 60 * 60 * 1000)
   date.setSeconds(0, 0)
@@ -16,14 +46,21 @@ test.describe.configure({ mode: 'serial' })
 test(`首页展示技术栈卡片 [${frontendName}]`, async ({ page }) => {
   await page.goto('/')
 
-  await expect(page.getByRole('heading', { name: '时间胶囊' })).toBeVisible()
-  await expect(page.getByRole('heading', { name: '前端' })).toBeVisible()
-  await expect(page.getByRole('heading', { name: '后端' })).toBeVisible()
-  await expect(page.getByRole('heading', { name: '数据库' })).toBeVisible()
+  const techCard = page.locator('.card').filter({ has: page.getByRole('heading', { name: '技术栈' }) }).first()
 
-  await expect(page.locator('img[src="/frontend.svg"]')).toBeVisible()
-  await expect(page.locator('img[src="/tech-logos/backend.svg"]')).toBeVisible()
-  await expect(page.locator('img[src="/tech-logos/database.svg"]')).toBeVisible()
+  await expect(page.getByRole('heading', { name: '时间胶囊' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '技术栈' })).toBeVisible()
+  await expect(techCard).toContainText('前端')
+  await expect(techCard).toContainText('后端')
+  await expect(techCard).toContainText('TypeScript')
+  await expect(techCard).toContainText(frameworkLabel())
+
+  await expect(techCard.getByAltText(frameworkLogoSelector())).toBeVisible()
+  await expect(techCard.getByAltText('TypeScript Logo')).toBeVisible()
+  await expect(techCard.getByAltText('后端框架 Logo')).toBeVisible()
+  await expect(techCard.getByAltText('后端语言 Logo')).toBeVisible()
+  await expect(techCard.getByAltText('后端数据库 Logo')).toBeVisible()
+  await expect(techCard).toContainText(/SQLite|技术栈信息暂不可用|加载中/)
 })
 
 test(`创建胶囊并验证锁定态 [${frontendName}]`, async ({ page }) => {

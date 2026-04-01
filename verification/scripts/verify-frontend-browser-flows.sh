@@ -6,7 +6,7 @@ set -u
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT_DIR="$(dirname "$(dirname "$SCRIPT_DIR")")"
 VERIFICATION_DIR="$ROOT_DIR/verification"
-BACKEND_URL="${BACKEND_URL:-http://127.0.0.1:8080}"
+BACKEND_URL="${BACKEND_URL:-http://localhost:8080}"
 ADMIN_PASSWORD="${ADMIN_PASSWORD:-timecapsule-admin}"
 CHROME_EXECUTABLE_PATH="${CHROME_EXECUTABLE_PATH:-/Applications/Google Chrome.app/Contents/MacOS/Google Chrome}"
 
@@ -45,20 +45,20 @@ dir_for() {
 
 base_url_for() {
   case "$1" in
-    react-ts) echo "http://127.0.0.1:4174" ;;
-    vue3-ts) echo "http://127.0.0.1:4173" ;;
-    angular-ts) echo "http://127.0.0.1:4175" ;;
-    svelte-ts) echo "http://127.0.0.1:4176" ;;
+    react-ts) echo "http://localhost:4174" ;;
+    vue3-ts) echo "http://localhost:4173" ;;
+    angular-ts) echo "http://localhost:4175" ;;
+    svelte-ts) echo "http://localhost:4176" ;;
     *) return 1 ;;
   esac
 }
 
 dev_command_for() {
   case "$1" in
-    react-ts) echo "npm run dev -- --host 127.0.0.1 --port 4174 --strictPort" ;;
-    vue3-ts) echo "npm run dev -- --host 127.0.0.1 --port 4173 --strictPort" ;;
-    angular-ts) echo "./node_modules/.bin/ng serve --host 127.0.0.1 --port 4175 --proxy-config proxy.conf.json" ;;
-    svelte-ts) echo "npm run dev -- --host 127.0.0.1 --port 4176 --strictPort" ;;
+    react-ts) echo "npm run dev -- --host localhost --port 4174 --strictPort" ;;
+    vue3-ts) echo "npm run dev -- --host localhost --port 4173 --strictPort" ;;
+    angular-ts) echo "./node_modules/.bin/ng serve --host localhost --port 4175 --proxy-config proxy.conf.json" ;;
+    svelte-ts) echo "npm run dev -- --host localhost --port 4176 --strictPort" ;;
     *) return 1 ;;
   esac
 }
@@ -93,6 +93,14 @@ ensure_backend_ready() {
     echo "请先启动任意一个后端实现，并确保它监听 8080 端口。"
     exit 1
   fi
+
+  for asset in backend.svg language.svg database.svg; do
+    if ! curl -fsS "$BACKEND_URL/tech-logos/$asset" >/dev/null 2>&1; then
+      echo "后端技术栈 logo 不可用: $BACKEND_URL/tech-logos/$asset"
+      echo "首页现在依赖后端提供 backend/language/database 三个技术栈 logo。"
+      exit 1
+    fi
+  done
 }
 
 ensure_playwright_ready() {
@@ -154,6 +162,7 @@ run_browser_verification() {
     cd "$VERIFICATION_DIR" &&
     FRONTEND_NAME="$frontend" \
     BASE_URL="$base_url" \
+    BACKEND_URL="$BACKEND_URL" \
     ADMIN_PASSWORD="$ADMIN_PASSWORD" \
     CHROME_EXECUTABLE_PATH="$CHROME_EXECUTABLE_PATH" \
     npx playwright test tests/frontend-major-flows.spec.js

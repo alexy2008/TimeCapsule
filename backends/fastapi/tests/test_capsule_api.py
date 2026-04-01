@@ -11,6 +11,9 @@ def test_health(client):
     data = response.json()
     assert data["success"] is True
     assert data["data"]["status"] == "UP"
+    assert data["data"]["techStack"]["framework"] == "FastAPI >=0.115"
+    assert data["data"]["techStack"]["language"] == "Python 3.12"
+    assert data["data"]["techStack"]["database"] == "SQLite"
 
 
 def test_create_capsule(client):

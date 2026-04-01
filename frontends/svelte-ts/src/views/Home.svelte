@@ -4,6 +4,7 @@
   import { loadTechStack, techStack, techStackLoading, techStackError } from '../lib/tech-stack';
   const Link = ObjectLink;
   import logoUrl from "@spec/assets/logo.svg";
+  const frontendDescription = 'Svelte 5 · TypeScript';
 
   onMount(async () => {
     await loadTechStack();
@@ -41,33 +42,46 @@
     </div>
 
     <div class="features mt-16">
-      <div class="grid grid-cols-3 gap-6">
-        <div class="card text-center">
-          <img src="/frontend.svg" alt="前端技术栈" class="tech-logo" />
-          <h3>前端</h3>
-          <p class="text-sm text-secondary mt-2">Svelte 5 + TypeScript</p>
-        </div>
-        <div class="card text-center">
-          <img src="/tech-logos/backend.svg" alt="后端技术栈" class="tech-logo" />
-          <h3>后端</h3>
-          <p class="text-sm text-secondary mt-2">
-            {$techStackLoading
-              ? '加载中...'
-              : $techStackError || !$techStack
-                ? '技术栈信息暂不可用'
-                : `${$techStack.framework} · ${$techStack.language}`}
-          </p>
-        </div>
-        <div class="card text-center">
-          <img src="/tech-logos/database.svg" alt="数据库技术栈" class="tech-logo" />
-          <h3>数据库</h3>
-          <p class="text-sm text-secondary mt-2">
-            {$techStackLoading
-              ? '加载中...'
-              : $techStackError || !$techStack
-                ? '技术栈信息暂不可用'
-                : $techStack.database}
-          </p>
+      <div class="tech-section">
+        <div class="card text-center tech-card">
+          <h3 class="tech-card-title">技术栈</h3>
+
+          <div class="tech-block">
+            <div class="tech-logo-group" aria-label="前端技术栈图标">
+              <span class="tech-logo-item">
+                <img src="/frontend.svg" alt="Svelte Logo" class="tech-logo" />
+              </span>
+              <span class="tech-logo-item">
+                <img src="/typescript-logo.svg" alt="TypeScript Logo" class="tech-logo" />
+              </span>
+            </div>
+            <p class="tech-label">前端</p>
+            <p class="text-sm text-secondary mt-2">{frontendDescription}</p>
+          </div>
+
+          <div class="tech-divider" aria-hidden="true"></div>
+
+          <div class="tech-block">
+            <div class="tech-logo-group" aria-label="后端技术栈图标">
+              <span class="tech-logo-item">
+                <img src="/tech-logos/backend.svg" alt="后端框架 Logo" class="tech-logo" />
+              </span>
+              <span class="tech-logo-item">
+                <img src="/tech-logos/language.svg" alt="后端语言 Logo" class="tech-logo" />
+              </span>
+              <span class="tech-logo-item">
+                <img src="/tech-logos/database.svg" alt="后端数据库 Logo" class="tech-logo" />
+              </span>
+            </div>
+            <p class="tech-label">后端</p>
+            <p class="text-sm text-secondary mt-2">
+              {$techStackLoading
+                ? '加载中...'
+                : $techStackError || !$techStack
+                  ? '技术栈信息暂不可用'
+                  : `${$techStack.framework} · ${$techStack.language} · ${$techStack.database}`}
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -102,10 +116,67 @@
   }
 
   .tech-logo {
-    width: 64px;
-    height: 64px;
-    margin: 0 auto var(--space-4);
+    width: 52px;
+    height: 52px;
     object-fit: contain;
+    display: block;
+  }
+
+  .tech-section {
+    display: flex;
+    justify-content: center;
+  }
+
+  .tech-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: min(100%, 440px);
+    min-height: 220px;
+    margin: 0 auto;
+  }
+
+  .tech-card-title {
+    margin-bottom: var(--space-5);
+  }
+
+  .tech-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .tech-logo-group {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-5);
+    margin: 0 auto var(--space-4);
+    flex-wrap: wrap;
+  }
+
+  .tech-logo-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .tech-logo-item + .tech-logo-item {
+    padding-left: var(--space-5);
+    margin-left: var(--space-1);
+    border-left: 1px solid var(--color-border);
+  }
+
+  .tech-label {
+    font-size: var(--text-base);
+    font-weight: var(--font-semibold);
+  }
+
+  .tech-divider {
+    width: 100%;
+    height: 1px;
+    margin: var(--space-6) 0;
+    background: var(--color-border);
   }
 
   :global(.action-btn) {

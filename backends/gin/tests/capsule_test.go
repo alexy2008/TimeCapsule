@@ -59,6 +59,16 @@ func TestHealth(t *testing.T) {
 	if data["status"] != "UP" {
 		t.Errorf("期望 status 为 UP，得到 %v", data["status"])
 	}
+	techStack := data["techStack"].(map[string]interface{})
+	if techStack["framework"] != "Gin 1.10" {
+		t.Errorf("期望 framework 为 Gin 1.10，得到 %v", techStack["framework"])
+	}
+	if techStack["language"] != "Go 1.24" {
+		t.Errorf("期望 language 为 Go 1.24，得到 %v", techStack["language"])
+	}
+	if techStack["database"] != "SQLite" {
+		t.Errorf("期望 database 为 SQLite，得到 %v", techStack["database"])
+	}
 }
 
 func TestCreateCapsule(t *testing.T) {

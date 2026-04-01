@@ -36,7 +36,10 @@ class CapsuleControllerTest {
         mockMvc.perform(get("/api/v1/health"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data.status").value("UP"));
+                .andExpect(jsonPath("$.data.status").value("UP"))
+                .andExpect(jsonPath("$.data.techStack.framework").value("Spring Boot 3.2.5"))
+                .andExpect(jsonPath("$.data.techStack.language").value("Java 21"))
+                .andExpect(jsonPath("$.data.techStack.database").value("SQLite"));
     }
 
     @Test

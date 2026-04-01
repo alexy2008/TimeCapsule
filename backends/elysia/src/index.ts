@@ -152,6 +152,7 @@ const app = new Elysia()
   .get("/tech-logos/:file", ({ params, set }) => {
     const techLogos: Record<string, string> = {
       "backend.svg": "static/tech-logos/backend.svg",
+      "language.svg": "static/tech-logos/language.svg",
       "database.svg": "static/tech-logos/database.svg",
     };
 

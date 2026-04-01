@@ -52,10 +52,28 @@ home_file_for() {
 
 frontend_logo_for() {
   case "$1" in
-    react-ts) echo "$ROOT_DIR/frontends/react-ts/public/frontend.svg" ;;
+    react-ts) echo "$ROOT_DIR/frontends/react-ts/public/react-logo.svg" ;;
     vue3-ts) echo "$ROOT_DIR/frontends/vue3-ts/public/frontend.svg" ;;
     angular-ts) echo "$ROOT_DIR/frontends/angular-ts/src/assets/frontend.svg" ;;
     svelte-ts) echo "$ROOT_DIR/frontends/svelte-ts/public/frontend.svg" ;;
+    *) return 1 ;;
+  esac
+}
+
+typescript_logo_for() {
+  case "$1" in
+    react-ts) echo "$ROOT_DIR/frontends/react-ts/public/typescript-logo.svg" ;;
+    vue3-ts) echo "$ROOT_DIR/frontends/vue3-ts/public/typescript-logo.svg" ;;
+    angular-ts) echo "$ROOT_DIR/frontends/angular-ts/src/assets/typescript-logo.svg" ;;
+    svelte-ts) echo "$ROOT_DIR/frontends/svelte-ts/public/typescript-logo.svg" ;;
+    *) return 1 ;;
+  esac
+}
+
+framework_logo_pattern_for() {
+  case "$1" in
+    react-ts) echo '/react-logo\.svg' ;;
+    vue3-ts|angular-ts|svelte-ts) echo '/frontend\.svg' ;;
     *) return 1 ;;
   esac
 }
@@ -64,7 +82,7 @@ verify_command_for() {
   case "$1" in
     react-ts) echo "npm run test" ;;
     vue3-ts) echo "npm run build" ;;
-    angular-ts) echo "CI=1 ./node_modules/.bin/ng build --configuration development" ;;
+    angular-ts) echo "./node_modules/.bin/ngc -p tsconfig.app.json" ;;
     svelte-ts) echo "npm run build" ;;
     *) return 1 ;;
   esac
@@ -74,6 +92,8 @@ run_static_checks() {
   frontend="$1"
   home_file="$(home_file_for "$frontend")" || return 1
   logo_file="$(frontend_logo_for "$frontend")" || return 1
+  ts_logo_file="$(typescript_logo_for "$frontend")" || return 1
+  framework_logo_pattern="$(framework_logo_pattern_for "$frontend")" || return 1
 
   if [ ! -f "$home_file" ]; then
     echo "  缺少首页文件: $home_file"
@@ -85,18 +105,48 @@ run_static_checks() {
     return 1
   fi
 
-  if ! rg -q '/frontend\.svg' "$home_file"; then
-    echo "  首页未引用本地前端 logo: $home_file"
+  if [ ! -f "$ts_logo_file" ]; then
+    echo "  缺少 TypeScript logo 文件: $ts_logo_file"
     return 1
   fi
 
-  if ! rg -q '/tech-logos/backend\.svg' "$home_file"; then
-    echo "  首页未引用后端 logo: $home_file"
+  if ! rg -q "$framework_logo_pattern" "$home_file"; then
+    echo "  首页未引用本地前端框架 logo: $home_file"
     return 1
   fi
 
-  if ! rg -q '/tech-logos/database\.svg' "$home_file"; then
-    echo "  首页未引用数据库 logo: $home_file"
+  if ! rg -q '/typescript-logo\.svg' "$home_file"; then
+    echo "  首页未引用 TypeScript logo: $home_file"
+    return 1
+  fi
+
+  if ! rg -q 'backend\.svg' "$home_file"; then
+    echo "  首页未引用后端框架 logo: $home_file"
+    return 1
+  fi
+
+  if ! rg -q 'language\.svg' "$home_file"; then
+    echo "  首页未引用后端语言 logo: $home_file"
+    return 1
+  fi
+
+  if ! rg -q 'database\.svg' "$home_file"; then
+    echo "  首页未引用后端数据库 logo: $home_file"
+    return 1
+  fi
+
+  if ! rg -q '技术栈' "$home_file"; then
+    echo "  首页缺少技术栈卡标题: $home_file"
+    return 1
+  fi
+
+  if ! rg -q '前端' "$home_file"; then
+    echo "  首页缺少前端分组标题: $home_file"
+    return 1
+  fi
+
+  if ! rg -q '后端' "$home_file"; then
+    echo "  首页缺少后端分组标题: $home_file"
     return 1
   fi
 

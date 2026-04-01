@@ -28,19 +28,38 @@
 
     <div class="features">
       <div class="feature-card card">
-        <img src="/frontend.svg" alt="前端技术栈" class="tech-logo" />
-        <h3>前端</h3>
-        <p>Angular 18 + TypeScript</p>
-      </div>
-      <div class="feature-card card">
-        <img src="/tech-logos/backend.svg" alt="后端技术栈" class="tech-logo" />
-        <h3>后端</h3>
-        <p>{{ backendDescription }}</p>
-      </div>
-      <div class="feature-card card">
-        <img src="/tech-logos/database.svg" alt="数据库技术栈" class="tech-logo" />
-        <h3>数据库</h3>
-        <p>{{ databaseDescription }}</p>
+        <h3 class="tech-card-title">技术栈</h3>
+
+        <div class="tech-block">
+          <div class="tech-logo-group" aria-label="前端技术栈图标">
+            <span class="tech-logo-item">
+              <img src="/frontend.svg" alt="Angular Logo" class="tech-logo" />
+            </span>
+            <span class="tech-logo-item">
+              <img src="/typescript-logo.svg" alt="TypeScript Logo" class="tech-logo" />
+            </span>
+          </div>
+          <p class="tech-label">前端</p>
+          <p>{{ frontendDescription }}</p>
+        </div>
+
+        <div class="tech-divider" aria-hidden="true"></div>
+
+        <div class="tech-block">
+          <div class="tech-logo-group" aria-label="后端技术栈图标">
+            <span class="tech-logo-item">
+              <img src="/tech-logos/backend.svg" alt="后端框架 Logo" class="tech-logo" />
+            </span>
+            <span class="tech-logo-item">
+              <img src="/tech-logos/language.svg" alt="后端语言 Logo" class="tech-logo" />
+            </span>
+            <span class="tech-logo-item">
+              <img src="/tech-logos/database.svg" alt="后端数据库 Logo" class="tech-logo" />
+            </span>
+          </div>
+          <p class="tech-label">后端</p>
+          <p>{{ backendDescription }}</p>
+        </div>
       </div>
     </div>
   </div>

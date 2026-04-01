@@ -15,6 +15,7 @@ export class HomeComponent implements OnInit {
   readonly techStack = this.techStackService.techStack;
   readonly loading = this.techStackService.loading;
   readonly error = this.techStackService.error;
+  readonly frontendDescription = 'Angular 18 · TypeScript';
 
   ngOnInit(): void {
     this.techStackService.load();
@@ -29,18 +30,6 @@ export class HomeComponent implements OnInit {
       return '技术栈信息暂不可用';
     }
 
-    return `${this.techStack()!.framework} · ${this.techStack()!.language}`;
-  }
-
-  get databaseDescription(): string {
-    if (this.loading()) {
-      return '加载中...';
-    }
-
-    if (this.error() || !this.techStack()) {
-      return '技术栈信息暂不可用';
-    }
-
-    return this.techStack()!.database;
+    return `${this.techStack()!.framework} · ${this.techStack()!.language} · ${this.techStack()!.database}`;
   }
 }

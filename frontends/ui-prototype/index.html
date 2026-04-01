@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HelloTime - Time Capsule</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="src/styles.css">
+</head>
+
+<body>
+    <div class="background-grid"></div>
+    <div class="ambient-glow"></div>
+
+    <header class="app-header">
+        <div class="logo" onclick="app.navigate('home')">
+            <span class="icon">⧗</span>
+            <span class="text">HelloTime</span>
+        </div>
+        <div class="header-actions" style="display: flex; align-items: center;">
+            <nav class="top-nav">
+                <a href="#" onclick="event.preventDefault(); app.navigate('about')">关于</a>
+            </nav>
+            <button class="btn btn-icon outline-glow" aria-label="Toggle Theme" onclick="app.toggleTheme()">
+                <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+                <svg class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" style="display: none;">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <main class="app-main">
+        <!-- View: Home -->
+        <section id="view-home" class="view active">
+            <div class="hero-section">
+                <div class="hero-badge">TIMECAPSULE SYSTEM</div>
+                <h1 class="hero-title">封存此刻 <span class="text-glow">开启未来</span></h1>
+                <p class="hero-subtitle">将您的寄语、秘密或愿景封装于时间胶囊中，直到指定的未来时刻才能被访问。</p>
+
+                <div class="action-cards">
+                    <div class="action-card cyber-glass" onclick="app.navigate('create')">
+                        <div class="card-icon cyan-glow">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M12 5v14M5 12h14"></path>
+                            </svg>
+                        </div>
+                        <h3>创建胶囊</h3>
+                        <p>封存此刻寄语，投递给未来的自己</p>
+                    </div>
+
+                    <div class="action-card cyber-glass" onclick="app.navigate('search')">
+                        <div class="card-icon magenta-glow">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                        </div>
+                        <h3>开启胶囊</h3>
+                        <p>输入提取凭据，唤醒沉睡的时间印记</p>
+                    </div>
+                </div>
+
+                <div class="tech-stack-simple cyber-glass">
+                    <h4 class="stack-title">TECHNOLOGY STACK</h4>
+                    <div class="tech-logos-grid text-center">
+                        <div class="tech-item" title="Svelte 5">
+                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/svelte/svelte-original.svg"
+                                class="stack-icon" alt="Svelte" />
+                            <span>Svelte</span>
+                        </div>
+                        <div class="tech-item" title="TypeScript">
+                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg"
+                                class="stack-icon" alt="TypeScript" />
+                            <span>TypeScript</span>
+                        </div>
+                        <div class="tech-item" title="Go 1.24">
+                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/go/go-original.svg"
+                                class="stack-icon" alt="Go" />
+                            <span>Go</span>
+                        </div>
+                        <div class="tech-item" title="Gin Framework">
+                            <img src="https://raw.githubusercontent.com/gin-gonic/logo/master/color.svg"
+                                class="stack-icon" alt="Gin" />
+                            <span>Gin</span>
+                        </div>
+                        <div class="tech-item" title="SQLite">
+                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/sqlite/sqlite-original.svg"
+                                class="stack-icon" alt="SQLite" />
+                            <span>SQLite</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- View: Create -->
+        <section id="view-create" class="view">
+            <div class="view-header">
+                <button class="btn-back" onclick="app.navigate('home')">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                    返回
+                </button>
+                <h2>创建时间胶囊</h2>
+            </div>
+
+            <form class="cyber-form cyber-glass" onsubmit="event.preventDefault(); app.navigate('created')">
+                <div class="form-group">
+                    <label>标题</label>
+                    <input type="text" class="cyber-input" placeholder="输入胶囊标题..." required>
+                </div>
+
+                <div class="form-group">
+                    <label>解锁时间</label>
+                    <input type="datetime-local" class="cyber-input" required>
+                    <div class="helper-text">在这之前，任何人（包括您自己）都无法查看内容</div>
+                </div>
+
+                <div class="form-group">
+                    <label>内容</label>
+                    <textarea class="cyber-input textarea" rows="6" placeholder="输入你想寄送到未来的内容..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>创建者</label>
+                    <input type="text" class="cyber-input" placeholder="匿名访客" required>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary btn-glow">
+                        <span class="btn-text">封存胶囊</span>
+                        <div class="btn-scanner"></div>
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- View: Capsule Created Success -->
+        <section id="view-created" class="view">
+            <div class="success-container cyber-glass text-center">
+                <div class="status-icon success-glow">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                </div>
+                <h2>胶囊创建成功</h2>
+                <p>您的时间胶囊已成功封存。</p>
+                <div class="capsule-key-box">
+                    <span class="label">提取码</span>
+                    <div class="code-display mono-font glow-text">X7K9P2M4</div>
+                    <button class="btn btn-icon btn-copy" onclick="alert('已复制')" aria-label="Copy code">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="helper-text">请妥善保管此提取码，它是打开此胶囊的唯一凭证。</div>
+                <button class="btn btn-outline mt-6" onclick="app.navigate('home')">返回首页</button>
+            </div>
+        </section>
+
+        <!-- View: Search -->
+        <section id="view-search" class="view">
+            <div class="view-header">
+                <button class="btn-back" onclick="app.navigate('home')">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                    返回
+                </button>
+                <h2>打开时间胶囊</h2>
+            </div>
+            <div class="search-container cyber-glass center-card">
+                <p class="mb-6">输入8位提取码开启您的时间胶囊。</p>
+                <div class="search-input-wrapper">
+                    <input type="text" class="cyber-input search-input mono-font text-center" placeholder="        "
+                        maxlength="8" id="search-code-input" autocomplete="off">
+                    <div class="search-line-effect"></div>
+                </div>
+                <div class="action-row mt-6">
+                    <button class="btn btn-primary" onclick="app.simulateSearch()">开启胶囊</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- View: Read (Locked) -->
+        <section id="view-read-locked" class="view">
+            <div class="view-header">
+                <button class="btn-back" onclick="app.navigate('search')">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                    返回
+                </button>
+                <h2>状态: 锁定中</h2>
+            </div>
+
+            <div class="capsule-locked-card cyber-glass">
+                <div class="locked-header">
+                    <span class="mono-font label">提取码: X7K9P2M4</span>
+                    <span class="badge badge-locked pulse-danger">未到时间</span>
+                </div>
+
+                <h1 class="capsule-title">未来计划分享</h1>
+                <div class="meta-info">
+                    <span class="creator">创建者: <span class="mono-font">Alex</span></span>
+                    <span class="created-at">创建时间: <span class="mono-font">2026-03-25</span></span>
+                </div>
+
+                <div class="countdown-display">
+                    <div class="countdown-ring"></div>
+                    <div class="countdown-text">
+                        <div class="time-block">
+                            <span class="mono-font num">14</span>
+                            <span class="unit">天</span>
+                        </div>
+                        <span class="colon">:</span>
+                        <div class="time-block">
+                            <span class="mono-font num">05</span>
+                            <span class="unit">时</span>
+                        </div>
+                        <span class="colon">:</span>
+                        <div class="time-block">
+                            <span class="mono-font num">23</span>
+                            <span class="unit">分</span>
+                        </div>
+                        <span class="colon">:</span>
+                        <div class="time-block">
+                            <span class="mono-font num glow-text" id="locked-sec">45</span>
+                            <span class="unit">秒</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="data-encryption-visual">
+                    <div class="scramble-text mono-font">0x8F9A... 内容已被锁定 ...3B2C1</div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: 35%;"></div>
+                    </div>
+                    <div class="target-time">解锁时间: <span class="mono-font">2026-04-09 12:00:00</span></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- View: Read (Unlocked) -->
+        <section id="view-read-unlocked" class="view">
+            <div class="view-header">
+                <button class="btn-back" onclick="app.navigate('search')">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                    返回
+                </button>
+                <h2>状态: 已解锁</h2>
+            </div>
+
+            <div class="capsule-unlocked-card cyber-glass">
+                <div class="locked-header">
+                    <span class="mono-font label">提取码: Z8F2X1A9</span>
+                    <span class="badge badge-unlocked">已解锁</span>
+                </div>
+
+                <h1 class="capsule-title text-glow-cyan">去年的年度目标总结</h1>
+
+                <div class="meta-info border-bottom pb-4 mb-4">
+                    <span class="creator">创建者: <span class="mono-font">FutureMe</span></span>
+                    <div>
+                        <span class="created-at d-block">创建时间: <span class="mono-font">2025-03-20</span></span>
+                        <span class="opened-at d-block mt-1 cyan-text">解锁时间: <span
+                                class="mono-font">2026-03-20</span></span>
+                    </div>
+                </div>
+
+                <div class="capsule-content-area">
+                    <div class="decrypt-animation-overlay" id="decrypt-overlay">
+                        <div class="scanner-beam"></div>
+                        <div class="binary-rain mono-font">01001010...</div>
+                    </div>
+                    <div class="content-text">
+                        <p>亲爱的自己：</p>
+                        <p>如果你看到了这封信，说明一年已经过去了。</p>
+                        <p>我希望你已经达成了这些目标：</p>
+                        <ul>
+                            <li>学会一门新的前端技术（Svelte 或许是个不错的选择）</li>
+                            <li>完成至少两个全栈个人项目</li>
+                            <li>保持健康，每周跑步三次</li>
+                        </ul>
+                        <p>不管结果如何，只要你还在努力，依然充满好奇心，那就够了。</p>
+                        <p>继续前进吧。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- View: About -->
+        <section id="view-about" class="view">
+            <div class="view-header">
+                <button class="btn-back" onclick="app.navigate('home')">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                    返回
+                </button>
+                <h2>关于时间胶囊 (HelloTime)</h2>
+            </div>
+
+            <div class="about-content-wrapper">
+                <!-- Highlight Section -->
+                <div class="cyber-glass p-8 mb-8">
+                    <div class="flex-row gap-8">
+                        <div class="about-hero-text">
+                            <h3 class="text-glow-cyan mb-4">跨越时空的技术演示</h3>
+                            <p class="text-secondary mb-6">
+                                HelloTime 不仅仅是一个简单的时间胶囊应用，它是一个遵循 <strong class="cyan-text text-glow">RealWorld</strong>
+                                规范的实验性全栈项目。
+                                本项目旨在展示在相同的业务逻辑下，如何利用不同的现代化技术架构构建具有高度一致性、可维护性和交互体验的应用程序。
+                            </p>
+                            <p class="text-secondary">
+                                每一行代码都经过精心设计，以确保在高性能后端引擎与现代化前端框架之间实现完美的契合。
+                            </p>
+                        </div>
+                        <div class="about-hero-deco">
+                            <div class="tech-orb">
+                                <div class="orb-core"></div>
+                                <div class="orb-ring ring-1"></div>
+                                <div class="orb-ring ring-2"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Features Grid -->
+                <div class="about-grid mb-8">
+                    <div class="cyber-glass p-6">
+                        <div class="feature-header mb-4">
+                            <div class="f-icon">🛸</div>
+                            <h4>统一 API 交互</h4>
+                        </div>
+                        <p class="text-muted text-sm">完全遵循 OpenAPI 3.0 标准。无论底层是 Java, Go 还是 Python，前端都只需对接一套标准的 REST 接口。
+                        </p>
+                    </div>
+                    <div class="cyber-glass p-6">
+                        <div class="feature-header mb-4">
+                            <div class="f-icon">🌗</div>
+                            <h4>设计系统同步</h4>
+                        </div>
+                        <p class="text-muted text-sm mt-3">利用 CSS Custom Properties 维护一套原子化的 Design
+                            Tokens。所有框架共享这套玻璃拟态的科技感视觉规范。</p>
+                    </div>
+                    <div class="cyber-glass p-6">
+                        <div class="feature-header mb-4">
+                            <div class="f-icon">⛓️</div>
+                            <h4>数据层透明隔离</h4>
+                        </div>
+                        <p class="text-muted text-sm mt-3">胶囊内容的锁定逻辑在服务端实现硬隔离（API 永不返回未到期内容），确保了数据的时间安全性。</p>
+                    </div>
+                </div>
+
+                <!-- Technical Deep Dive (Large Logos & Versions) -->
+                <div class="cyber-glass p-8 mb-8">
+                    <h3 class="text-glow-cyan mb-6">核心驱动 (Core Technologies)</h3>
+                    <div class="tech-logos-grid" style="align-items: flex-start; margin-top: 3rem;">
+                        <div class="tech-item" style="flex-direction: column; gap: 1.5rem;">
+                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/svelte/svelte-original.svg"
+                                class="stack-icon" style="width: 64px; height: 64px;" alt="Svelte" />
+                            <div class="text-center">
+                                <div class="text-glow" style="font-size: 1.1rem; font-weight: bold;">Svelte</div>
+                                <div class="text-tertiary mono-font mt-2" style="font-size: 0.9rem;">v5.x</div>
+                            </div>
+                        </div>
+                        <div class="tech-item" style="flex-direction: column; gap: 1.5rem;">
+                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg"
+                                class="stack-icon" style="width: 64px; height: 64px;" alt="TypeScript" />
+                            <div class="text-center">
+                                <div class="text-glow" style="font-size: 1.1rem; font-weight: bold;">TypeScript</div>
+                                <div class="text-tertiary mono-font mt-2" style="font-size: 0.9rem;">v5.x</div>
+                            </div>
+                        </div>
+                        <div class="tech-item" style="flex-direction: column; gap: 1.5rem;">
+                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/go/go-original.svg"
+                                class="stack-icon" style="width: 64px; height: 64px;" alt="Go" />
+                            <div class="text-center">
+                                <div class="text-glow" style="font-size: 1.1rem; font-weight: bold;">Go</div>
+                                <div class="text-tertiary mono-font mt-2" style="font-size: 0.9rem;">v1.24</div>
+                            </div>
+                        </div>
+                        <div class="tech-item" style="flex-direction: column; gap: 1.5rem;">
+                            <img src="https://raw.githubusercontent.com/gin-gonic/logo/master/color.svg"
+                                class="stack-icon" style="width: 64px; height: 64px;" alt="Gin" />
+                            <div class="text-center">
+                                <div class="text-glow" style="font-size: 1.1rem; font-weight: bold;">Gin Framework</div>
+                                <div class="text-tertiary mono-font mt-2" style="font-size: 0.9rem;">v1.10</div>
+                            </div>
+                        </div>
+                        <div class="tech-item" style="flex-direction: column; gap: 1.5rem;">
+                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/sqlite/sqlite-original.svg"
+                                class="stack-icon" style="width: 64px; height: 64px;" alt="SQLite" />
+                            <div class="text-center">
+                                <div class="text-glow" style="font-size: 1.1rem; font-weight: bold;">SQLite</div>
+                                <div class="text-tertiary mono-font mt-2" style="font-size: 0.9rem;">v3.x</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center pb-8 mt-4">
+                    <span id="secret-admin-trigger" class="text-tertiary"
+                        style="font-size: 0.85rem; cursor: pointer; opacity: 0.4; display: inline-block; padding: 10px;">
+                        Version 1.2.4-stable
+                    </span>
+                </div>
+            </div>
+        </section>
+
+        <!-- View: Admin -->
+        <section id="view-admin" class="view">
+            <div class="view-header">
+                <button class="btn-back" onclick="app.navigate('home')">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                    返回
+                </button>
+                <h2>系统管理</h2>
+            </div>
+
+            <!-- Admin Login -->
+            <div id="admin-login-box" class="cyber-glass center-card" style="max-width: 450px;">
+                <h3 class="mb-6">管理员登录</h3>
+                <form onsubmit="event.preventDefault(); app.adminLogin()">
+                    <div class="form-group text-left">
+                        <label>管理员密码</label>
+                        <input type="password" id="admin-pwd" class="cyber-input text-center mono-font"
+                            placeholder="******" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary"
+                        style="width: 100%; justify-content: center;">登录</button>
+                </form>
+            </div>
+
+            <!-- Admin Dashboard -->
+            <div id="admin-dashboard-box" class="cyber-glass" style="display: none; padding: 2rem;">
+                <div class="dashboard-header flex-between mb-4 pb-4 border-bottom">
+                    <h3>胶囊列表</h3>
+                    <button class="btn btn-outline btn-sm" onclick="app.adminLogout()">退出登录</button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="cyber-table">
+                        <thead>
+                            <tr>
+                                <th>标识码 (ID)</th>
+                                <th>数据标题</th>
+                                <th>创建者</th>
+                                <th>预计解锁 (UTC)</th>
+                                <th>当前状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="mono-font cyan-text">X7K9P2M4</td>
+                                <td>未来计划分享</td>
+                                <td class="mono-font">Alex</td>
+                                <td class="mono-font">2026-04-09 12:00</td>
+                                <td><span class="badge badge-locked">锁定</span></td>
+                                <td><button class="btn btn-icon btn-danger-outline" onclick="app.deleteCapsule(this)"
+                                        title="删除">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
+                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                            <path
+                                                d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                                            </path>
+                                        </svg>
+                                    </button></td>
+                            </tr>
+                            <tr>
+                                <td class="mono-font cyan-text">Z8F2X1A9</td>
+                                <td>去年的年度目标总结</td>
+                                <td class="mono-font">FutureMe</td>
+                                <td class="mono-font">2026-03-20 00:00</td>
+                                <td><span class="badge badge-unlocked">已解密</span></td>
+                                <td><button class="btn btn-icon btn-danger-outline" onclick="app.deleteCapsule(this)"
+                                        title="删除">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
+                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                            <path
+                                                d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                                            </path>
+                                        </svg>
+                                    </button></td>
+                            </tr>
+                            <tr>
+                                <td class="mono-font cyan-text">B4Q1M7N2</td>
+                                <td>我的第一次投资</td>
+                                <td class="mono-font">Investor99</td>
+                                <td class="mono-font">2030-01-01 00:00</td>
+                                <td><span class="badge badge-locked">锁定</span></td>
+                                <td><button class="btn btn-icon btn-danger-outline" onclick="app.deleteCapsule(this)"
+                                        title="删除">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
+                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                            <path
+                                                d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                                            </path>
+                                        </svg>
+                                    </button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="app-footer">
+        <div class="stack-info cyber-glass-sm mono-font" style="text-align: center;">
+            <span class="status-dot green"></span>
+            运行正常 | HelloTime UI v1.0.0 <br />
+            <span style="font-size: 0.85rem; opacity: 0.7; margin-top: 0.5rem; display: inline-block;">Svelte ·
+                TypeScript · Go · Gin · SQLite</span>
+        </div>
+    </footer>
+
+    <script src="src/app.js"></script>
+</body>
+
+</html>
