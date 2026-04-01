@@ -64,6 +64,12 @@ export function useAdmin() {
   const logout = useCallback(() => {
     setToken(null)
     setCapsules([])
+    setPageInfo({
+      totalElements: 0,
+      totalPages: 0,
+      number: 0,
+      size: 20,
+    })
   }, [])
 
   const fetchCapsules = useCallback(async (page = 0) => {
@@ -81,9 +87,15 @@ export function useAdmin() {
         size: res.data.size,
       })
     } catch (e: unknown) {
-      if (e instanceof Error && e.message.includes('认证')) {
+      if (e instanceof Error && (e.message.includes('认证') || e.message.includes('未授权'))) {
         setToken(null)
         setCapsules([])
+        setPageInfo({
+          totalElements: 0,
+          totalPages: 0,
+          number: 0,
+          size: 20,
+        })
       }
       const msg = e instanceof Error ? e.message : '查询失败'
       setError(msg)
@@ -110,6 +122,16 @@ export function useAdmin() {
         size: res.data.size,
       })
     } catch (e: unknown) {
+      if (e instanceof Error && (e.message.includes('认证') || e.message.includes('未授权'))) {
+        setToken(null)
+        setCapsules([])
+        setPageInfo({
+          totalElements: 0,
+          totalPages: 0,
+          number: 0,
+          size: 20,
+        })
+      }
       const msg = e instanceof Error ? e.message : '删除失败'
       setError(msg)
     } finally {

@@ -19,7 +19,7 @@ describe('CapsuleCard', () => {
     )
 
     expect(screen.getByText('测试标题')).toBeDefined()
-    expect(screen.getByText('已开启')).toBeDefined()
+    expect(screen.getByText('已解锁')).toBeDefined()
     expect(screen.getByText('测试内容')).toBeDefined()
   })
 
@@ -40,6 +40,6 @@ describe('CapsuleCard', () => {
 
     expect(screen.getByText('未来胶囊')).toBeDefined()
     expect(screen.getByText('未到时间')).toBeDefined()
-    expect(screen.getByText('胶囊尚未到开启时间')).toBeDefined()
+    expect(screen.getByText('解锁时间:')).toBeDefined()
   })
 })

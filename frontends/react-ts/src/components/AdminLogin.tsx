@@ -1,5 +1,4 @@
 import { useState, type FormEvent } from 'react'
-import styles from './AdminLogin.module.css'
 
 interface Props {
   loading?: boolean
@@ -18,24 +17,27 @@ export default function AdminLogin({ loading, error, onLogin }: Props) {
   }
 
   return (
-    <form className={`${styles.loginForm} card`} onSubmit={handleLogin}>
-      <h2 className="text-center mb-4">管理员登录</h2>
-      <div className={styles.formGroup}>
-        <label className="input-label" htmlFor="password">密码</label>
-        <input
-          id="password"
-          type="password"
-          className="input"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          placeholder="输入管理员密码"
-          autoComplete="current-password"
-        />
-      </div>
-      {error && <p className="input-error-text">{error}</p>}
-      <button type="submit" className={`btn btn-primary btn-lg ${styles.submitBtn}`} disabled={loading || !password}>
-        {loading ? '登录中...' : '登录'}
-      </button>
-    </form>
+    <div className="cyber-glass center-card" style={{ maxWidth: '450px' }}>
+      <h3 className="mb-6">管理员登录</h3>
+      <form onSubmit={handleLogin}>
+        <div className="form-group text-left">
+          <label htmlFor="admin-password">管理员密码</label>
+          <input
+            id="admin-password"
+            type="password"
+            className="cyber-input text-center mono-font"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            placeholder="******"
+            autoComplete="current-password"
+            required
+          />
+        </div>
+        {error && <p style={{color: 'var(--magenta)', marginTop: '0.5rem'}}>{error}</p>}
+        <button type="submit" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }} disabled={loading || !password}>
+          {loading ? '登录中...' : '登录'}
+        </button>
+      </form>
+    </div>
   )
 }

@@ -1,12 +1,34 @@
 import { useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import styles from './AboutView.module.css'
 import { useTechStack } from '@/hooks/useTechStack'
 
 export default function AboutView() {
   const navigate = useNavigate()
   const clickCount = useRef(0)
   const { techStack, loading, error } = useTechStack()
+
+  const techItems = [
+    { src: '/frontend.svg', alt: 'React', title: 'React', version: 'React 19' },
+    { src: '/typescript-logo.svg', alt: 'TypeScript', title: 'TypeScript', version: 'TypeScript 5' },
+    {
+      src: '/tech-logos/backend.svg',
+      alt: '后端框架',
+      title: loading ? '后端框架' : error || !techStack ? '暂不可用' : techStack.framework,
+      version: loading ? '加载中...' : error || !techStack ? '技术栈信息暂不可用' : techStack.framework,
+    },
+    {
+      src: '/tech-logos/language.svg',
+      alt: '后端语言',
+      title: loading ? '后端语言' : error || !techStack ? '暂不可用' : techStack.language,
+      version: loading ? '加载中...' : error || !techStack ? '技术栈信息暂不可用' : techStack.language,
+    },
+    {
+      src: '/tech-logos/database.svg',
+      alt: '数据库',
+      title: loading ? '数据库' : error || !techStack ? '暂不可用' : techStack.database,
+      version: loading ? '加载中...' : error || !techStack ? '技术栈信息暂不可用' : techStack.database,
+    },
+  ]
 
   function handleSecretClick() {
     clickCount.current++
@@ -17,47 +39,99 @@ export default function AboutView() {
   }
 
   return (
-    <div className="page">
-      <div className="container container-sm">
-        <div className="page-header">
-          <h1>关于时间胶囊</h1>
-          <p>一个技术展示项目</p>
+    <section id="view-about" className="view active">
+        <div className="view-header">
+            <button className="btn-back" onClick={() => navigate('/')}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                返回
+            </button>
+            <h2>关于时间胶囊 (HelloTime)</h2>
         </div>
 
-        <div className="card mb-6">
-          <h3 className="mb-4">项目简介</h3>
-          <p className="text-secondary">
-            时间胶囊 (HelloTime) 是一个类似 RealWorld 的技术展示应用。
-            通过统一的 API 规范和可复用的前端样式，展示不同前后端技术栈的组合能力。
-          </p>
-        </div>
+        <div className="about-content-wrapper">
+            {/* Highlight Section */}
+            <div className="cyber-glass p-8 mb-8">
+                <div className="flex-row gap-8">
+                    <div className="about-hero-text">
+                        <h3 className="text-glow-cyan mb-4">跨越时空的技术演示</h3>
+                        <p className="text-secondary mb-6">
+                            HelloTime 不仅仅是一个简单的时间胶囊应用，它是一个遵循 <strong className="cyan-text text-glow">RealWorld</strong>
+                            规范的实验性全栈项目。
+                            本项目旨在展示在相同的业务逻辑下，如何利用不同的现代化技术架构构建具有高度一致性、可维护性和交互体验的应用程序。
+                        </p>
+                        <p className="text-secondary">
+                            每一行代码都经过精心设计，以确保在高性能后端引擎与现代化前端框架之间实现完美的契合。
+                        </p>
+                    </div>
+                    <div className="about-hero-deco">
+                        <div
+                          className="tech-orb"
+                          onClick={handleSecretClick}
+                          role="button"
+                          tabIndex={0}
+                          aria-label="隐藏管理入口"
+                          onKeyDown={(event) => {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                              event.preventDefault()
+                              handleSecretClick()
+                            }
+                          }}
+                        >
+                            <div className="orb-core"></div>
+                            <div className="orb-ring ring-1"></div>
+                            <div className="orb-ring ring-2"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-        <div className="card mb-6">
-          <h3 className="mb-4">当前技术栈</h3>
-          <ul className={styles.techList}>
-            <li><strong>前端:</strong> React 19 + TypeScript (Vite)</li>
-            <li><strong>后端:</strong> {loading ? '加载中...' : techStack?.framework ?? '技术栈信息暂不可用'}</li>
-            <li><strong>语言:</strong> {loading ? '加载中...' : techStack?.language ?? '技术栈信息暂不可用'}</li>
-            <li><strong>数据库:</strong> {loading ? '加载中...' : techStack?.database ?? '技术栈信息暂不可用'}</li>
-            <li><strong>样式:</strong> 共享 CSS Design Tokens</li>
-          </ul>
-          {error ? <p className="text-sm text-secondary mt-4">当前无法获取服务端技术栈详情。</p> : null}
-        </div>
+            {/* Features Grid */}
+            <div className="about-grid mb-8">
+                <div className="cyber-glass p-6">
+                    <div className="feature-header mb-4">
+                        <div className="f-icon">🛸</div>
+                        <h4>统一 API 交互</h4>
+                    </div>
+                    <p className="text-muted text-sm">完全遵循 OpenAPI 3.0 标准。无论底层是 Java, Go 还是 Python，前端都只需对接一套标准的 REST 接口。
+                    </p>
+                </div>
+                <div className="cyber-glass p-6">
+                    <div className="feature-header mb-4">
+                        <div className="f-icon">🌗</div>
+                        <h4>设计系统同步</h4>
+                    </div>
+                    <p className="text-muted text-sm mt-3">利用 CSS Custom Properties 维护一套原子化的 Design
+                        Tokens。所有框架共享这套玻璃拟态的科技感视觉规范。</p>
+                </div>
+                <div className="cyber-glass p-6">
+                    <div className="feature-header mb-4">
+                        <div className="f-icon">⛓️</div>
+                        <h4>数据层透明隔离</h4>
+                    </div>
+                    <p className="text-muted text-sm mt-3">胶囊内容的锁定逻辑在服务端实现硬隔离（API 永不返回未到期内容），确保了数据的时间安全性。</p>
+                </div>
+            </div>
 
-        <div className="card">
-          <h3 className="mb-4">设计理念</h3>
-          <ul className={styles.techList}>
-            <li>统一的 REST API 规范 (OpenAPI 3.0)</li>
-            <li>可复用的前端样式系统 (CSS 自定义属性)</li>
-            <li>支持亮色/暗色主题</li>
-            <li>前后端分离，可自由组合技术栈</li>
-          </ul>
+            {/* Technical Deep Dive (Large Logos & Versions) */}
+            <div className="cyber-glass p-8 mb-8">
+                <h3 className="text-glow-cyan mb-6">核心驱动 (Core Technologies)</h3>
+                <div className="tech-logos-grid" style={{ alignItems: 'flex-start', marginTop: '3rem' }}>
+                    {techItems.map(item => (
+                      <div key={`${item.alt}-${item.version}`} className="tech-item" style={{ flexDirection: 'column', gap: '1.5rem' }}>
+                          <img src={item.src}
+                              className="stack-icon" style={{ width: '64px', height: '64px' }} alt={item.alt} />
+                          <div className="text-center">
+                              <div className="text-glow" style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{item.title}</div>
+                              <div className="text-tertiary mono-font mt-2" style={{ fontSize: '0.9rem' }}>{item.version}</div>
+                          </div>
+                      </div>
+                    ))}
+                </div>
+            </div>
         </div>
-
-        <p className="text-center text-sm text-tertiary mt-8" onClick={handleSecretClick}>
-          HelloTime v1.0.0
-        </p>
-      </div>
-    </div>
+    </section>
   )
 }

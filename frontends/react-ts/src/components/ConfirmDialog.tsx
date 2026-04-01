@@ -13,11 +13,11 @@ export default function ConfirmDialog({ visible, title, message, onConfirm, onCa
   if (!visible) return null
 
   return createPortal(
-    <div className="overlay" onClick={e => { if (e.target === e.currentTarget) onCancel() }}>
-      <div className="dialog">
-        <h3 className={styles.dialogTitle}>{title}</h3>
+    <div className={styles.overlay} onClick={e => { if (e.target === e.currentTarget) onCancel() }}>
+      <div className={styles.dialog} role="dialog" aria-modal="true" aria-labelledby="confirm-dialog-title">
+        <h3 id="confirm-dialog-title" className={styles.dialogTitle}>{title}</h3>
         <p className={`${styles.dialogMessage} text-secondary`}>{message}</p>
-        <div className="dialog-actions flex justify-end gap-3">
+        <div className={styles.actions}>
           <button className="btn btn-secondary" onClick={onCancel}>取消</button>
           <button className="btn btn-primary" onClick={onConfirm}>确认</button>
         </div>

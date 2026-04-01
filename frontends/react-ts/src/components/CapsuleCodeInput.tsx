@@ -1,5 +1,4 @@
 import { type KeyboardEvent } from 'react'
-import styles from './CapsuleCodeInput.module.css'
 
 interface Props {
   value: string
@@ -23,25 +22,27 @@ export default function CapsuleCodeInput({ value, onChange, onSubmit, loading, e
   }
 
   return (
-    <div className="code-input-group">
-      <div className={styles.inputWrapper}>
-        <input
-          className={`input ${styles.codeInput}`}
-          value={value}
-          onChange={e => onChange(e.target.value)}
-          onKeyUp={handleKeyUp}
-          placeholder="输入 8 位胶囊码"
-          maxLength={8}
-        />
-        <button
-          className="btn btn-primary"
-          onClick={handleClick}
-          disabled={loading || value.length !== 8}
-        >
-          {loading ? '查询中...' : '开启'}
-        </button>
-      </div>
-      {error && <p className="input-error-text">{error}</p>}
+    <div className="search-container cyber-glass center-card">
+        <p className="mb-6">输入8位提取码开启您的时间胶囊。</p>
+        <div className="search-input-wrapper">
+            <input
+              type="text"
+              className="cyber-input search-input mono-font text-center"
+              placeholder="        "
+              maxLength={8}
+              value={value}
+              onChange={e => onChange(e.target.value)}
+              onKeyUp={handleKeyUp}
+              autoComplete="off"
+            />
+            <div className="search-line-effect"></div>
+        </div>
+        {error && <p style={{color: 'var(--magenta)', marginTop: '1rem', textAlign: 'center'}}>{error}</p>}
+        <div className="action-row mt-6">
+            <button className="btn btn-primary" onClick={handleClick} disabled={loading || value.length !== 8}>
+              {loading ? '查询中...' : '开启胶囊'}
+            </button>
+        </div>
     </div>
   )
 }

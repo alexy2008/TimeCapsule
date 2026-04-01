@@ -16,14 +16,14 @@ describe('ThemeToggle', () => {
     vi.mocked(useTheme).mockReturnValue({ theme: 'light', toggle: vi.fn() })
     render(<ThemeToggle />)
 
-    expect(screen.getByTitle('切换到暗色模式')).toBeDefined()
+    expect(screen.getByTitle('切换暗色模式')).toBeDefined()
   })
 
   it('should render with sun icon in dark mode', () => {
     vi.mocked(useTheme).mockReturnValue({ theme: 'dark', toggle: vi.fn() })
     render(<ThemeToggle />)
 
-    expect(screen.getByTitle('切换到亮色模式')).toBeDefined()
+    expect(screen.getByTitle('切换亮色模式')).toBeDefined()
   })
 
   it('should call toggle when clicked', () => {

@@ -1,12 +1,12 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import type { Capsule, CreateCapsuleForm } from '@/types'
 import { useCapsule } from '@/hooks/useCapsule'
 import CapsuleForm from '@/components/CapsuleForm'
 import ConfirmDialog from '@/components/ConfirmDialog'
-import styles from './CreateView.module.css'
 
 export default function CreateView() {
+  const navigate = useNavigate()
   const { loading, error, create } = useCapsule()
   const [created, setCreated] = useState<Capsule | null>(null)
   const [showConfirm, setShowConfirm] = useState(false)
@@ -38,40 +38,59 @@ export default function CreateView() {
     }
   }
 
+  if (created) {
+    return (
+      <section id="view-created" className="view active">
+          <div className="success-container cyber-glass text-center">
+              <div className="status-icon success-glow">
+                  <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                      <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                  </svg>
+              </div>
+              <h2>胶囊创建成功</h2>
+              <p>您的时间胶囊已成功封存。</p>
+              <div className="capsule-key-box">
+                  <span className="label">提取码</span>
+                  <div className="code-display mono-font glow-text">{created.code}</div>
+                  <button className="btn btn-icon btn-copy" onClick={copyCode} aria-label="Copy code">
+                      {copied ? '✓' : (
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                      )}
+                  </button>
+              </div>
+              <div className="helper-text">请妥善保管此提取码，它是打开此胶囊的唯一凭证。</div>
+              <button className="btn btn-outline mt-6" onClick={() => navigate('/')}>返回首页</button>
+          </div>
+      </section>
+    )
+  }
+
   return (
-    <div className="page">
-      <div className="container container-sm">
-        <div className="page-header">
-          <h1>创建时间胶囊</h1>
-          <p>封存你的心意，在未来开启</p>
+    <section id="view-create" className="view active">
+        <div className="view-header">
+            <button className="btn-back" onClick={() => navigate('/')}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                返回
+            </button>
+            <h2>创建时间胶囊</h2>
         </div>
 
-        {created ? (
-          <div className={`card ${styles.successCard} text-center`}>
-            <div className={styles.successIcon}>&#10004;</div>
-            <h2>胶囊创建成功！</h2>
-            <p className="text-secondary mt-2">你的胶囊码是：</p>
-            <p className={styles.capsuleCode}>{created.code}</p>
-            <p className="text-sm text-secondary mt-2">请记住这个胶囊码，它是开启胶囊的唯一凭证</p>
-            <div className="flex justify-center gap-3 mt-6">
-              <button className="btn btn-secondary" onClick={copyCode}>{copied ? '已复制！' : '复制胶囊码'}</button>
-              <Link to={`/open/${created.code}`} className="btn btn-primary">查看胶囊</Link>
-            </div>
-          </div>
-        ) : (
-          <>
-            {error && <div className={styles.errorBanner}>{error}</div>}
-            <CapsuleForm loading={loading} onSubmit={handleSubmit} />
-            <ConfirmDialog
-              visible={showConfirm}
-              title="确认创建"
-              message={`确定要创建标题为「${pendingForm?.title}」的时间胶囊吗？`}
-              onConfirm={confirmCreate}
-              onCancel={() => setShowConfirm(false)}
-            />
-          </>
-        )}
-      </div>
-    </div>
+        {error && <div style={{ color: 'var(--magenta)', marginBottom: '1rem', textAlign: 'center' }}>{error}</div>}
+        <CapsuleForm loading={loading} onSubmit={handleSubmit} />
+        <ConfirmDialog
+          visible={showConfirm}
+          title="确认创建"
+          message={`确定要创建标题为「${pendingForm?.title}」的时间胶囊吗？`}
+          onConfirm={confirmCreate}
+          onCancel={() => setShowConfirm(false)}
+        />
+    </section>
   )
 }

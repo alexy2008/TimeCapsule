@@ -12,19 +12,25 @@ const AdminView = lazy(() => import('@/views/AdminView'))
 export default function App() {
   return (
     <BrowserRouter>
-      <AppHeader />
-      <main style={{ minHeight: 'calc(100vh - var(--header-height) - 4rem)' }}>
-        <Suspense>
-          <Routes>
-            <Route path="/" element={<HomeView />} />
-            <Route path="/create" element={<CreateView />} />
-            <Route path="/open/:code?" element={<OpenView />} />
-            <Route path="/about" element={<AboutView />} />
-            <Route path="/admin" element={<AdminView />} />
-          </Routes>
-        </Suspense>
-      </main>
-      <AppFooter />
+      {/* Cyber-Glass Background Arrays */}
+      <div className="ambient-glow"></div>
+      <div className="background-grid"></div>
+
+      <div className="app-container">
+        <AppHeader />
+        <main className="app-main">
+          <Suspense fallback={<div className="cyber-glass center-card text-center">页面加载中...</div>}>
+            <Routes>
+              <Route path="/" element={<HomeView />} />
+              <Route path="/create" element={<CreateView />} />
+              <Route path="/open/:code?" element={<OpenView />} />
+              <Route path="/about" element={<AboutView />} />
+              <Route path="/admin" element={<AdminView />} />
+            </Routes>
+          </Suspense>
+        </main>
+        <AppFooter />
+      </div>
     </BrowserRouter>
   )
 }

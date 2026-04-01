@@ -66,64 +66,66 @@ export default function CapsuleForm({ loading, onSubmit }: Props) {
   }
 
   return (
-    <form className={styles.capsuleForm} onSubmit={handleSubmit}>
-      <div className={styles.formGroup}>
-        <label className="input-label" htmlFor="title">标题</label>
+    <form className={`cyber-form cyber-glass ${styles.capsuleForm}`} onSubmit={handleSubmit}>
+      <div className="form-group">
+        <label htmlFor="capsule-title">标题</label>
         <input
-          id="title"
-          className={`input ${errors.title ? 'input-error' : ''}`}
+          id="capsule-title"
+          className={`cyber-input ${errors.title ? 'error' : ''}`}
           value={form.title}
           onChange={e => updateField('title', e.target.value)}
           placeholder="给时间胶囊取个名字"
           maxLength={100}
         />
-        {errors.title && <p className="input-error-text">{errors.title}</p>}
+        {errors.title && <p className="input-error-text" style={{color: 'var(--magenta)', marginTop: '0.5rem', fontSize: '0.85rem'}}>{errors.title}</p>}
       </div>
 
-      <div className={styles.formGroup}>
-        <label className="input-label" htmlFor="content">内容</label>
+      <div className="form-group">
+        <label htmlFor="capsule-open-at">解锁时间</label>
+        <input
+          id="capsule-open-at"
+          type="datetime-local"
+          className={`cyber-input ${errors.openAt ? 'error' : ''}`}
+          value={form.openAt}
+          onChange={e => updateField('openAt', e.target.value)}
+          min={minDateTime}
+        />
+        <div className="helper-text">在这之前，任何人（包括您自己）都无法查看内容</div>
+        {errors.openAt && <p className="input-error-text" style={{color: 'var(--magenta)', marginTop: '0.5rem', fontSize: '0.85rem'}}>{errors.openAt}</p>}
+      </div>
+
+      <div className="form-group">
+        <label htmlFor="capsule-content">内容</label>
         <textarea
-          id="content"
-          className={`input ${errors.content ? 'input-error' : ''}`}
+          id="capsule-content"
+          className={`cyber-input textarea ${errors.content ? 'error' : ''}`}
           value={form.content}
           onChange={e => updateField('content', e.target.value)}
           placeholder="写下你想对未来说的话..."
-          rows={5}
+          rows={6}
         />
-        {errors.content && <p className="input-error-text">{errors.content}</p>}
+        {errors.content && <p className="input-error-text" style={{color: 'var(--magenta)', marginTop: '0.5rem', fontSize: '0.85rem'}}>{errors.content}</p>}
       </div>
 
-      <div className={styles.formRow}>
-        <div className={`${styles.formGroup} flex-1`}>
-          <label className="input-label" htmlFor="creator">发布者</label>
-          <input
-            id="creator"
-            className={`input ${errors.creator ? 'input-error' : ''}`}
-            value={form.creator}
-            onChange={e => updateField('creator', e.target.value)}
-            placeholder="你的昵称"
-            maxLength={30}
-          />
-          {errors.creator && <p className="input-error-text">{errors.creator}</p>}
-        </div>
-
-        <div className={`${styles.formGroup} flex-1`}>
-          <label className="input-label" htmlFor="openAt">开启时间</label>
-          <input
-            id="openAt"
-            type="datetime-local"
-            className={`input ${errors.openAt ? 'input-error' : ''}`}
-            value={form.openAt}
-            onChange={e => updateField('openAt', e.target.value)}
-            min={minDateTime}
-          />
-          {errors.openAt && <p className="input-error-text">{errors.openAt}</p>}
-        </div>
+      <div className="form-group">
+        <label htmlFor="capsule-creator">创建者</label>
+        <input
+          id="capsule-creator"
+          className={`cyber-input ${errors.creator ? 'error' : ''}`}
+          value={form.creator}
+          onChange={e => updateField('creator', e.target.value)}
+          placeholder="你的昵称"
+          maxLength={30}
+        />
+        {errors.creator && <p className="input-error-text" style={{color: 'var(--magenta)', marginTop: '0.5rem', fontSize: '0.85rem'}}>{errors.creator}</p>}
       </div>
 
-      <button type="submit" className={`btn btn-primary btn-lg ${styles.submitBtn}`} disabled={loading}>
-        {loading ? '创建中...' : '封存时间胶囊'}
-      </button>
+      <div className="form-actions">
+        <button type="submit" className="btn btn-primary btn-glow" disabled={loading}>
+          <span className="btn-text">{loading ? '创建中...' : '封存胶囊'}</span>
+          <div className="btn-scanner"></div>
+        </button>
+      </div>
     </form>
   )
 }

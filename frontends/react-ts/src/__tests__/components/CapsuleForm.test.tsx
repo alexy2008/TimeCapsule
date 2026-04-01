@@ -8,15 +8,15 @@ describe('CapsuleForm', () => {
 
     expect(screen.getByLabelText('标题')).toBeDefined()
     expect(screen.getByLabelText('内容')).toBeDefined()
-    expect(screen.getByLabelText('发布者')).toBeDefined()
-    expect(screen.getByLabelText('开启时间')).toBeDefined()
-    expect(screen.getByRole('button', { name: '封存时间胶囊' })).toBeDefined()
+    expect(screen.getByLabelText('创建者')).toBeDefined()
+    expect(screen.getByLabelText('解锁时间')).toBeDefined()
+    expect(screen.getByRole('button', { name: '封存胶囊' })).toBeDefined()
   })
 
   it('should show errors for empty submission', async () => {
     render(<CapsuleForm onSubmit={() => {}} />)
 
-    fireEvent.click(screen.getByRole('button', { name: '封存时间胶囊' }))
+    fireEvent.click(screen.getByRole('button', { name: '封存胶囊' }))
 
     expect(screen.getByText('请输入标题')).toBeDefined()
     expect(screen.getByText('请输入内容')).toBeDefined()
@@ -30,14 +30,14 @@ describe('CapsuleForm', () => {
 
     fireEvent.change(screen.getByLabelText('标题'), { target: { value: '测试标题' } })
     fireEvent.change(screen.getByLabelText('内容'), { target: { value: '测试内容' } })
-    fireEvent.change(screen.getByLabelText('发布者'), { target: { value: '测试者' } })
+    fireEvent.change(screen.getByLabelText('创建者'), { target: { value: '测试者' } })
 
     const futureDate = new Date()
     futureDate.setFullYear(futureDate.getFullYear() + 1)
     const dateStr = futureDate.toISOString().slice(0, 16)
-    fireEvent.change(screen.getByLabelText('开启时间'), { target: { value: dateStr } })
+    fireEvent.change(screen.getByLabelText('解锁时间'), { target: { value: dateStr } })
 
-    fireEvent.click(screen.getByRole('button', { name: '封存时间胶囊' }))
+    fireEvent.click(screen.getByRole('button', { name: '封存胶囊' }))
 
     expect(onSubmit).toHaveBeenCalledWith(
       expect.objectContaining({

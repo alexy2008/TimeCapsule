@@ -19,9 +19,13 @@
   width: 100%;
 }
 
-/* 暗色模式下反转日期选添器图标颜色 */
-:global([data-theme="dark"]) .capsuleForm input[type="datetime-local"]::-webkit-calendar-picker-indicator {
-  filter: invert(1);
+/* 让浏览器原生 datetime-local 控件跟随主题切换自身配色 */
+:global([data-theme="light"]) .capsuleForm input[type="datetime-local"] {
+  color-scheme: light;
+}
+
+:global([data-theme="dark"]) .capsuleForm input[type="datetime-local"] {
+  color-scheme: dark;
 }
 
 @media (max-width: 768px) {

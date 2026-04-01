@@ -1,21 +1,15 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAdmin } from '@/hooks/useAdmin'
 import AdminLogin from '@/components/AdminLogin'
 import CapsuleTable from '@/components/CapsuleTable'
 import ConfirmDialog from '@/components/ConfirmDialog'
-import styles from './AdminView.module.css'
 
 export default function AdminView() {
+  const navigate = useNavigate()
   const {
-    capsules,
-    pageInfo,
-    loading,
-    error,
-    isLoggedIn,
-    login,
-    logout,
-    fetchCapsules,
-    deleteCapsule,
+    capsules, pageInfo, loading, error,
+    isLoggedIn, login, logout, fetchCapsules, deleteCapsule,
   } = useAdmin()
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
@@ -24,7 +18,6 @@ export default function AdminView() {
   async function handleLogin(password: string) {
     try {
       await login(password)
-      await fetchCapsules()
     } catch {
       // error handled in hook
     }
@@ -47,26 +40,32 @@ export default function AdminView() {
   }, [isLoggedIn, fetchCapsules])
 
   return (
-    <div className="page">
-      <div className="container">
-        <div className="page-header">
-          <h1>管理后台</h1>
-        </div>
+    <section id="view-admin" className="view active">
+      <div className="view-header">
+          <button className="btn-back" onClick={() => navigate('/')}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="19" y1="12" x2="5" y2="12"></line>
+                  <polyline points="12 19 5 12 12 5"></polyline>
+              </svg>
+              返回
+          </button>
+          <h2>系统管理</h2>
+      </div>
 
-        {!isLoggedIn ? (
+      {!isLoggedIn ? (
           <AdminLogin
             loading={loading}
             error={error}
             onLogin={handleLogin}
           />
-        ) : (
-          <>
-            <div className={styles.adminBar}>
-              <p className="text-sm text-secondary">已登录为管理员</p>
-              <button className="btn btn-secondary btn-sm" onClick={logout}>退出登录</button>
+      ) : (
+          <div className="cyber-glass" style={{ padding: '2rem' }}>
+            <div className="dashboard-header flex-between mb-4 pb-4 border-bottom">
+              <h3>胶囊列表</h3>
+              <button className="btn btn-outline btn-sm" onClick={logout}>退出登录</button>
             </div>
 
-            {error ? <div className={styles.errorBanner}>{error}</div> : null}
+            {error && <div style={{ color: 'var(--magenta)', marginBottom: '1rem' }}>{error}</div>}
 
             <CapsuleTable
               capsules={capsules}
@@ -74,7 +73,6 @@ export default function AdminView() {
               loading={loading}
               onDelete={handleDelete}
               onPage={fetchCapsules}
-              onRefresh={() => fetchCapsules(pageInfo.number)}
             />
 
             <ConfirmDialog
@@ -84,9 +82,8 @@ export default function AdminView() {
               onConfirm={confirmDelete}
               onCancel={() => setShowDeleteConfirm(false)}
             />
-          </>
-        )}
-      </div>
-    </div>
+          </div>
+      )}
+    </section>
   )
 }

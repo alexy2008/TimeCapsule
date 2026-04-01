@@ -13,7 +13,7 @@ describe('HomeView', () => {
     vi.clearAllMocks()
   })
 
-  it('should render backend and database info from server health data', () => {
+  it('should render unified tech stack card', () => {
     vi.mocked(useTechStack).mockReturnValue({
       techStack: {
         framework: 'Spring Boot 3',
@@ -30,8 +30,14 @@ describe('HomeView', () => {
       </MemoryRouter>
     )
 
-    expect(screen.getByText('Spring Boot 3 · Java 21')).toBeDefined()
+    expect(screen.getByText('TECHNOLOGY STACK')).toBeDefined()
+    expect(screen.getByText('React')).toBeDefined()
+    expect(screen.getByText('TypeScript')).toBeDefined()
+    expect(screen.getByText('Java')).toBeDefined()
+    expect(screen.getByText('Spring Boot')).toBeDefined()
     expect(screen.getByText('SQLite')).toBeDefined()
+    expect(screen.getByRole('button', { name: '创建胶囊' })).toBeDefined()
+    expect(screen.getByRole('button', { name: '开启胶囊' })).toBeDefined()
   })
 
   it('should render fallback copy when tech stack data is unavailable', () => {
@@ -47,6 +53,6 @@ describe('HomeView', () => {
       </MemoryRouter>
     )
 
-    expect(screen.getAllByText('技术栈信息暂不可用')).toHaveLength(2)
+    expect(screen.getAllByText('?')).toHaveLength(3)
   })
 })

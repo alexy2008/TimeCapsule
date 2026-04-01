@@ -43,5 +43,10 @@ export function useCapsule() {
     }
   }, [])
 
-  return { capsule, loading, error, create, get }
+  const clear = useCallback(() => {
+    setCapsule(null)
+    setError(null)
+  }, [])
+
+  return { capsule, loading, error, create, get, clear }
 }

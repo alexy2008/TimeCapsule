@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, waitFor } from '@testing-library/react'
-import { useTechStack } from '@/hooks/useTechStack'
+import { __resetTechStackForTests, useTechStack } from '@/hooks/useTechStack'
 import { getHealthInfo } from '@/api'
 
 vi.mock('@/api', () => ({
@@ -10,6 +10,7 @@ vi.mock('@/api', () => ({
 describe('useTechStack', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    __resetTechStackForTests()
   })
 
   it('should load tech stack successfully', async () => {

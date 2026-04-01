@@ -1,6 +1,5 @@
 import { useEffect } from 'react'
 import { useCountdown } from '@/hooks/useCountdown'
-import styles from './CountdownClock.module.css'
 
 interface Props {
   targetIso: string
@@ -22,9 +21,9 @@ export default function CountdownClock({ targetIso, onExpired }: Props) {
 
   if (expired) {
     return (
-      <div className={styles.expiredMsg}>
-        <span className={styles.expiredIcon}>🎉</span>
-        <span>时间已到，胶囊即将开启…</span>
+      <div className="text-center mt-6">
+        <div style={{fontSize: '2rem'}}>🎉</div>
+        <span className="text-secondary mt-2 inline-block">时间已到，胶囊即将开启…</span>
       </div>
     )
   }
@@ -37,21 +36,19 @@ export default function CountdownClock({ targetIso, onExpired }: Props) {
   ]
 
   return (
-    <div className={styles.clock}>
-      <p className={styles.clockTitle}>距离开启还有</p>
-      <div className={styles.units}>
-        {units.map(({ value, label }, i) => (
-          <div key={label} className={styles.unitGroup}>
-            <div className={styles.card}>
-              <span className={styles.number}>{pad(value)}</span>
-            </div>
-            <span className={styles.label}>{label}</span>
-            {i < units.length - 1 && (
-              <span className={styles.colon}>:</span>
-            )}
-          </div>
-        ))}
-      </div>
+    <div className="countdown-display">
+        <div className="countdown-ring"></div>
+        <div className="countdown-text">
+            {units.map(({ value, label }, i) => (
+                <span key={label} style={{display: 'contents'}}>
+                    <div className="time-block">
+                        <span className={`mono-font num ${i === 3 ? 'glow-text' : ''}`}>{pad(value)}</span>
+                        <span className="unit">{label}</span>
+                    </div>
+                    {i < units.length - 1 && <span className="colon">:</span>}
+                </span>
+            ))}
+        </div>
     </div>
   )
 }

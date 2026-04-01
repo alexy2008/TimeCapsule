@@ -1,6 +1,6 @@
+import { useState, useEffect } from 'react'
 import type { Capsule } from '@/types'
 import CountdownClock from './CountdownClock'
-import styles from './CapsuleCard.module.css'
 
 interface Props {
   capsule: Capsule
@@ -8,46 +8,88 @@ interface Props {
 }
 
 export default function CapsuleCard({ capsule, onExpired }: Props) {
+  const [animating, setAnimating] = useState(false)
+
+  useEffect(() => {
+    if (capsule.opened && capsule.content) {
+      setAnimating(true)
+      const timer = setTimeout(() => setAnimating(false), 2500)
+      return () => clearTimeout(timer)
+    }
+  }, [capsule.code, capsule.opened, capsule.content])
+
   function formatTime(iso: string): string {
     return new Date(iso).toLocaleString('zh-CN', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', second: '2-digit'
     })
   }
 
+  if (capsule.opened && capsule.content) {
+    return (
+      <div className="capsule-unlocked-card cyber-glass">
+          <div className="locked-header">
+              <span className="mono-font label">提取码: {capsule.code}</span>
+              <span className="badge badge-unlocked">已解锁</span>
+          </div>
+
+          <h1 className="capsule-title text-glow-cyan">{capsule.title}</h1>
+
+          <div className="meta-info border-bottom pb-4 mb-4">
+              <span className="creator">创建者: <span className="mono-font">{capsule.creator}</span></span>
+              <div>
+                  <span className="created-at d-block">创建时间: <span className="mono-font">{formatTime(capsule.createdAt)}</span></span>
+                  <span className="opened-at d-block mt-1 cyan-text">解锁时间: <span className="mono-font">{formatTime(capsule.openAt)}</span></span>
+              </div>
+          </div>
+
+          <div className="capsule-content-area" style={{ position: 'relative' }}>
+              {animating && (
+                <div className="decrypt-animation-overlay">
+                    <div className="scanner-beam"></div>
+                    <div className="binary-rain mono-font">01001010...</div>
+                </div>
+              )}
+              <div className="content-text" style={{ opacity: animating ? 0 : 1, transition: 'opacity 0.5s ease', whiteSpace: 'pre-wrap' }}>
+                  {capsule.content}
+              </div>
+          </div>
+      </div>
+    )
+  }
+
+  // 计算锁定进度
+  const created = new Date(capsule.createdAt).getTime()
+  const open = new Date(capsule.openAt).getTime()
+  const now = Date.now()
+  const progress = Math.max(0, Math.min(100, ((now - created) / (open - created)) * 100))
+
   return (
-    <div className={`card ${styles.capsuleCard}`}>
-      <div className="card-header flex items-center justify-between">
-        <h3 className="card-title">{capsule.title}</h3>
-        <span className={`badge ${capsule.opened ? 'badge-success' : 'badge-warning'}`}>
-          {capsule.opened ? '已开启' : '未到时间'}
-        </span>
-      </div>
-
-      <div className={`${styles.capsuleMeta} text-sm text-secondary`}>
-        <span>发布者: {capsule.creator}</span>
-        <span>胶囊码: {capsule.code}</span>
-      </div>
-
-      <div className={`${styles.capsuleTimes} text-sm text-secondary`}>
-        <span>创建于: {formatTime(capsule.createdAt)}</span>
-        <span>开启于: {formatTime(capsule.openAt)}</span>
-      </div>
-
-      {capsule.opened && capsule.content ? (
-        <div className={styles.capsuleContent}>
-          <p>{capsule.content}</p>
+    <div className="capsule-locked-card cyber-glass">
+        <div className="locked-header">
+            <span className="mono-font label">提取码: {capsule.code}</span>
+            <span className="badge badge-locked pulse-danger">未到时间</span>
         </div>
-      ) : !capsule.opened ? (
-        <div className={`${styles.capsuleLocked} text-center`}>
-          <p className={styles.lockIcon}>&#128274;</p>
-          <p className="text-secondary">胶囊尚未到开启时间</p>
-          <CountdownClock targetIso={capsule.openAt} onExpired={onExpired} />
+
+        <h1 className="capsule-title">{capsule.title}</h1>
+        <div className="meta-info">
+            <span className="creator">创建者: <span className="mono-font">{capsule.creator}</span></span>
+            <span className="created-at">创建时间: <span className="mono-font">{formatTime(capsule.createdAt)}</span></span>
         </div>
-      ) : null}
+
+        <CountdownClock targetIso={capsule.openAt} onExpired={onExpired} />
+
+        <div className="data-encryption-visual mt-8">
+            <div className="scramble-text mono-font" style={{ opacity: 0.7, marginBottom: '0.5rem', fontSize: '0.85rem' }}>
+              0x8F9A... 内容已被锁定 ...3B2C1
+            </div>
+            <div className="progress-bar-container">
+                <div className="progress-bar" style={{ width: `${progress}%` }}></div>
+            </div>
+            <div className="target-time mt-2" style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+              解锁时间: <span className="mono-font text-glow">{formatTime(capsule.openAt)}</span>
+            </div>
+        </div>
     </div>
   )
 }

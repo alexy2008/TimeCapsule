@@ -6,11 +6,8 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App'
 
-// 导入全局样式（来自 spec 目录的共享设计令牌）
-import '@spec/styles/tokens.css'
-import '@spec/styles/base.css'
-import '@spec/styles/components.css'
-import '@spec/styles/layout.css'
+// 导入全局样式（Cyber-Glass 最新 UI 原型原型）
+import '@spec/styles/cyber.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
