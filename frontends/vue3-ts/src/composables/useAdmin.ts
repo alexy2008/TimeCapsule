@@ -63,6 +63,12 @@ export function useAdmin() {
     token.value = null
     sessionStorage.removeItem('admin_token')
     capsules.value = []
+    pageInfo.value = {
+      totalElements: 0,
+      totalPages: 0,
+      number: 0,
+      size: 20,
+    }
   }
 
   /**
@@ -86,7 +92,7 @@ export function useAdmin() {
       }
     } catch (e: unknown) {
       // Token 过期或无效时自动登出
-      if (e instanceof Error && e.message.includes('认证')) {
+      if (e instanceof Error && (e.message.includes('认证') || e.message.includes('未授权'))) {
         logout()
       }
       error.value = e instanceof Error ? e.message : '查询失败'
@@ -109,6 +115,9 @@ export function useAdmin() {
       await deleteAdminCapsule(token.value, code)
       await fetchCapsules(pageInfo.value.number)  // 刷新当前页
     } catch (e: unknown) {
+      if (e instanceof Error && (e.message.includes('认证') || e.message.includes('未授权'))) {
+        logout()
+      }
       error.value = e instanceof Error ? e.message : '删除失败'
     } finally {
       loading.value = false

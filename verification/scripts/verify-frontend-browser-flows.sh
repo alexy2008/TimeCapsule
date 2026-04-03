@@ -9,6 +9,7 @@ VERIFICATION_DIR="$ROOT_DIR/verification"
 BACKEND_URL="${BACKEND_URL:-http://localhost:8080}"
 ADMIN_PASSWORD="${ADMIN_PASSWORD:-timecapsule-admin}"
 CHROME_EXECUTABLE_PATH="${CHROME_EXECUTABLE_PATH:-/Applications/Google Chrome.app/Contents/MacOS/Google Chrome}"
+FORCE_RESTART_FRONTENDS="${FORCE_RESTART_FRONTENDS:-0}"
 
 if [ "$#" -eq 0 ]; then
   SELECTED_FRONTENDS="react-ts vue3-ts angular-ts svelte-ts"
@@ -49,6 +50,16 @@ base_url_for() {
     vue3-ts) echo "http://localhost:4173" ;;
     angular-ts) echo "http://localhost:4175" ;;
     svelte-ts) echo "http://localhost:4176" ;;
+    *) return 1 ;;
+  esac
+}
+
+port_for() {
+  case "$1" in
+    react-ts) echo "4174" ;;
+    vue3-ts) echo "4173" ;;
+    angular-ts) echo "4175" ;;
+    svelte-ts) echo "4176" ;;
     *) return 1 ;;
   esac
 }
@@ -118,11 +129,22 @@ ensure_playwright_ready() {
 start_frontend_if_needed() {
   frontend="$1"
   base_url="$(base_url_for "$frontend")" || return 1
+  port="$(port_for "$frontend")" || return 1
   workdir="$(dir_for "$frontend")" || return 1
   command="$(dev_command_for "$frontend")" || return 1
 
   STARTED_SERVER=0
   SERVER_PID=""
+
+  if [ "$FORCE_RESTART_FRONTENDS" = "1" ]; then
+    existing_pids="$(lsof -ti tcp:"$port" 2>/dev/null || true)"
+    if [ -n "$existing_pids" ]; then
+      for pid in $existing_pids; do
+        kill "$pid" >/dev/null 2>&1 || true
+      done
+      sleep 2
+    fi
+  fi
 
   if curl -fsS "$base_url" >/dev/null 2>&1; then
     return 0

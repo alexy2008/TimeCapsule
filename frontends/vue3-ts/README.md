@@ -116,12 +116,12 @@ npx vue-tsc --noEmit
 
 ## 共享样式
 
-本项目使用来自 `spec` 目录的共享设计令牌和样式：
+本项目统一使用 `spec/styles/cyber.css` 这一份共享样式文件，里面同时包含：
 
-- `tokens.css` - CSS 变量（颜色、字体、间距）
-- `base.css` - CSS 重置和基础样式
-- `components.css` - 共享组件样式
-- `layout.css` - 布局工具类
+- 设计令牌
+- 基础重置
+- 共享组件样式
+- 少量兼容性工具类
 
 ## 组件示例
 

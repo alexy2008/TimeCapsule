@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import type { Capsule, CreateCapsuleForm } from '../../types';
 import { CapsuleService } from '../../services/capsule.service';
 import { CapsuleFormComponent } from '../../components/capsule-form/capsule-form.component';
@@ -8,13 +8,14 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
 @Component({
   selector: 'app-create',
   standalone: true,
-  imports: [RouterLink, CapsuleFormComponent, ConfirmDialogComponent],
+  imports: [CapsuleFormComponent, ConfirmDialogComponent],
   providers: [CapsuleService],
   templateUrl: './create.component.html',
   styleUrl: './create.component.css',
 })
 export class CreateComponent {
   private readonly capsuleService = inject(CapsuleService);
+  private readonly router = inject(Router);
 
   readonly loading = this.capsuleService.loading;
   readonly error = this.capsuleService.error;
@@ -49,5 +50,9 @@ export class CreateComponent {
         setTimeout(() => this.copied.set(false), 2000);
       });
     }
+  }
+
+  goHome(): void {
+    this.router.navigate(['/']);
   }
 }

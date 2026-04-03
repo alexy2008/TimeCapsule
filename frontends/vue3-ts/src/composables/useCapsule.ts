@@ -59,6 +59,11 @@ export function useCapsule() {
     }
   }
 
+  function clear() {
+    capsule.value = null
+    error.value = null
+  }
+
   // 暴露响应式状态和方法供组件使用
-  return { capsule, loading, error, create, get }
+  return { capsule, loading, error, create, get, clear }
 }

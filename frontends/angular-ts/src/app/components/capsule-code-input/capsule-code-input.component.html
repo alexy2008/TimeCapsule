@@ -1,26 +1,30 @@
-<div class="code-input-wrapper">
-  <div class="input-row">
+<div class="search-container cyber-glass center-card">
+  <p class="mb-6">输入8位提取码开启您的时间胶囊。</p>
+  <div class="search-input-wrapper">
     <input
-      class="input code-input"
+      class="cyber-input search-input mono-font text-center"
       [ngModel]="code"
       (ngModelChange)="onCodeChange($event)"
       name="code"
-      placeholder="输入 8 位胶囊码"
+      placeholder="        "
       maxlength="8"
       (keyup)="handleKeyup($event)"
       autocomplete="off"
       spellcheck="false"
     />
+    <div class="search-line-effect"></div>
+  </div>
+  @if (error) {
+    <p class="search-error">{{ error }}</p>
+  }
+  <div class="action-row mt-6">
     <button
       type="button"
       class="btn btn-primary"
       (click)="handleSubmit()"
-      [disabled]="loading || code.trim().length === 0"
+      [disabled]="loading || code.length !== 8"
     >
-      {{ loading ? '查询中...' : '开启' }}
+      {{ loading ? '查询中...' : '开启胶囊' }}
     </button>
   </div>
-  @if (error) {
-    <p class="error-text">{{ error }}</p>
-  }
 </div>

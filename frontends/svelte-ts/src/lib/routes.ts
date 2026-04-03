@@ -2,21 +2,33 @@
  * 路由配置
  * 使用 svelte-spa-router
  */
-import type { Component } from 'svelte';
-
-// 导入页面组件
-import Home from '../views/Home.svelte';
-import Create from '../views/Create.svelte';
-import Open from '../views/Open.svelte';
-import Admin from '../views/Admin.svelte';
-import About from '../views/About.svelte';
+import { wrap } from 'svelte-spa-router/wrap';
+import RouteLoading from './components/RouteLoading.svelte';
 
 // 路由映射表
-export const routes: Record<string, Component> = {
-  '/': Home,
-  '/create': Create,
-  '/open': Open,
-  '/open/:code': Open,
-  '/admin': Admin,
-  '/about': About,
+export const routes: Record<string, ReturnType<typeof wrap>> = {
+  '/': wrap({
+    asyncComponent: () => import('../views/Home.svelte'),
+    loadingComponent: RouteLoading,
+  }),
+  '/create': wrap({
+    asyncComponent: () => import('../views/Create.svelte'),
+    loadingComponent: RouteLoading,
+  }),
+  '/open': wrap({
+    asyncComponent: () => import('../views/Open.svelte'),
+    loadingComponent: RouteLoading,
+  }),
+  '/open/:code': wrap({
+    asyncComponent: () => import('../views/Open.svelte'),
+    loadingComponent: RouteLoading,
+  }),
+  '/admin': wrap({
+    asyncComponent: () => import('../views/Admin.svelte'),
+    loadingComponent: RouteLoading,
+  }),
+  '/about': wrap({
+    asyncComponent: () => import('../views/About.svelte'),
+    loadingComponent: RouteLoading,
+  }),
 };

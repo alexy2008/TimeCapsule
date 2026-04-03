@@ -1,18 +1,24 @@
 <template>
-  <div class="code-input-group">
-    <div class="input-wrapper">
+  <div class="search-container cyber-glass center-card">
+    <p class="mb-6">输入8位提取码开启您的时间胶囊。</p>
+    <div class="search-input-wrapper">
       <input
         v-model="code"
-        class="input code-input"
-        placeholder="输入 8 位胶囊码"
+        type="text"
+        class="cyber-input search-input mono-font text-center"
+        placeholder="        "
         maxlength="8"
+        autocomplete="off"
         @keyup.enter="handleSubmit"
       />
+      <div class="search-line-effect"></div>
+    </div>
+    <p v-if="error" class="search-error">{{ error }}</p>
+    <div class="action-row mt-6">
       <button class="btn btn-primary" @click="handleSubmit" :disabled="loading || code.length !== 8">
-        {{ loading ? '查询中...' : '开启' }}
+        {{ loading ? '查询中...' : '开启胶囊' }}
       </button>
     </div>
-    <p v-if="error" class="input-error-text">{{ error }}</p>
   </div>
 </template>
 
@@ -32,8 +38,13 @@ const emit = defineEmits<{
 
 const code = ref(props.modelValue)
 
-watch(() => props.modelValue, (val) => { code.value = val })
-watch(code, (val) => { emit('update:modelValue', val) })
+watch(() => props.modelValue, (val) => {
+  code.value = val
+})
+
+watch(code, (val) => {
+  emit('update:modelValue', val)
+})
 
 function handleSubmit() {
   if (code.value.length === 8) {
@@ -43,16 +54,9 @@ function handleSubmit() {
 </script>
 
 <style scoped>
-.input-wrapper {
-  display: flex;
-  gap: var(--space-2);
-}
-
-.code-input {
-  font-family: var(--font-mono);
-  font-size: var(--text-lg);
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  flex: 1;
+.search-error {
+  color: var(--magenta);
+  margin-top: 1rem;
+  text-align: center;
 }
 </style>

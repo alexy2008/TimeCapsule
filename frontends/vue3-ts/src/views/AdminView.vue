@@ -40,7 +40,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, watch } from 'vue'
 import { useAdmin } from '@/composables/useAdmin'
 import AdminLogin from '@/components/AdminLogin.vue'
 import CapsuleTable from '@/components/CapsuleTable.vue'
@@ -64,7 +64,6 @@ const deleteTarget = ref('')
 async function handleLogin(password: string) {
   try {
     await login(password)
-    await fetchCapsules()
   } catch {
     // error handled in composable
   }
@@ -80,9 +79,13 @@ async function confirmDelete() {
   await deleteCapsule(deleteTarget.value)
 }
 
-onMounted(() => {
-  if (isLoggedIn.value) {
-    fetchCapsules()
-  }
-})
+watch(
+  isLoggedIn,
+  (loggedIn) => {
+    if (loggedIn) {
+      void fetchCapsules()
+    }
+  },
+  { immediate: true },
+)
 </script>

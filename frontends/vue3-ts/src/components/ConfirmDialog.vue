@@ -28,13 +28,14 @@ defineEmits<{
 
 <style scoped>
 .dialog-title {
-  font-size: var(--text-lg);
-  font-weight: var(--font-semibold);
-  margin-bottom: var(--space-2);
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
 }
 
 .dialog-message {
-  margin-bottom: var(--space-6);
-  line-height: var(--leading-relaxed);
+  margin-bottom: 1.5rem;
+  line-height: 1.7;
+  white-space: pre-line;
 }
 </style>

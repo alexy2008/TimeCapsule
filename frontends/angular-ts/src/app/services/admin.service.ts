@@ -43,6 +43,12 @@ export class AdminService {
     this.token.set(null);
     sessionStorage.removeItem('admin_token');
     this.capsules.set([]);
+    this.pageInfo.set({
+      totalElements: 0,
+      totalPages: 0,
+      number: 0,
+      size: 20,
+    });
   }
 
   async fetchCapsules(page = 0): Promise<void> {
@@ -60,6 +66,9 @@ export class AdminService {
         size: res.data.size,
       });
     } catch (e: unknown) {
+      if (e instanceof Error && (e.message.includes('认证') || e.message.includes('未授权'))) {
+        this.logout();
+      }
       this.error.set(e instanceof Error ? e.message : '查询失败');
     } finally {
       this.loading.set(false);
@@ -75,6 +84,9 @@ export class AdminService {
       await deleteAdminCapsule(t, code);
       await this.fetchCapsules(this.pageInfo().number);
     } catch (e: unknown) {
+      if (e instanceof Error && (e.message.includes('认证') || e.message.includes('未授权'))) {
+        this.logout();
+      }
       this.error.set(e instanceof Error ? e.message : '删除失败');
     } finally {
       this.loading.set(false);

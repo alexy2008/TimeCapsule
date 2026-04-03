@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "ng serve --port 5175 --proxy-config proxy.conf.json",
+    "dev": "ng serve",
     "build": "ng build",
     "test": "ng test --watch=false --browsers=ChromeHeadless",
     "test:watch": "ng test --browsers=ChromeHeadless"

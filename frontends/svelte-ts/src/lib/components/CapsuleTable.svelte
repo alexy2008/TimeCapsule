@@ -109,18 +109,18 @@
 
   .code-cell {
     font-family: var(--font-mono);
-    font-size: var(--text-sm);
+    font-size: 0.875rem;
   }
 
   .actions-cell {
     display: flex;
-    gap: var(--space-2);
+    gap: 0.5rem;
     white-space: nowrap;
   }
 
   .content-row td {
-    background-color: var(--color-bg-secondary);
-    padding: var(--space-4);
+    background-color: rgba(0, 240, 255, 0.03);
+    padding: 1rem;
   }
 
   .content-preview {
@@ -128,17 +128,17 @@
   }
 
   .content-label {
-    font-size: var(--text-xs);
-    font-weight: var(--font-semibold);
-    color: var(--color-text-tertiary);
-    margin-bottom: var(--space-1);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 0.25rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
   }
 
   .content-text {
     white-space: pre-wrap;
-    line-height: var(--leading-relaxed);
-    color: var(--color-text-secondary);
+    line-height: 1.7;
+    color: var(--text-secondary);
   }
 </style>

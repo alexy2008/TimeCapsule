@@ -102,13 +102,10 @@ Token 保存在 `sessionStorage`（退出时清除）。
 
 ## 样式
 
-应用通过 `angular.json` 的 styles 数组导入共享设计令牌：
+应用通过 `angular.json` 的 styles 数组导入统一样式系统：
 ```json
 "styles": [
-  "../../spec/styles/tokens.css",
-  "../../spec/styles/base.css",
-  "../../spec/styles/components.css",
-  "../../spec/styles/layout.css",
+  "../../spec/styles/cyber.css",
   "src/styles.css"
 ]
 ```
@@ -275,7 +272,7 @@ cd .. && ./scripts/dev.sh
 - [主项目 README](../README.md) - 项目整体概览
 - [项目指引](../CLAUDE.md) - 开发指南和最佳实践
 - [API 规范](../spec/api/openapi.yaml) - REST API 文档
-- [设计令牌](../spec/styles/tokens.css) - CSS 设计系统
+- [设计系统](../spec/styles/cyber.css) - 统一共享样式
 
 ## 许可证
 

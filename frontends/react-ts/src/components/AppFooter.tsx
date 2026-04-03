@@ -1,5 +1,6 @@
 import { useTechStack } from '@/hooks/useTechStack'
 import { simplifyTechLabel } from '@/utils/techStack'
+import styles from './AppFooter.module.css'
 
 export default function AppFooter() {
   const { techStack, loading, error } = useTechStack()
@@ -17,9 +18,9 @@ export default function AppFooter() {
 
   return (
     <footer className="app-footer">
-        <div className="stack-info cyber-glass-sm mono-font" style={{ textAlign: 'center' }}>
+        <div className={`stack-info cyber-glass-sm mono-font ${styles.footerInfo}`}>
             <span className="status-dot green"></span>
-            <span style={{ fontSize: '0.85rem', opacity: 0.82 }}>
+            <span className={styles.footerText}>
               {`HelloTime · 时间胶囊 · ${summary}`}
             </span>
         </div>

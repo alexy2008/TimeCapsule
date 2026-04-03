@@ -1,13 +1,13 @@
-import { useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useTechStack } from '@/hooks/useTechStack'
 import { simplifyTechLabel } from '@/utils/techStack'
+import styles from './HomeView.module.css'
 
 export default function HomeView() {
-  const navigate = useNavigate()
   const { techStack, loading, error } = useTechStack()
   const techItems = [
     { src: '/frontend.svg', alt: 'React Logo', label: 'React' },
-    { src: '/typescript-logo.svg', alt: 'TypeScript Logo', label: 'TypeScript' },
+    { src: '/frontend-language.svg', alt: 'TypeScript Logo', label: 'TypeScript' },
     { src: '/tech-logos/backend.svg', alt: '后端框架 Logo', label: loading ? '...' : error || !techStack ? '?' : simplifyTechLabel(techStack.framework) },
     { src: '/tech-logos/language.svg', alt: '后端语言 Logo', label: loading ? '加载中' : error || !techStack ? '?' : simplifyTechLabel(techStack.language) },
     { src: '/tech-logos/database.svg', alt: '数据库 Logo', label: loading ? '...' : error || !techStack ? '?' : simplifyTechLabel(techStack.database) },
@@ -21,13 +21,7 @@ export default function HomeView() {
           <p className="hero-subtitle">将您的寄语、秘密或愿景封装于时间胶囊中，直到指定的未来时刻才能被访问。</p>
 
           <div className="action-cards">
-              <button
-                type="button"
-                className="action-card cyber-glass"
-                onClick={() => navigate('/create')}
-                aria-label="创建胶囊"
-                style={{ background: 'none', borderInline: '1px solid var(--glass-border)', borderBottom: '1px solid var(--glass-border)', borderLeft: '1px solid var(--glass-border)', borderRight: '1px solid var(--glass-border)', color: 'inherit', width: '100%' }}
-              >
+              <Link to="/create" className={`action-card cyber-glass ${styles.actionCardLink}`} aria-label="创建胶囊">
                   <div className="card-icon cyan-glow">
                       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <path d="M12 5v14M5 12h14"></path>
@@ -35,15 +29,9 @@ export default function HomeView() {
                   </div>
                   <h3>创建胶囊</h3>
                   <p>封存此刻寄语，投递给未来的自己</p>
-              </button>
+              </Link>
 
-              <button
-                type="button"
-                className="action-card cyber-glass"
-                onClick={() => navigate('/open')}
-                aria-label="开启胶囊"
-                style={{ background: 'none', borderInline: '1px solid var(--glass-border)', borderBottom: '1px solid var(--glass-border)', borderLeft: '1px solid var(--glass-border)', borderRight: '1px solid var(--glass-border)', color: 'inherit', width: '100%' }}
-              >
+              <Link to="/open" className={`action-card cyber-glass ${styles.actionCardLink}`} aria-label="开启胶囊">
                   <div className="card-icon magenta-glow">
                       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <circle cx="11" cy="11" r="8"></circle>
@@ -52,7 +40,7 @@ export default function HomeView() {
                   </div>
                   <h3>开启胶囊</h3>
                   <p>输入提取凭据，唤醒沉睡的时间印记</p>
-              </button>
+              </Link>
           </div>
 
           <div className="tech-stack-simple cyber-glass">

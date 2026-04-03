@@ -27,7 +27,7 @@ export class CapsuleCodeInputComponent implements OnChanges {
   }
 
   handleSubmit(): void {
-    if (this.code.trim().length > 0) {
+    if (this.code.trim().length === 8) {
       this.codeSubmit.emit(this.code.trim());
     }
   }

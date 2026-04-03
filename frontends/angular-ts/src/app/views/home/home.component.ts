@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TechStackService } from '../../services/tech-stack.service';
+import { simplifyTechLabel } from '../../utils/tech-stack';
 
 @Component({
   selector: 'app-home',
@@ -15,21 +16,32 @@ export class HomeComponent implements OnInit {
   readonly techStack = this.techStackService.techStack;
   readonly loading = this.techStackService.loading;
   readonly error = this.techStackService.error;
-  readonly frontendDescription = 'Angular 18 · TypeScript';
-
   ngOnInit(): void {
     this.techStackService.load();
   }
 
-  get backendDescription(): string {
-    if (this.loading()) {
-      return '加载中...';
-    }
+  get techItems() {
+    const techStack = this.techStack();
+    const fallback = this.error() || !techStack;
 
-    if (this.error() || !this.techStack()) {
-      return '技术栈信息暂不可用';
-    }
-
-    return `${this.techStack()!.framework} · ${this.techStack()!.language} · ${this.techStack()!.database}`;
+    return [
+      { src: '/frontend.svg', alt: 'Angular Logo', label: 'Angular' },
+      { src: '/frontend-language.svg', alt: 'TypeScript Logo', label: 'TypeScript' },
+      {
+        src: '/tech-logos/backend.svg',
+        alt: '后端框架 Logo',
+        label: this.loading() ? '...' : fallback ? '?' : simplifyTechLabel(techStack!.framework),
+      },
+      {
+        src: '/tech-logos/language.svg',
+        alt: '后端语言 Logo',
+        label: this.loading() ? '加载中' : fallback ? '?' : simplifyTechLabel(techStack!.language),
+      },
+      {
+        src: '/tech-logos/database.svg',
+        alt: '数据库 Logo',
+        label: this.loading() ? '...' : fallback ? '?' : simplifyTechLabel(techStack!.database),
+      },
+    ];
   }
 }

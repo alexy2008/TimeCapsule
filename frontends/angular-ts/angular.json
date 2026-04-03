@@ -41,16 +41,13 @@
                 "output": "/"
               },
               {
-                "glob": "typescript-logo.svg",
+                "glob": "frontend-language.svg",
                 "input": "src/assets",
                 "output": "/"
               }
             ],
             "styles": [
-              "../../spec/styles/tokens.css",
-              "../../spec/styles/base.css",
-              "../../spec/styles/components.css",
-              "../../spec/styles/layout.css",
+              "../../spec/styles/cyber.css",
               "src/styles.css"
             ],
             "scripts": []
@@ -76,6 +73,11 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "host": "localhost",
+            "port": 5175,
+            "proxyConfig": "proxy.conf.json"
+          },
           "configurations": {
             "production": {
               "buildTarget": "angular-ts:build:production"
@@ -103,16 +105,13 @@
                 "output": "/"
               },
               {
-                "glob": "typescript-logo.svg",
+                "glob": "frontend-language.svg",
                 "input": "src/assets",
                 "output": "/"
               }
             ],
             "styles": [
-              "../../spec/styles/tokens.css",
-              "../../spec/styles/base.css",
-              "../../spec/styles/components.css",
-              "../../spec/styles/layout.css",
+              "../../spec/styles/cyber.css",
               "src/styles.css"
             ],
             "scripts": []

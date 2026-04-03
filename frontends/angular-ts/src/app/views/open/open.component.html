@@ -1,10 +1,16 @@
-<div class="page">
-  <div class="container container-sm">
-    <div class="page-header">
-      <h1>开启时间胶囊</h1>
-      <p>输入胶囊码，查看时间胶囊</p>
-    </div>
+<section id="view-search" class="view active">
+  <div class="view-header">
+    <button class="btn-back" type="button" (click)="handleBack()">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+      返回
+    </button>
+    <h2>{{ capsule() ? (capsule()!.opened ? '状态: 已解锁' : '状态: 锁定中') : '打开时间胶囊' }}</h2>
+  </div>
 
+  @if (!capsule()) {
     <app-capsule-code-input
       [value]="codeInput()"
       [loading]="loading()"
@@ -12,11 +18,7 @@
       (valueChange)="codeInput.set($event)"
       (codeSubmit)="handleQuery($event)"
     />
-
-    @if (capsule()) {
-      <div class="result">
-        <app-capsule-card [capsule]="capsule()!" (expired)="handleExpired()" />
-      </div>
-    }
-  </div>
-</div>
+  } @else {
+    <app-capsule-card [capsule]="capsule()!" (expired)="handleExpired()" />
+  }
+</section>

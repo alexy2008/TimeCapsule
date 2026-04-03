@@ -4,19 +4,19 @@
     <span>时间已到，胶囊即将开启…</span>
   </div>
 } @else {
-  <div class="clock">
-    <p class="clock-title">距离开启还有</p>
-    <div class="units">
+  <div class="countdown-display">
+    <div class="countdown-ring"></div>
+    <div class="countdown-text">
       @for (unit of units(); track unit.label; let i = $index) {
-        <div class="unit-group">
-          <div class="clock-card">
-            <span class="number">{{ pad(unit.value) }}</span>
+        <span style="display: contents">
+          <div class="time-block">
+            <span class="mono-font num" [class.glow-text]="i === 3">{{ pad(unit.value) }}</span>
+            <span class="unit">{{ unit.label }}</span>
           </div>
-          <span class="label">{{ unit.label }}</span>
           @if (i < units().length - 1) {
             <span class="colon">:</span>
           }
-        </div>
+        </span>
       }
     </div>
   </div>

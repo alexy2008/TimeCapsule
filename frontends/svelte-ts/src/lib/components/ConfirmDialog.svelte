@@ -17,7 +17,7 @@
 {#if visible}
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-  <div class="overlay" on:click={handleBackdropClick} role="dialog">
+  <div class="overlay" on:click={handleBackdropClick} role="dialog" tabindex="-1">
     <div class="dialog">
       <h3 class="dialog-title">{title}</h3>
       <p class="dialog-message text-secondary">{message}</p>
@@ -31,13 +31,14 @@
 
 <style>
   .dialog-title {
-    font-size: var(--text-lg);
-    font-weight: var(--font-semibold);
-    margin-bottom: var(--space-2);
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
   }
 
   .dialog-message {
-    margin-bottom: var(--space-6);
-    line-height: var(--leading-relaxed);
+    margin-bottom: 1.5rem;
+    line-height: 1.7;
+    white-space: pre-line;
   }
 </style>

@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import AppHeader from '@/components/AppHeader'
 import AppFooter from '@/components/AppFooter'
 import { lazy, Suspense } from 'react'
+import styles from './App.module.css'
 
 const HomeView = lazy(() => import('@/views/HomeView'))
 const CreateView = lazy(() => import('@/views/CreateView'))
@@ -16,7 +17,7 @@ export default function App() {
       <div className="ambient-glow"></div>
       <div className="background-grid"></div>
 
-      <div className="app-container">
+      <div className={styles.appContainer}>
         <AppHeader />
         <main className="app-main">
           <Suspense fallback={<div className="cyber-glass center-card text-center">页面加载中...</div>}>

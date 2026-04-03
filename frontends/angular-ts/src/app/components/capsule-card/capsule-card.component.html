@@ -1,31 +1,57 @@
-<div class="card capsule-card">
-  <div class="card-header">
-    <h3 class="card-title">{{ capsule.title }}</h3>
-    <span class="badge" [class.badge-success]="capsule.opened" [class.badge-warning]="!capsule.opened">
-      {{ capsule.opened ? '已开启' : '未到时间' }}
-    </span>
-  </div>
-
-  <div class="capsule-meta">
-    <span>发布者: {{ capsule.creator }}</span>
-    <span>胶囊码: <code>{{ capsule.code }}</code></span>
-  </div>
-
-  <div class="capsule-times">
-    <span>创建于: {{ formatTime(capsule.createdAt) }}</span>
-    <span>开启于: {{ formatTime(capsule.openAt) }}</span>
-  </div>
-
-  @if (capsule.opened && capsule.content) {
-    <div class="capsule-content">
-      <p class="content-label">内容</p>
-      <p class="content-text">{{ capsule.content }}</p>
+@if (capsule.opened && capsule.content) {
+  <div class="capsule-unlocked-card cyber-glass">
+    <div class="locked-header">
+      <span class="mono-font label">提取码: {{ capsule.code }}</span>
+      <span class="badge badge-unlocked">已解锁</span>
     </div>
-  } @else if (!capsule.opened) {
-    <div class="capsule-locked">
-      <p class="lock-icon">🔒</p>
-      <p class="lock-text">胶囊尚未到开启时间</p>
-      <app-countdown-clock [targetIso]="capsule.openAt" (expired)="expired.emit()" />
+
+    <h1 class="capsule-title text-glow-cyan">{{ capsule.title }}</h1>
+
+    <div class="meta-info border-bottom pb-4 mb-4">
+      <span class="creator">创建者: <span class="mono-font">{{ capsule.creator }}</span></span>
+      <div>
+        <span class="created-at d-block">创建时间: <span class="mono-font">{{ formatTime(capsule.createdAt) }}</span></span>
+        <span class="opened-at d-block mt-1 cyan-text">解锁时间: <span class="mono-font">{{ formatTime(capsule.openAt) }}</span></span>
+      </div>
     </div>
-  }
-</div>
+
+    <div class="capsule-content-area">
+      @if (animating) {
+        <div class="decrypt-animation-overlay">
+          <div class="scanner-beam"></div>
+          <div class="binary-rain mono-font">01001010...</div>
+        </div>
+      }
+      <div class="content-text" [style.opacity]="animating ? 0 : 1" style="transition: opacity 0.5s ease; white-space: pre-wrap;">
+        {{ capsule.content }}
+      </div>
+    </div>
+  </div>
+} @else {
+  <div class="capsule-locked-card cyber-glass">
+    <div class="locked-header">
+      <span class="mono-font label">提取码: {{ capsule.code }}</span>
+      <span class="badge badge-locked pulse-danger">未到时间</span>
+    </div>
+
+    <h1 class="capsule-title">{{ capsule.title }}</h1>
+    <div class="meta-info">
+      <span class="creator">创建者: <span class="mono-font">{{ capsule.creator }}</span></span>
+      <span class="created-at">创建时间: <span class="mono-font">{{ formatTime(capsule.createdAt) }}</span></span>
+    </div>
+
+    <app-countdown-clock [targetIso]="capsule.openAt" (expired)="expired.emit()" />
+
+    <div class="data-encryption-visual mt-8">
+      <div class="scramble-text mono-font" style="opacity: 0.7; margin-bottom: 0.5rem; font-size: 0.85rem">
+        0x8F9A... 内容已被锁定 ...3B2C1
+      </div>
+      <div class="progress-bar-container">
+        <div class="progress-bar" [style.width.%]="progress"></div>
+      </div>
+      <div class="target-time mt-2" style="font-size: 0.85rem; color: var(--text-secondary)">
+        解锁时间: <span class="mono-font text-glow">{{ formatTime(capsule.openAt) }}</span>
+      </div>
+    </div>
+  </div>
+}

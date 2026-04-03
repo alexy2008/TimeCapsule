@@ -12,8 +12,8 @@ describe('ThemeToggle', () => {
     const wrapper = mount(ThemeToggle)
     const button = wrapper.find('button')
 
+    expect(wrapper.find('.moon-icon').exists()).toBe(true)
     await button.trigger('click')
-    // After click, theme should change (we can verify the icon changes)
-    expect(wrapper.find('.icon').exists()).toBe(true)
+    expect(wrapper.find('.sun-icon').exists()).toBe(true)
   })
 })

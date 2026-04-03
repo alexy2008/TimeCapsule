@@ -3,8 +3,14 @@ import { useTheme } from '@/composables/useTheme'
 
 describe('useTheme', () => {
   beforeEach(() => {
+    const { theme } = useTheme()
+
+    theme.value = 'light'
     document.documentElement.removeAttribute('data-theme')
-    localStorage.clear()
+
+    if (typeof localStorage !== 'undefined' && typeof localStorage.clear === 'function') {
+      localStorage.clear()
+    }
   })
 
   it('should default to light theme', () => {

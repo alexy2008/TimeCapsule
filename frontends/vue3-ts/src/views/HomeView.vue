@@ -1,271 +1,87 @@
 <template>
-  <div class="page">
-    <div class="container text-center">
-      <div class="hero">
-        <img src="@spec/assets/logo.svg" alt="时间胶囊" class="hero-logo" />
-        <h1 class="hero-title">时间胶囊</h1>
-        <p class="hero-subtitle text-secondary">
-          封存此刻的心意，在未来的某个时刻开启
-        </p>
-        <div class="hero-actions">
-          <router-link to="/create" class="action-btn">
-            <span class="action-btn-create">
-              <span class="action-main">
-                <span class="action-icon">&#9998;</span>
-                <span class="action-label">创建胶囊</span>
-              </span>
-              <span class="action-desc">封存此刻的心意</span>
-            </span>
-          </router-link>
-          <router-link to="/open" class="action-btn">
-            <span class="action-btn-open">
-              <span class="action-main">
-                <span class="action-icon">&#128275;</span>
-                <span class="action-label">开启胶囊</span>
-              </span>
-              <span class="action-desc">取出未来的惊喜</span>
-            </span>
-          </router-link>
-        </div>
+  <section id="view-home" class="view active">
+    <div class="hero-section">
+      <div class="hero-badge">TIMECAPSULE SYSTEM</div>
+      <h1 class="hero-title">封存此刻 <span class="text-glow">开启未来</span></h1>
+      <p class="hero-subtitle">将您的寄语、秘密或愿景封装于时间胶囊中，直到指定的未来时刻才能被访问。</p>
+
+      <div class="action-cards">
+        <router-link to="/create" class="action-card cyber-glass action-card-link" aria-label="创建胶囊">
+          <div class="card-icon cyan-glow">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 5v14M5 12h14"></path>
+            </svg>
+          </div>
+          <h3>创建胶囊</h3>
+          <p>封存此刻寄语，投递给未来的自己</p>
+        </router-link>
+
+        <router-link to="/open" class="action-card cyber-glass action-card-link" aria-label="开启胶囊">
+          <div class="card-icon magenta-glow">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </div>
+          <h3>开启胶囊</h3>
+          <p>输入提取凭据，唤醒沉睡的时间印记</p>
+        </router-link>
       </div>
 
-      <div class="features mt-16">
-        <div class="tech-section">
-          <div class="card text-center tech-card">
-            <h3 class="tech-card-title">技术栈</h3>
-
-            <div class="tech-block">
-              <div class="tech-logo-group" aria-label="前端技术栈图标">
-                <span class="tech-logo-item">
-                  <img :src="frontendLogoUrl" alt="Vue Logo" class="tech-logo" />
-                </span>
-                <span class="tech-logo-item">
-                  <img src="/typescript-logo.svg" alt="TypeScript Logo" class="tech-logo" />
-                </span>
-              </div>
-              <p class="tech-label">前端</p>
-              <p class="text-sm text-secondary mt-2">Vue 3 · TypeScript</p>
-            </div>
-
-            <div class="tech-divider" aria-hidden="true" />
-
-            <div class="tech-block">
-              <div class="tech-logo-group" aria-label="后端技术栈图标">
-                <span class="tech-logo-item">
-                  <img :src="getTechLogoUrl('backend.svg')" alt="后端框架 Logo" class="tech-logo" />
-                </span>
-                <span class="tech-logo-item">
-                  <img :src="getTechLogoUrl('language.svg')" alt="后端语言 Logo" class="tech-logo" />
-                </span>
-                <span class="tech-logo-item">
-                  <img :src="getTechLogoUrl('database.svg')" alt="后端数据库 Logo" class="tech-logo" />
-                </span>
-              </div>
-              <p class="tech-label">后端</p>
-              <p class="text-sm text-secondary mt-2">{{ backendDescription }}</p>
-            </div>
+      <div class="tech-stack-simple cyber-glass">
+        <h4 class="stack-title">TECHNOLOGY STACK</h4>
+        <div class="tech-logos-grid text-center">
+          <div v-for="item in techItems" :key="`${item.alt}-${item.label}`" class="tech-item" :title="item.label">
+            <img :src="item.src" class="stack-icon" :alt="item.alt" />
+            <span>{{ item.label }}</span>
           </div>
         </div>
       </div>
     </div>
-  </div>
+  </section>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useTechStack } from '@/composables/useTechStack'
+import { simplifyTechLabel } from '@/utils/techStack'
 
 const { techStack, loading, error } = useTechStack()
-const frontendLogoUrl = '/frontend.svg'
-const getTechLogoUrl = (file: string) => `/tech-logos/${file}`
 
-const backendDescription = computed(() => {
-  if (loading.value) {
-    return '加载中...'
-  }
+const techItems = computed(() => {
+  const currentTechStack = techStack.value
+  const fallback = error.value || !currentTechStack
 
-  if (error.value || !techStack.value) {
-    return '技术栈信息暂不可用'
-  }
-
-  return `${techStack.value.framework} · ${techStack.value.language} · ${techStack.value.database}`
+  return [
+    { src: '/frontend.svg', alt: 'Vue Logo', label: 'Vue' },
+    { src: '/frontend-language.svg', alt: 'TypeScript Logo', label: 'TypeScript' },
+    {
+      src: '/tech-logos/backend.svg',
+      alt: '后端框架 Logo',
+      label: loading.value ? '...' : fallback ? '?' : simplifyTechLabel(currentTechStack!.framework),
+    },
+    {
+      src: '/tech-logos/language.svg',
+      alt: '后端语言 Logo',
+      label: loading.value ? '加载中' : fallback ? '?' : simplifyTechLabel(currentTechStack!.language),
+    },
+    {
+      src: '/tech-logos/database.svg',
+      alt: '数据库 Logo',
+      label: loading.value ? '...' : fallback ? '?' : simplifyTechLabel(currentTechStack!.database),
+    },
+  ]
 })
 </script>
 
 <style scoped>
-.hero {
-  padding: var(--space-16) 0 var(--space-8);
-}
-
-.hero-logo {
-  width: 80px;
-  height: 80px;
-  margin: 0 auto var(--space-6);
-}
-
-.hero-title {
-  font-size: 2.5rem;
-  margin-bottom: var(--space-3);
-}
-
-.hero-subtitle {
-  font-size: var(--text-xl);
-  margin-bottom: var(--space-8);
-}
-
-.hero-actions {
-  display: flex;
-  justify-content: center;
-  gap: var(--space-5);
-}
-
-.action-btn {
-  display: block;
+.action-card-link {
   text-decoration: none;
-}
-
-.action-btn-create,
-.action-btn-open {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-1);
-  padding: var(--space-4) var(--space-10);
-  border-radius: var(--radius-xl);
-  color: #ffffff;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast), filter var(--transition-fast);
-  box-shadow: var(--shadow-md);
-  min-width: 200px;
-}
-
-.action-main {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-.action-btn-create {
-  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
-}
-
-.action-btn-open {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-}
-
-.action-btn-create:hover,
-.action-btn-open:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-lg);
-  filter: brightness(1.08);
-}
-
-.action-icon {
-  font-size: 2rem;
-  line-height: 1;
-}
-
-.action-label {
-  font-size: var(--text-lg);
-  font-weight: var(--font-semibold);
-  letter-spacing: 0.02em;
-}
-
-.action-desc {
-  font-size: var(--text-sm);
-  opacity: 0.85;
-}
-
-@media (max-width: 480px) {
-  .hero-actions {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .action-btn {
-    width: 100%;
-    max-width: 280px;
-  }
-}
-
-.tech-logo {
-  width: 52px;
-  height: 52px;
-  object-fit: contain;
-  display: block;
-}
-
-.tech-section {
-  display: flex;
-  justify-content: center;
-}
-
-.tech-card {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  width: min(100%, 440px);
-  min-height: 220px;
-  margin: 0 auto;
-}
-
-.tech-card-title {
-  margin-bottom: var(--space-5);
-}
-
-.tech-block {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.tech-logo-group {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: var(--space-5);
-  margin: 0 auto var(--space-4);
-  flex-wrap: wrap;
-}
-
-.tech-logo-item {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.tech-logo-item + .tech-logo-item {
-  padding-left: var(--space-5);
-  margin-left: var(--space-1);
-  border-left: 1px solid var(--color-border);
-}
-
-.tech-label {
-  font-size: var(--text-base);
-  font-weight: var(--font-semibold);
-}
-
-.tech-divider {
+  color: inherit;
   width: 100%;
-  height: 1px;
-  margin: var(--space-6) 0;
-  background: var(--color-border);
-}
-</style>
-
-<style>
-/* 暗色模式：降低背景亮度，增强光晕边界 */
-[data-theme="dark"] .action-btn-create {
-  background: linear-gradient(135deg, #15803d 0%, #166534 100%);
-  box-shadow: 0 0 0 1px rgba(74, 222, 128, 0.25), var(--shadow-md);
 }
 
-[data-theme="dark"] .action-btn-open {
-  background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%);
-  box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.25), var(--shadow-md);
-}
-
-[data-theme="dark"] .action-btn-create:hover,
-[data-theme="dark"] .action-btn-open:hover {
-  filter: brightness(1.15);
+.action-card-link:visited {
+  color: inherit;
 }
 </style>

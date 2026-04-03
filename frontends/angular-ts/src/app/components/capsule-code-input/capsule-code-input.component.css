@@ -1,23 +1,10 @@
-.code-input-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
+.search-container {
+  max-width: 640px;
+  margin: 0 auto;
 }
 
-.input-row {
-  display: flex;
-  gap: var(--space-3);
-}
-
-.code-input {
-  flex: 1;
-  font-family: var(--font-mono);
-  font-size: var(--text-lg);
-  letter-spacing: 0.1em;
+.search-error {
+  color: var(--magenta);
+  margin-top: 1rem;
   text-align: center;
-}
-
-.error-text {
-  font-size: var(--text-sm);
-  color: var(--color-error);
 }

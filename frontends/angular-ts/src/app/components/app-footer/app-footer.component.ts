@@ -1,5 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { TechStackService } from '../../services/tech-stack.service';
+import { simplifyTechLabel } from '../../utils/tech-stack';
 
 @Component({
   selector: 'app-footer',
@@ -17,5 +18,24 @@ export class AppFooterComponent implements OnInit {
 
   ngOnInit(): void {
     this.techStackService.load();
+  }
+
+  get summary(): string {
+    if (this.loading()) {
+      return '加载中...';
+    }
+
+    if (this.error() || !this.techStack()) {
+      return '技术栈信息暂不可用';
+    }
+
+    const techStack = this.techStack()!;
+    return [
+      'Angular',
+      'TypeScript',
+      simplifyTechLabel(techStack.framework),
+      simplifyTechLabel(techStack.language),
+      simplifyTechLabel(techStack.database),
+    ].join(' · ');
   }
 }

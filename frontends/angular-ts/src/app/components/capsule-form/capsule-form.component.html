@@ -1,71 +1,73 @@
-<form class="capsule-form" (ngSubmit)="handleSubmit()">
+<form class="cyber-form cyber-glass capsule-form" (ngSubmit)="handleSubmit()">
   <div class="form-group">
-    <label class="input-label" for="title">标题</label>
+    <label for="capsule-title">标题</label>
     <input
-      id="title"
+      id="capsule-title"
       [(ngModel)]="form.title"
       name="title"
-      class="input"
-      [class.input-error]="errors.title"
+      class="cyber-input"
+      [class.error]="errors.title"
       placeholder="给时间胶囊取个名字"
       maxlength="100"
     />
     @if (errors.title) {
-      <p class="error-text">{{ errors.title }}</p>
+      <p class="input-error-text form-error">{{ errors.title }}</p>
     }
   </div>
 
   <div class="form-group">
-    <label class="input-label" for="content">内容</label>
-    <textarea
-      id="content"
-      [(ngModel)]="form.content"
-      name="content"
-      class="input"
-      [class.input-error]="errors.content"
-      placeholder="写下你想对未来说的话..."
-      rows="5"
-    ></textarea>
-    @if (errors.content) {
-      <p class="error-text">{{ errors.content }}</p>
+    <label for="capsule-open-at">开启时间</label>
+    <input
+      id="capsule-open-at"
+      [(ngModel)]="form.openAt"
+      name="openAt"
+      type="datetime-local"
+      class="cyber-input"
+      [class.error]="errors.openAt"
+      [min]="minDateTime"
+    />
+    <div class="helper-text">在这之前，任何人（包括您自己）都无法查看内容</div>
+    @if (errors.openAt) {
+      <p class="input-error-text form-error">{{ errors.openAt }}</p>
     }
   </div>
 
-  <div class="form-row">
-    <div class="form-group">
-      <label class="input-label" for="creator">发布者</label>
-      <input
-        id="creator"
-        [(ngModel)]="form.creator"
-        name="creator"
-        class="input"
-        [class.input-error]="errors.creator"
-        placeholder="你的昵称"
-        maxlength="30"
-      />
-      @if (errors.creator) {
-        <p class="error-text">{{ errors.creator }}</p>
-      }
-    </div>
-
-    <div class="form-group">
-      <label class="input-label" for="openAt">开启时间</label>
-      <input
-        id="openAt"
-        [(ngModel)]="form.openAt"
-        name="openAt"
-        type="datetime-local"
-        class="input"
-        [class.input-error]="errors.openAt"
-        [min]="minDateTime"
-      />
-      @if (errors.openAt) {
-        <p class="error-text">{{ errors.openAt }}</p>
-      }
-    </div>
+  <div class="form-group">
+    <label for="capsule-content">内容</label>
+    <textarea
+      id="capsule-content"
+      [(ngModel)]="form.content"
+      name="content"
+      class="cyber-input textarea"
+      [class.error]="errors.content"
+      placeholder="写下你想对未来说的话..."
+      rows="6"
+    ></textarea>
+    @if (errors.content) {
+      <p class="input-error-text form-error">{{ errors.content }}</p>
+    }
   </div>
 
-  <button type="submit" class="btn btn-primary btn-lg submit-btn" [disabled]="loading">
-    {{ loading ? '创建中...' : '封存时间胶囊' }}
-  </button>
+  <div class="form-group">
+    <label for="capsule-creator">发布者</label>
+    <input
+      id="capsule-creator"
+      [(ngModel)]="form.creator"
+      name="creator"
+      class="cyber-input"
+      [class.error]="errors.creator"
+      placeholder="你的昵称"
+      maxlength="30"
+    />
+    @if (errors.creator) {
+      <p class="input-error-text form-error">{{ errors.creator }}</p>
+    }
+  </div>
+
+  <div class="form-actions">
+    <button type="submit" class="btn btn-primary btn-glow" [disabled]="loading">
+      <span class="btn-text">{{ loading ? '创建中...' : '封存胶囊' }}</span>
+      <div class="btn-scanner"></div>
+    </button>
+  </div>
 </form>

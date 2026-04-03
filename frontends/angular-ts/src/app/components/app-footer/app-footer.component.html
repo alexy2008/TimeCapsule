@@ -1,10 +1,6 @@
-<footer class="footer">
-  <div class="container footer-inner">
-    <p class="footer-text">
-      <span>Powered By:</span>
-      <span class="tech-stack">
-        {{ loading() ? '加载中...' : error() || !techStack() ? '技术栈信息暂不可用' : 'Angular 18 | ' + techStack()!.framework + ' | ' + techStack()!.language + ' | ' + techStack()!.database }}
-      </span>
-    </p>
+<footer class="app-footer">
+  <div class="stack-info cyber-glass-sm mono-font footer-info">
+    <span class="status-dot green"></span>
+    <span class="footer-text">{{ 'HelloTime · 时间胶囊 · ' + summary }}</span>
   </div>
 </footer>

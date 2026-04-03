@@ -2,7 +2,7 @@ const { test, expect } = require('@playwright/test')
 
 const frontendName = process.env.FRONTEND_NAME || 'unknown'
 const adminPassword = process.env.ADMIN_PASSWORD || 'timecapsule-admin'
-const backendUrl = process.env.BACKEND_URL || 'http://127.0.0.1:8080'
+const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
 
 function frameworkLogoSelector() {
   switch (frontendName) {
@@ -22,13 +22,13 @@ function frameworkLogoSelector() {
 function frameworkLabel() {
   switch (frontendName) {
     case 'react-ts':
-      return 'React 19'
+      return 'React'
     case 'vue3-ts':
-      return 'Vue 3'
+      return 'Vue'
     case 'angular-ts':
-      return 'Angular 18'
+      return 'Angular'
     case 'svelte-ts':
-      return 'Svelte 5'
+      return 'Svelte'
     default:
       return ''
   }
@@ -46,12 +46,10 @@ test.describe.configure({ mode: 'serial' })
 test(`首页展示技术栈卡片 [${frontendName}]`, async ({ page }) => {
   await page.goto('/')
 
-  const techCard = page.locator('.card').filter({ has: page.getByRole('heading', { name: '技术栈' }) }).first()
+  const techCard = page.locator('.tech-stack-simple').first()
 
-  await expect(page.getByRole('heading', { name: '时间胶囊' })).toBeVisible()
-  await expect(page.getByRole('heading', { name: '技术栈' })).toBeVisible()
-  await expect(techCard).toContainText('前端')
-  await expect(techCard).toContainText('后端')
+  await expect(page.getByRole('heading', { name: /封存此刻.*开启未来/ })).toBeVisible()
+  await expect(page.getByText('TECHNOLOGY STACK')).toBeVisible()
   await expect(techCard).toContainText('TypeScript')
   await expect(techCard).toContainText(frameworkLabel())
 
@@ -59,8 +57,8 @@ test(`首页展示技术栈卡片 [${frontendName}]`, async ({ page }) => {
   await expect(techCard.getByAltText('TypeScript Logo')).toBeVisible()
   await expect(techCard.getByAltText('后端框架 Logo')).toBeVisible()
   await expect(techCard.getByAltText('后端语言 Logo')).toBeVisible()
-  await expect(techCard.getByAltText('后端数据库 Logo')).toBeVisible()
-  await expect(techCard).toContainText(/SQLite|技术栈信息暂不可用|加载中/)
+  await expect(techCard.getByAltText('数据库 Logo')).toBeVisible()
+  await expect(techCard).toContainText(/SQLite|技术栈信息暂不可用|加载中|\?/)
 })
 
 test(`创建胶囊并验证锁定态 [${frontendName}]`, async ({ page }) => {
@@ -69,31 +67,32 @@ test(`创建胶囊并验证锁定态 [${frontendName}]`, async ({ page }) => {
   const creator = 'Playwright'
 
   await page.goto('/')
-  await page.getByRole('link', { name: /创建胶囊/ }).click()
+  const createEntry = page.getByRole('button', { name: '创建胶囊' }).or(page.getByRole('link', { name: '创建胶囊' }))
+  await createEntry.click()
 
   await page.getByLabel('标题').fill(title)
   await page.getByLabel('内容').fill(content)
-  await page.getByLabel('发布者').fill(creator)
-  await page.getByLabel('开启时间').fill(futureDateTimeLocal())
+  await page.getByLabel(/发布者|创建者/).fill(creator)
+  await page.getByLabel(/开启时间|解锁时间/).fill(futureDateTimeLocal())
 
-  await page.getByRole('button', { name: '封存时间胶囊' }).click()
+  await page.getByRole('button', { name: '封存胶囊' }).click()
   await page.getByRole('button', { name: '确认' }).click()
 
-  await expect(page.getByRole('heading', { name: '胶囊创建成功！' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '胶囊创建成功' })).toBeVisible()
 
   const successCard = page.locator('body')
-  const codeMatch = (await successCard.textContent()).match(/\b[A-Za-z0-9]{8}\b/)
+  const codeMatch = (await successCard.textContent()).match(/\b[A-Z0-9]{8}\b/)
   expect(codeMatch).not.toBeNull()
   const capsuleCode = codeMatch[0]
 
   await page.goto('/')
-  await page.getByRole('link', { name: /开启胶囊/ }).click()
-  await page.getByPlaceholder('输入 8 位胶囊码').fill(capsuleCode)
-  await page.getByRole('button', { name: '开启' }).click()
+  const openEntry = page.getByRole('button', { name: '开启胶囊' }).or(page.getByRole('link', { name: '开启胶囊' }))
+  await openEntry.click()
+  await page.locator('input[maxlength="8"]').fill(capsuleCode)
+  await page.getByRole('button', { name: '开启胶囊' }).click()
 
   await expect(page.getByText(title)).toBeVisible()
   await expect(page.getByText('未到时间')).toBeVisible()
-  await expect(page.getByText('胶囊尚未到开启时间')).toBeVisible()
   await expect(page.getByText(content)).toHaveCount(0)
 })
 
@@ -116,18 +115,18 @@ test(`到时间后成功打开胶囊 [${frontendName}]`, async ({ page, request 
   const capsuleCode = createBody.data.code
 
   await page.goto('/')
-  await page.getByRole('link', { name: /开启胶囊/ }).click()
-  await page.getByPlaceholder('输入 8 位胶囊码').fill(capsuleCode)
-  await page.getByRole('button', { name: '开启' }).click()
+  const openEntry = page.getByRole('button', { name: '开启胶囊' }).or(page.getByRole('link', { name: '开启胶囊' }))
+  await openEntry.click()
+  await page.locator('input[maxlength="8"]').fill(capsuleCode)
+  await page.getByRole('button', { name: '开启胶囊' }).click()
 
   await expect(page.getByText(title)).toBeVisible()
 
-  const openedBadge = page.getByText('已开启')
+  const openedBadge = page.locator('.badge-unlocked, .badge-success').filter({ hasText: /已开启|已解锁/ }).first()
   const lockedBadge = page.getByText('未到时间')
 
   if (await lockedBadge.count()) {
     await expect(lockedBadge).toBeVisible()
-    await expect(page.getByText('胶囊尚未到开启时间')).toBeVisible()
     await expect(page.getByText('时间已到，胶囊即将开启…')).toBeVisible({ timeout: 15000 })
   }
 
@@ -139,17 +138,18 @@ test(`隐藏入口进入管理员并登录 [${frontendName}]`, async ({ page }) 
   await page.goto('/')
   await page.getByRole('link', { name: '关于' }).click()
 
-  const versionEntry = page.getByText('HelloTime v1.0.0')
-  await expect(versionEntry).toBeVisible()
+  const secretTrigger = page.getByRole('button', { name: '隐藏管理入口' }).or(page.locator('.tech-orb').first())
+  await expect(secretTrigger).toBeVisible()
 
   for (let i = 0; i < 5; i += 1) {
-    await versionEntry.click()
+    await secretTrigger.click()
   }
 
   await expect(page.getByRole('heading', { name: '管理员登录' })).toBeVisible()
-  await page.getByLabel('密码').fill(adminPassword)
+  await page.getByLabel(/管理员密码|密码/).fill(adminPassword)
   await page.getByRole('button', { name: '登录' }).click()
 
-  await expect(page.getByText('已登录为管理员')).toBeVisible()
+  await expect(page.getByRole('heading', { name: '管理员登录' })).toHaveCount(0)
   await expect(page.getByRole('heading', { name: /胶囊列表/ })).toBeVisible()
+  await expect(page.getByRole('button', { name: '退出登录' })).toBeVisible()
 })

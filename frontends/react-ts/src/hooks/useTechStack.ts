@@ -39,8 +39,16 @@ function getSnapshot(): Snapshot {
 }
 
 function loadTechStack() {
-  if (inFlight || (!snapshot.loading && (snapshot.techStack !== null || snapshot.error))) {
+  if (inFlight || snapshot.techStack !== null) {
     return
+  }
+
+  if (!snapshot.loading) {
+    setSnapshot({
+      techStack: null,
+      loading: true,
+      error: false,
+    })
   }
 
   inFlight = getHealthInfo()

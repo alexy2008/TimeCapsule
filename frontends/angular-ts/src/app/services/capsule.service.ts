@@ -37,4 +37,9 @@ export class CapsuleService {
       this.loading.set(false);
     }
   }
+
+  clear(): void {
+    this.capsule.set(null);
+    this.error.set(null);
+  }
 }

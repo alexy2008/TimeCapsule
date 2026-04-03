@@ -51,7 +51,7 @@ export default function CreateView() {
               <h2>胶囊创建成功</h2>
               <p>您的时间胶囊已成功封存。</p>
               <div className="capsule-key-box">
-                  <span className="label">提取码</span>
+                  <span className="label">胶囊码</span>
                   <div className="code-display mono-font glow-text">{created.code}</div>
                   <button className="btn btn-icon btn-copy" onClick={copyCode} aria-label="Copy code">
                       {copied ? '✓' : (
@@ -62,7 +62,23 @@ export default function CreateView() {
                       )}
                   </button>
               </div>
-              <div className="helper-text">请妥善保管此提取码，它是打开此胶囊的唯一凭证。</div>
+              <div
+                className="cyber-glass"
+                style={{
+                  marginTop: '1.25rem',
+                  padding: '1rem 1.25rem',
+                  borderColor: 'rgba(0, 240, 255, 0.28)',
+                  background: 'rgba(0, 240, 255, 0.07)',
+                  textAlign: 'left',
+                }}
+              >
+                <div className="mono-font" style={{ color: 'var(--cyan)', fontSize: '0.8rem', marginBottom: '0.4rem' }}>
+                  SAVE THIS CODE
+                </div>
+                <div style={{ margin: 0, color: 'var(--text-primary)', lineHeight: 1.7 }}>
+                  请务必妥善保存胶囊码。它是开启此胶囊的唯一凭证，丢失后将无法找回或补发。
+                </div>
+              </div>
               <button className="btn btn-outline mt-6" onClick={() => navigate('/')}>返回首页</button>
           </div>
       </section>
@@ -87,7 +103,7 @@ export default function CreateView() {
         <ConfirmDialog
           visible={showConfirm}
           title="确认创建"
-          message={`确定要创建标题为「${pendingForm?.title}」的时间胶囊吗？`}
+          message={`确定要创建标题为「${pendingForm?.title}」的时间胶囊吗？\n\n胶囊一经创建，内容和解锁时间将无法修改，也无法删除。`}
           onConfirm={confirmCreate}
           onCancel={() => setShowConfirm(false)}
         />

@@ -6,24 +6,36 @@ const techStack = ref<TechStack | null>(null)
 const loading = ref(true)
 const error = ref(false)
 let loaded = false
+let pendingRequest: Promise<void> | null = null
 
 async function loadTechStack() {
   if (loaded) {
     return
   }
 
-  loaded = true
-
-  try {
-    const response = await getHealthInfo()
-    techStack.value = response.data.techStack
-    error.value = false
-  } catch {
-    techStack.value = null
-    error.value = true
-  } finally {
-    loading.value = false
+  if (pendingRequest) {
+    return pendingRequest
   }
+
+  loading.value = true
+
+  pendingRequest = (async () => {
+    try {
+      const response = await getHealthInfo()
+      techStack.value = response.data.techStack
+      error.value = false
+      loaded = true
+    } catch {
+      techStack.value = null
+      error.value = true
+      loaded = false
+    } finally {
+      loading.value = false
+      pendingRequest = null
+    }
+  })()
+
+  return pendingRequest
 }
 
 export function useTechStack() {
@@ -35,5 +47,6 @@ export function useTechStack() {
     techStack,
     loading,
     error,
+    reload: loadTechStack,
   }
 }

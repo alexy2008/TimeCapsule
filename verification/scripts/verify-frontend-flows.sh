@@ -50,9 +50,16 @@ home_file_for() {
   esac
 }
 
+home_data_file_for() {
+  case "$1" in
+    angular-ts) echo "$ROOT_DIR/frontends/angular-ts/src/app/views/home/home.component.ts" ;;
+    *) home_file_for "$1" ;;
+  esac
+}
+
 frontend_logo_for() {
   case "$1" in
-    react-ts) echo "$ROOT_DIR/frontends/react-ts/public/react-logo.svg" ;;
+    react-ts) echo "$ROOT_DIR/frontends/react-ts/public/frontend.svg" ;;
     vue3-ts) echo "$ROOT_DIR/frontends/vue3-ts/public/frontend.svg" ;;
     angular-ts) echo "$ROOT_DIR/frontends/angular-ts/src/assets/frontend.svg" ;;
     svelte-ts) echo "$ROOT_DIR/frontends/svelte-ts/public/frontend.svg" ;;
@@ -62,28 +69,27 @@ frontend_logo_for() {
 
 typescript_logo_for() {
   case "$1" in
-    react-ts) echo "$ROOT_DIR/frontends/react-ts/public/typescript-logo.svg" ;;
-    vue3-ts) echo "$ROOT_DIR/frontends/vue3-ts/public/typescript-logo.svg" ;;
-    angular-ts) echo "$ROOT_DIR/frontends/angular-ts/src/assets/typescript-logo.svg" ;;
-    svelte-ts) echo "$ROOT_DIR/frontends/svelte-ts/public/typescript-logo.svg" ;;
+    react-ts) echo "$ROOT_DIR/frontends/react-ts/public/frontend-language.svg" ;;
+    vue3-ts) echo "$ROOT_DIR/frontends/vue3-ts/public/frontend-language.svg" ;;
+    angular-ts) echo "$ROOT_DIR/frontends/angular-ts/src/assets/frontend-language.svg" ;;
+    svelte-ts) echo "$ROOT_DIR/frontends/svelte-ts/public/frontend-language.svg" ;;
     *) return 1 ;;
   esac
 }
 
 framework_logo_pattern_for() {
   case "$1" in
-    react-ts) echo '/react-logo\.svg' ;;
-    vue3-ts|angular-ts|svelte-ts) echo '/frontend\.svg' ;;
+    react-ts|vue3-ts|angular-ts|svelte-ts) echo '/frontend\.svg' ;;
     *) return 1 ;;
   esac
 }
 
 verify_command_for() {
   case "$1" in
-    react-ts) echo "npm run test" ;;
+    react-ts) echo "npm run build" ;;
     vue3-ts) echo "npm run build" ;;
-    angular-ts) echo "./node_modules/.bin/ngc -p tsconfig.app.json" ;;
-    svelte-ts) echo "npm run build" ;;
+    angular-ts) echo "CI=1 npx ng build --no-progress" ;;
+    svelte-ts) echo "npm run check" ;;
     *) return 1 ;;
   esac
 }
@@ -91,12 +97,18 @@ verify_command_for() {
 run_static_checks() {
   frontend="$1"
   home_file="$(home_file_for "$frontend")" || return 1
+  home_data_file="$(home_data_file_for "$frontend")" || return 1
   logo_file="$(frontend_logo_for "$frontend")" || return 1
   ts_logo_file="$(typescript_logo_for "$frontend")" || return 1
   framework_logo_pattern="$(framework_logo_pattern_for "$frontend")" || return 1
 
   if [ ! -f "$home_file" ]; then
     echo "  缺少首页文件: $home_file"
+    return 1
+  fi
+
+  if [ ! -f "$home_data_file" ]; then
+    echo "  缺少首页数据文件: $home_data_file"
     return 1
   fi
 
@@ -110,43 +122,48 @@ run_static_checks() {
     return 1
   fi
 
-  if ! rg -q "$framework_logo_pattern" "$home_file"; then
-    echo "  首页未引用本地前端框架 logo: $home_file"
+  if ! rg -q "$framework_logo_pattern" "$home_data_file"; then
+    echo "  首页未引用本地前端框架 logo: $home_data_file"
     return 1
   fi
 
-  if ! rg -q '/typescript-logo\.svg' "$home_file"; then
-    echo "  首页未引用 TypeScript logo: $home_file"
+  if ! rg -q '/frontend-language\.svg' "$home_data_file"; then
+    echo "  首页未引用前端语言 logo: $home_data_file"
     return 1
   fi
 
-  if ! rg -q 'backend\.svg' "$home_file"; then
-    echo "  首页未引用后端框架 logo: $home_file"
+  if ! rg -q 'backend\.svg' "$home_data_file"; then
+    echo "  首页未引用后端框架 logo: $home_data_file"
     return 1
   fi
 
-  if ! rg -q 'language\.svg' "$home_file"; then
-    echo "  首页未引用后端语言 logo: $home_file"
+  if ! rg -q 'language\.svg' "$home_data_file"; then
+    echo "  首页未引用后端语言 logo: $home_data_file"
     return 1
   fi
 
-  if ! rg -q 'database\.svg' "$home_file"; then
-    echo "  首页未引用后端数据库 logo: $home_file"
+  if ! rg -q 'database\.svg' "$home_data_file"; then
+    echo "  首页未引用后端数据库 logo: $home_data_file"
     return 1
   fi
 
-  if ! rg -q '技术栈' "$home_file"; then
+  if ! rg -q 'TECHNOLOGY STACK' "$home_file"; then
     echo "  首页缺少技术栈卡标题: $home_file"
     return 1
   fi
 
-  if ! rg -q '前端' "$home_file"; then
-    echo "  首页缺少前端分组标题: $home_file"
+  if ! rg -q '创建胶囊' "$home_file"; then
+    echo "  首页缺少创建胶囊入口: $home_file"
     return 1
   fi
 
-  if ! rg -q '后端' "$home_file"; then
-    echo "  首页缺少后端分组标题: $home_file"
+  if ! rg -q '开启胶囊' "$home_file"; then
+    echo "  首页缺少开启胶囊入口: $home_file"
+    return 1
+  fi
+
+  if ! rg -q '封存此刻' "$home_file"; then
+    echo "  首页缺少新版 Hero 标题: $home_file"
     return 1
   fi
 

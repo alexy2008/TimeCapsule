@@ -1,0 +1,9 @@
+.actionCardLink {
+  text-decoration: none;
+  color: inherit;
+  width: 100%;
+}
+
+.actionCardLink:visited {
+  color: inherit;
+}

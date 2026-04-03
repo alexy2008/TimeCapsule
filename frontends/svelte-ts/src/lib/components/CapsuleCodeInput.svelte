@@ -5,12 +5,17 @@
   export let loading = false;
   export let error: string | null = null;
 
-  const dispatch = createEventDispatcher<{ submit: string }>();
+  const dispatch = createEventDispatcher<{ submit: string; codeChange: string }>();
 
   function handleSubmit() {
     if (code.trim().length === 8) {
       dispatch('submit', code.trim());
     }
+  }
+
+  function handleInput(value: string) {
+    code = value;
+    dispatch('codeChange', value);
   }
 
   function handleKeydown(e: KeyboardEvent) {
@@ -21,35 +26,41 @@
 </script>
 
 <div class="code-input-group">
-  <div class="input-wrapper">
+  <div class="search-container cyber-glass center-card">
+    <p class="mb-6">输入8位提取码开启您的时间胶囊。</p>
+    <div class="search-input-wrapper">
     <input
       type="text"
-      bind:value={code}
-      class="input code-input"
-      placeholder="输入 8 位胶囊码"
+      value={code}
+      class="cyber-input search-input mono-font text-center"
+      placeholder="        "
       maxlength="8"
+      on:input={(event) => handleInput((event.currentTarget as HTMLInputElement).value)}
       on:keydown={handleKeydown}
+      autocomplete="off"
     />
-    <button class="btn btn-primary" on:click={handleSubmit} disabled={loading || code.trim().length !== 8}>
-      {loading ? '查询中...' : '开启'}
-    </button>
+      <div class="search-line-effect"></div>
+    </div>
+    {#if error}
+      <p class="search-error">{error}</p>
+    {/if}
+    <div class="action-row mt-6">
+      <button class="btn btn-primary" on:click={handleSubmit} disabled={loading || code.length !== 8}>
+        {loading ? '查询中...' : '开启胶囊'}
+      </button>
+    </div>
   </div>
-  {#if error}
-    <p class="input-error-text">{error}</p>
-  {/if}
 </div>
 
 <style>
-  .input-wrapper {
-    display: flex;
-    gap: var(--space-2);
+  .search-error {
+    color: var(--magenta);
+    margin-top: 1rem;
+    text-align: center;
   }
 
-  .code-input {
-    font-family: var(--font-mono);
-    font-size: var(--text-lg);
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    flex: 1;
+  .search-container {
+    max-width: 640px;
+    margin: 0 auto;
   }
 </style>

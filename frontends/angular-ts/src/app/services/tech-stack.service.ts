@@ -9,25 +9,33 @@ export class TechStackService {
   readonly error = signal(false);
 
   private loaded = false;
+  private pendingRequest: Promise<void> | null = null;
 
   load(): void {
     if (this.loaded) {
       return;
     }
 
-    this.loaded = true;
+    if (this.pendingRequest) {
+      return;
+    }
 
-    getHealthInfo()
+    this.loading.set(true);
+
+    this.pendingRequest = getHealthInfo()
       .then(res => {
         this.techStack.set(res.data.techStack);
         this.error.set(false);
+        this.loaded = true;
       })
       .catch(() => {
         this.techStack.set(null);
         this.error.set(true);
+        this.loaded = false;
       })
       .finally(() => {
         this.loading.set(false);
+        this.pendingRequest = null;
       });
   }
 }

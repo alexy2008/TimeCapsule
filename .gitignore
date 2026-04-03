@@ -41,6 +41,7 @@ __pycache__/
 # Build cache
 .angular/
 *.tsbuildinfo
+frontends/angular-ts/out-tsc/
 
 # Local runtime
 .runtime/

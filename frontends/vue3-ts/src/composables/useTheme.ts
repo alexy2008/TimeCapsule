@@ -6,11 +6,26 @@ import { ref, watchEffect } from 'vue'
 
 type Theme = 'light' | 'dark'
 
+function getStorage() {
+  if (typeof localStorage === 'undefined') {
+    return null
+  }
+
+  if (typeof localStorage.getItem !== 'function' || typeof localStorage.setItem !== 'function') {
+    return null
+  }
+
+  return localStorage
+}
+
+const storage = getStorage()
+
 /**
  * 当前主题状态
  * 从 localStorage 读取初始值，默认为 'light'
  */
-const theme = ref<Theme>((typeof localStorage !== 'undefined' && localStorage.getItem('theme') as Theme) || 'light')
+const savedTheme = storage?.getItem('theme')
+const theme = ref<Theme>(savedTheme === 'dark' ? 'dark' : 'light')
 
 /**
  * 应用主题到 DOM
@@ -19,7 +34,7 @@ const theme = ref<Theme>((typeof localStorage !== 'undefined' && localStorage.ge
  */
 function applyTheme(t: Theme) {
   document.documentElement.setAttribute('data-theme', t)
-  localStorage.setItem('theme', t)
+  storage?.setItem('theme', t)
 }
 
 // 初始化：在 SSR 环境下检查 document 是否存在

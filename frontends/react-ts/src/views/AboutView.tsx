@@ -9,7 +9,7 @@ export default function AboutView() {
 
   const techItems = [
     { src: '/frontend.svg', alt: 'React', title: 'React', version: 'React 19' },
-    { src: '/typescript-logo.svg', alt: 'TypeScript', title: 'TypeScript', version: 'TypeScript 5' },
+    { src: '/frontend-language.svg', alt: 'TypeScript', title: 'TypeScript', version: 'TypeScript 5' },
     {
       src: '/tech-logos/backend.svg',
       alt: '后端框架',

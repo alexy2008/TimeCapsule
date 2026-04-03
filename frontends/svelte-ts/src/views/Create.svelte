@@ -1,123 +1,126 @@
 <script lang="ts">
-  import ObjectLink from "@/lib/components/Link.svelte";
-  const Link = ObjectLink;
-  import type { Capsule, CreateCapsuleForm } from '../lib/types';
-  import { createCapsule } from '../lib/api';
+  import { onDestroy, onMount } from 'svelte';
+  import { push } from 'svelte-spa-router';
+  import type { CreateCapsuleForm } from '../lib/types';
   import CapsuleForm from '../lib/components/CapsuleForm.svelte';
   import ConfirmDialog from '../lib/components/ConfirmDialog.svelte';
+  import {
+    cancelCreateConfirmation,
+    confirmCreateSubmission,
+    copyCreatedCode,
+    createState,
+    resetCreateState,
+    submitCreateForm,
+  } from '../lib/create-state.svelte';
 
-  let loading = false;
-  let error: string | null = null;
-  let created: Capsule | null = null;
-  
-  let showConfirm = false;
-  let pendingForm: CreateCapsuleForm | null = null;
-  let copied = false;
+  onMount(() => {
+    resetCreateState();
+  });
+
+  onDestroy(() => {
+    resetCreateState();
+  });
 
   function handleSubmit(event: CustomEvent<CreateCapsuleForm>) {
-    pendingForm = event.detail;
-    showConfirm = true;
+    submitCreateForm(event.detail);
   }
 
   async function confirmCreate() {
-    showConfirm = false;
-    if (!pendingForm) return;
-    
-    loading = true;
-    error = null;
-    try {
-      const response = await createCapsule(pendingForm);
-      if (response.success) {
-        created = response.data;
-      } else {
-        error = response.message || '创建失败';
-      }
-    } catch (err: any) {
-      error = err.message || '网络错误，请稍后再试';
-    } finally {
-      loading = false;
-    }
+    await confirmCreateSubmission();
   }
 
-  function copyCode() {
-    if (created) {
-      navigator.clipboard.writeText(created.code).then(() => {
-        copied = true;
-        setTimeout(() => { copied = false; }, 2000);
-      });
-    }
+  async function copyCode() {
+    await copyCreatedCode();
+  }
+
+  function goHome() {
+    resetCreateState();
+    push('/');
   }
 </script>
 
-<div class="page">
-  <div class="container container-sm">
-    <div class="page-header">
-      <h1>创建时间胶囊</h1>
-      <p>封存你的心意，在未来开启</p>
+{#if createState.created}
+  <section id="view-created" class="view active">
+    <div class="success-container cyber-glass text-center">
+      <div class="status-icon success-glow">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+      </div>
+      <h2>胶囊创建成功</h2>
+      <p>您的时间胶囊已成功封存。</p>
+      <div class="capsule-key-box">
+        <span class="label">胶囊码</span>
+        <div class="code-display mono-font glow-text">{createState.created.code}</div>
+        <button class="btn btn-icon btn-copy" on:click={copyCode} aria-label="Copy code">
+          {#if createState.copied}
+            ✓
+          {:else}
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+          {/if}
+        </button>
+      </div>
+      <div class="cyber-glass code-notice">
+        <div class="mono-font notice-label">SAVE THIS CODE</div>
+        <div class="code-notice-text">请务必妥善保存胶囊码。它是开启此胶囊的唯一凭证，丢失后将无法找回或补发。</div>
+      </div>
+      <button class="btn btn-outline mt-6" on:click={goHome}>返回首页</button>
+    </div>
+  </section>
+{:else}
+  <section id="view-create" class="view active">
+    <div class="view-header">
+      <button class="btn-back" on:click={() => push('/')}>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        返回
+      </button>
+      <h2>创建时间胶囊</h2>
     </div>
 
-    {#if created}
-      <div class="card success-card text-center">
-        <div class="success-icon">&#10004;</div>
-        <h2>胶囊创建成功！</h2>
-        <p class="text-secondary mt-2">你的胶囊码是：</p>
-        <p class="capsule-code">{created.code}</p>
-        <p class="text-sm text-secondary mt-2">请记住这个胶囊码，它是开启胶囊的唯一凭证</p>
-        <div class="flex justify-center gap-3 mt-6">
-          <button class="btn btn-secondary" on:click={copyCode}>
-            {copied ? '已复制！' : '复制胶囊码'}
-          </button>
-          <Link to={`/open/${created.code}`} class="btn btn-primary">查看胶囊</Link>
-        </div>
-      </div>
-    {:else}
-      {#if error}
-        <div class="error-banner">{error}</div>
-      {/if}
-      <CapsuleForm {loading} on:submit={handleSubmit} />
-      <ConfirmDialog
-        visible={showConfirm}
-        title="确认创建"
-        message={`确定要创建标题为「${pendingForm?.title || ''}」的时间胶囊吗？`}
-        on:confirm={confirmCreate}
-        on:cancel={() => showConfirm = false}
-      />
+    {#if createState.error}
+      <div class="create-error">{createState.error}</div>
     {/if}
-  </div>
-</div>
+    <CapsuleForm loading={createState.loading} on:submit={handleSubmit} />
+    <ConfirmDialog
+      visible={createState.showConfirm}
+      title="确认创建"
+      message={`确定要创建标题为「${createState.pendingForm?.title || ''}」的时间胶囊吗？\n\n胶囊一经创建，内容和解锁时间将无法修改，也无法删除。`}
+      on:confirm={confirmCreate}
+      on:cancel={cancelCreateConfirmation}
+    />
+  </section>
+{/if}
 
 <style>
-  .success-card {
-    padding: var(--space-8);
+  .create-error {
+    color: var(--magenta);
+    margin-bottom: 1rem;
+    text-align: center;
   }
 
-  .success-icon {
-    font-size: 3rem;
-    color: var(--color-success);
-    margin-bottom: var(--space-4);
+  .code-notice {
+    margin-top: 1.25rem;
+    padding: 1rem 1.25rem;
+    border-color: rgba(0, 240, 255, 0.28);
+    background: rgba(0, 240, 255, 0.07);
+    text-align: left;
   }
 
-  .capsule-code {
-    font-family: var(--font-mono);
-    font-size: var(--text-3xl);
-    font-weight: var(--font-bold);
-    color: var(--color-primary);
-    letter-spacing: 0.2em;
-    margin: var(--space-4) 0;
+  .notice-label {
+    color: var(--cyan);
+    font-size: 0.8rem;
+    margin-bottom: 0.4rem;
   }
 
-  .error-banner {
-    padding: var(--space-3) var(--space-4);
-    margin-bottom: var(--space-4);
-    background-color: #fef2f2;
-    color: var(--color-error);
-    border: 1px solid #fecaca;
-    border-radius: var(--radius-md);
-    font-size: var(--text-sm);
-  }
-
-  :global([data-theme="dark"]) .error-banner {
-    background-color: #450a0a;
-    border-color: #7f1d1d;
+  .code-notice-text {
+    color: var(--text-primary);
+    line-height: 1.7;
   }
 </style>

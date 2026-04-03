@@ -6,7 +6,7 @@
   align-items: center;
   justify-content: center;
   z-index: 100;
-  padding: var(--space-4);
+  padding: 1rem;
 }
 
 .dialog {
@@ -14,21 +14,22 @@
   max-width: 440px;
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: 1rem;
 }
 
 .dialog-title {
-  font-size: var(--text-lg);
-  font-weight: var(--font-semibold);
+  font-size: 1.125rem;
+  font-weight: 600;
 }
 
 .dialog-message {
-  color: var(--color-text-secondary);
-  line-height: var(--leading-relaxed);
+  color: var(--text-secondary);
+  line-height: 1.7;
+  white-space: pre-line;
 }
 
 .dialog-actions {
   display: flex;
   justify-content: flex-end;
-  gap: var(--space-3);
+  gap: 0.75rem;
 }
