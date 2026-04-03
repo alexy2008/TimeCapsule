@@ -69,6 +69,7 @@ verification/
 - `fastapi`
 - `gin`
 - `elysia`
+- `nest`
 
 ### 前端
 

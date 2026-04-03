@@ -13,11 +13,12 @@ from sqlalchemy.orm import Session
 from app.models import Capsule
 from app.schemas import (
     CreateCapsuleRequest,
+    CapsuleCreatedResponse,
     CapsuleResponse,
     PageResponse,
 )
 
-CODE_CHARS = string.ascii_letters + string.digits  # A-Za-z0-9 (62 chars)
+CODE_CHARS = string.ascii_uppercase + string.digits  # A-Z0-9 (36 chars)
 CODE_LENGTH = 8
 MAX_RETRIES = 10
 
@@ -36,7 +37,7 @@ def _format_utc(dt: datetime) -> str:
 
 
 def _generate_code() -> str:
-    """生成 8 位 base62 随机码"""
+    """生成 8 位仅含大写字母和数字的随机码"""
     return "".join(secrets.choice(CODE_CHARS) for _ in range(CODE_LENGTH))
 
 
@@ -81,7 +82,7 @@ def _to_response_dict(
     return result
 
 
-def create_capsule(db: Session, request: CreateCapsuleRequest) -> CapsuleResponse:
+def create_capsule(db: Session, request: CreateCapsuleRequest) -> CapsuleCreatedResponse:
     """创建时间胶囊"""
     # openAt 必须在未来
     now = datetime.now(timezone.utc)
@@ -102,9 +103,13 @@ def create_capsule(db: Session, request: CreateCapsuleRequest) -> CapsuleRespons
     db.commit()
     db.refresh(capsule)
 
-    # 返回响应（不含 content）
-    response_data = _to_response_dict(capsule, include_content=False)
-    return CapsuleResponse(**response_data)
+    return CapsuleCreatedResponse(
+        code=capsule.code,
+        title=capsule.title,
+        creator=capsule.creator,
+        open_at=_format_utc(capsule.open_at),
+        created_at=_format_utc(capsule.created_at) if capsule.created_at else None,
+    )
 
 
 def get_capsule(db: Session, code: str) -> CapsuleResponse:

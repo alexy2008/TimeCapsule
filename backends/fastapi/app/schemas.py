@@ -64,6 +64,16 @@ class CapsuleResponse(BaseModel):
     opened: Optional[bool] = None
 
 
+class CapsuleCreatedResponse(BaseModel):
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
+
+    code: str
+    title: str
+    creator: str
+    open_at: str
+    created_at: Optional[str] = None
+
+
 class AdminTokenResponse(BaseModel):
     token: str
 

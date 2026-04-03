@@ -8,13 +8,13 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.schemas import CreateCapsuleRequest, CapsuleResponse, ApiResponse
+from app.schemas import CreateCapsuleRequest, CapsuleCreatedResponse, CapsuleResponse, ApiResponse
 from app.services import capsule_service
 
 router = APIRouter(prefix="/api/v1/capsules", tags=["capsules"])
 
 
-@router.post("", response_model=ApiResponse[CapsuleResponse])
+@router.post("", response_model=ApiResponse[CapsuleCreatedResponse])
 def create(request: CreateCapsuleRequest, db: Session = Depends(get_db)):
     capsule = capsule_service.create_capsule(db, request)
     response = ApiResponse.ok(capsule, "胶囊创建成功")

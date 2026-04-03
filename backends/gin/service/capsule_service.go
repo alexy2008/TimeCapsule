@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	codeChars  = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+	codeChars  = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	codeLength = 8
 	maxRetries = 10
 )
@@ -28,7 +28,7 @@ var (
 	ErrCodeGeneration  = errors.New("无法生成唯一的胶囊码")
 )
 
-// generateCode 生成 8 位 base62 随机码
+// generateCode 生成 8 位仅含大写字母和数字的随机码
 func generateCode() (string, error) {
 	var sb strings.Builder
 	max := big.NewInt(int64(len(codeChars)))
@@ -186,8 +186,11 @@ func ListCapsules(db *gorm.DB, page, size int) (*dto.PageResponse, error) {
 // DeleteCapsule 删除胶囊
 func DeleteCapsule(db *gorm.DB, code string) error {
 	result := db.Where("code = ?", code).Delete(&model.Capsule{})
+	if result.Error != nil {
+		return result.Error
+	}
 	if result.RowsAffected == 0 {
 		return ErrCapsuleNotFound
 	}
-	return result.Error
+	return nil
 }

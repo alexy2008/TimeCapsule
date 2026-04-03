@@ -122,7 +122,7 @@ java -jar target/hellotime-backend-1.0.0.jar
 
 | 字段 | 类型 | 描述 |
 |------|------|------|
-| code | VARCHAR(8) | 胶囊唯一标识（Base62） |
+| code | VARCHAR(8) | 胶囊唯一标识（大写字母和数字） |
 | title | VARCHAR(255) | 胶囊标题 |
 | content | TEXT | 胶囊内容 |
 | creator | VARCHAR(100) | 创建者 |

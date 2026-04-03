@@ -1,6 +1,7 @@
 """
 胶囊服务测试
 """
+import re
 from datetime import datetime, timedelta, timezone
 
 import pytest
@@ -14,6 +15,9 @@ from app.services.capsule_service import (
 from app.schemas import CreateCapsuleRequest
 
 
+CODE_PATTERN = re.compile(r"^[A-Z0-9]{8}$")
+
+
 def test_create_capsule_returns_code(db_session):
     """创建胶囊返回 8 字符 code，时间格式为 ISO 8601 字符串"""
     open_at = datetime.now(timezone.utc) + timedelta(days=30)
@@ -25,9 +29,12 @@ def test_create_capsule_returns_code(db_session):
     )
     result = create_capsule(db_session, request)
     assert len(result.code) == 8
+    assert CODE_PATTERN.fullmatch(result.code)
     assert result.title == "测试"
-    assert result.content is None  # 创建响应不含 content
     # 验证时间格式为 ISO 8601 字符串
+    payload = result.model_dump(by_alias=True, exclude_none=True)
+    assert "content" not in payload
+    assert "opened" not in payload
     assert isinstance(result.open_at, str)
     assert result.open_at.endswith("Z") or "+" in result.open_at
     assert isinstance(result.created_at, str)

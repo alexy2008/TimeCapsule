@@ -5,28 +5,34 @@
 import { Database } from "bun:sqlite";
 import { DATABASE_URL } from "./config";
 
-// 创建数据库连接
-const db = new Database(DATABASE_URL);
+function initializeDatabase(database: Database): Database {
+  database.run("PRAGMA journal_mode = WAL");
+  database.run(`
+    CREATE TABLE IF NOT EXISTS capsules (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      code VARCHAR(8) NOT NULL UNIQUE,
+      title VARCHAR(100) NOT NULL,
+      content TEXT NOT NULL,
+      creator VARCHAR(30) NOT NULL,
+      open_at DATETIME NOT NULL,
+      created_at DATETIME NOT NULL
+    )
+  `);
+  database.run("CREATE INDEX IF NOT EXISTS idx_capsules_code ON capsules(code)");
+  database.run("CREATE INDEX IF NOT EXISTS idx_capsules_created_at ON capsules(created_at)");
+  return database;
+}
 
-// 启用 WAL 模式以提高性能
-db.run("PRAGMA journal_mode = WAL");
+let db = initializeDatabase(new Database(DATABASE_URL));
+const defaultDb = db;
 
-// 初始化表结构
-db.run(`
-  CREATE TABLE IF NOT EXISTS capsules (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    code VARCHAR(8) NOT NULL UNIQUE,
-    title VARCHAR(100) NOT NULL,
-    content TEXT NOT NULL,
-    creator VARCHAR(30) NOT NULL,
-    open_at DATETIME NOT NULL,
-    created_at DATETIME NOT NULL
-  )
-`);
+export function setDatabase(database: Database): void {
+  db = initializeDatabase(database);
+}
 
-// 创建索引
-db.run("CREATE INDEX IF NOT EXISTS idx_capsules_code ON capsules(code)");
-db.run("CREATE INDEX IF NOT EXISTS idx_capsules_created_at ON capsules(created_at)");
+export function resetDatabase(): void {
+  db = defaultDb;
+}
 
 export default db;
 

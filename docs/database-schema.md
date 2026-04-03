@@ -11,7 +11,7 @@ SQLite — 轻量级、零配置，适合技术展示和小规模部署。
 | 字段 | 类型 | 约束 | 说明 |
 |------|------|------|------|
 | id | INTEGER | PRIMARY KEY, AUTOINCREMENT | 自增主键 |
-| code | VARCHAR(8) | UNIQUE, NOT NULL | 8 位胶囊码（62 进制，A-Z a-z 0-9） |
+| code | VARCHAR(8) | UNIQUE, NOT NULL | 8 位胶囊码（大写字母和数字，A-Z0-9） |
 | title | VARCHAR(100) | NOT NULL | 标题 |
 | content | TEXT | NOT NULL | 内容（时间未到时 API 不返回此字段） |
 | creator | VARCHAR(30) | NOT NULL | 发布者昵称 |
@@ -25,8 +25,8 @@ SQLite — 轻量级、零配置，适合技术展示和小规模部署。
 ## 胶囊码设计
 
 - 长度: 8 位
-- 字符集: `A-Z a-z 0-9`（62 个字符）
-- 空间: 62^8 ≈ 218 万亿种组合
+- 字符集: `A-Z0-9`（36 个字符）
+- 空间: 36^8 ≈ 2.82 万亿种组合
 - 生成方式: `SecureRandom` 随机生成
 - 碰撞处理: 检查唯一性，最多重试 10 次
 

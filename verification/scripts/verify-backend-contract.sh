@@ -11,7 +11,7 @@ RUBY_BIN="${RUBY_BIN:-/usr/bin/ruby}"
 SAFE_PATH="/usr/bin:/bin:/usr/sbin:/sbin"
 
 if [ "$#" -eq 0 ]; then
-  SELECTED_BACKENDS="spring-boot fastapi gin elysia"
+  SELECTED_BACKENDS="spring-boot fastapi gin elysia nest"
 else
   SELECTED_BACKENDS="$*"
 fi
@@ -29,6 +29,7 @@ label_for() {
     fastapi) echo "FastAPI" ;;
     gin) echo "Gin" ;;
     elysia) echo "Elysia" ;;
+    nest) echo "NestJS" ;;
     *) echo "Unknown" ;;
   esac
 }
@@ -39,6 +40,7 @@ dir_for() {
     fastapi) echo "$ROOT_DIR/backends/fastapi" ;;
     gin) echo "$ROOT_DIR/backends/gin" ;;
     elysia) echo "$ROOT_DIR/backends/elysia" ;;
+    nest) echo "$ROOT_DIR/backends/nest" ;;
     *) return 1 ;;
   esac
 }
@@ -49,6 +51,7 @@ base_url_for() {
     fastapi) echo "http://127.0.0.1:18010" ;;
     gin) echo "http://127.0.0.1:18020" ;;
     elysia) echo "http://127.0.0.1:18030" ;;
+    nest) echo "http://127.0.0.1:18040" ;;
     *) return 1 ;;
   esac
 }
@@ -59,6 +62,7 @@ port_for() {
     fastapi) echo "18010" ;;
     gin) echo "18020" ;;
     elysia) echo "18030" ;;
+    nest) echo "18040" ;;
     *) return 1 ;;
   esac
 }
@@ -69,6 +73,7 @@ run_command_for() {
     fastapi) echo "./run" ;;
     gin) echo "./run" ;;
     elysia) echo "./run" ;;
+    nest) echo "./run" ;;
     *) return 1 ;;
   esac
 }

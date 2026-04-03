@@ -87,6 +87,14 @@ SERVICES: list[Service] = [
         port=18030,
     ),
     Service(
+        key="nest",
+        label="NestJS",
+        kind="backend",
+        workdir=ROOT_DIR / "backends" / "nest",
+        command=["bash", str(ROOT_DIR / "backends" / "nest" / "run")],
+        port=18040,
+    ),
+    Service(
         key="vue3",
         label="Vue 3",
         kind="frontend",
@@ -120,7 +128,7 @@ SERVICES: list[Service] = [
     ),
 ]
 
-BACKEND_KEYS = {"spring-boot", "fastapi", "gin", "elysia"}
+BACKEND_KEYS = {"spring-boot", "fastapi", "gin", "elysia", "nest"}
 
 
 def ensure_runtime_dirs() -> None:

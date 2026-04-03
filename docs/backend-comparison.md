@@ -32,10 +32,10 @@
 四个后端在“胶囊开启权限校验”和“随机码生成”上保持了高度的一致性，但在实现细节上有所侧重：
 
 *   **随机码生成**:
-    *   **FastAPI**: 使用 standard library `secrets` and `string`.
-    *   **Gin**: 使用 `crypto/rand` and `math/big` 实现安全的 Base62 生成。
-    *   **Spring Boot**: 使用 `SecureRandom`.
-    *   **Elysia**: 使用 Web Crypto API 的 `crypto.getRandomValues` 实现安全的 Base62 生成。
+    *   **FastAPI**: 使用 standard library `secrets` and `string` 生成仅包含大写字母和数字的随机码。
+    *   **Gin**: 使用 `crypto/rand` and `math/big` 实现安全的随机码生成，字符集为大写字母和数字。
+    *   **Spring Boot**: 使用 `SecureRandom` 生成仅包含大写字母和数字的随机码。
+    *   **Elysia**: 使用 Web Crypto API 的 `crypto.getRandomValues` 实现安全的随机码生成，字符集为大写字母和数字。
 *   **时间处理**:
     *   统一采用 **UTC 时间** 存储，并在响应时格式化为 **ISO 8601** 字符串 (`Z` 结尾)，确保了跨平台一致性。
 *   **异常处理**:

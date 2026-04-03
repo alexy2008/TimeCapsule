@@ -3,10 +3,10 @@
  * 封装创建、查询、列表、删除等核心操作
  */
 import { CapsuleModel, CapsuleRow } from "../database";
-import type { CreateCapsuleRequestType, CapsuleDetailType, CapsulePageType } from "../schemas";
+import type { CreateCapsuleRequestType, CapsuleCreatedType, CapsuleDetailType, CapsulePageType } from "../schemas";
 
-// Base62 字符集：A-Za-z0-9 (62 chars)
-const CODE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+// 字符集：A-Z0-9 (36 chars)
+const CODE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 const CODE_LENGTH = 8;
 const MAX_RETRIES = 10;
 
@@ -35,16 +35,25 @@ export class CodeGenerationError extends Error {
 }
 
 /**
- * 生成 8 位 base62 随机码
+ * 生成 8 位仅含大写字母和数字的随机码
  */
 function generateCode(): string {
   let result = "";
   const charsLength = CODE_CHARS.length;
-  const array = new Uint8Array(CODE_LENGTH);
-  crypto.getRandomValues(array);
-  for (let i = 0; i < CODE_LENGTH; i++) {
-    result += CODE_CHARS[array[i] % charsLength];
+  const maxUnbiasedValue = Math.floor(256 / charsLength) * charsLength;
+
+  while (result.length < CODE_LENGTH) {
+    const array = new Uint8Array(CODE_LENGTH);
+    crypto.getRandomValues(array);
+
+    for (let i = 0; i < array.length && result.length < CODE_LENGTH; i++) {
+      if (array[i] >= maxUnbiasedValue) {
+        continue;
+      }
+      result += CODE_CHARS[array[i] % charsLength];
+    }
   }
+
   return result;
 }
 
@@ -108,9 +117,13 @@ function toResponse(capsule: CapsuleRow, includeContent: boolean = false): Capsu
 /**
  * 创建时间胶囊
  */
-export function createCapsule(request: CreateCapsuleRequestType): CapsuleDetailType {
+export function createCapsule(request: CreateCapsuleRequestType): CapsuleCreatedType {
   const now = new Date();
   const openAt = parseISOTime(request.openAt);
+
+  if (Number.isNaN(openAt.getTime())) {
+    throw new InvalidOpenAtError("开启时间必须是 ISO 8601 格式");
+  }
 
   // openAt 必须在未来
   if (openAt <= now) {
@@ -128,15 +141,13 @@ export function createCapsule(request: CreateCapsuleRequestType): CapsuleDetailT
     created_at: formatTimeISO(now),
   });
 
-  // 返回响应（创建时不返回 content 和 opened）
+  // 返回创建响应，不包含 content 和 opened 字段
   return {
     code: capsule.code,
     title: capsule.title,
-    content: null,
     creator: capsule.creator,
     openAt: capsule.open_at,
     createdAt: capsule.created_at,
-    opened: false,
   };
 }
 

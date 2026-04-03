@@ -4,7 +4,7 @@
  * GET  /api/v1/capsules/{code} 查询胶囊
  */
 import Elysia, { t } from "elysia";
-import { CreateCapsuleRequest, CapsuleDetail, ApiResponse } from "../schemas";
+import { CreateCapsuleRequest, CapsuleCreated, CapsuleDetail, ApiResponse } from "../schemas";
 import { createCapsule, getCapsule } from "../services/capsule";
 
 export const capsuleRoutes = new Elysia({ prefix: "/api/v1/capsules", tags: ["Capsule"] })
@@ -23,7 +23,7 @@ export const capsuleRoutes = new Elysia({ prefix: "/api/v1/capsules", tags: ["Ca
     },
     {
       body: CreateCapsuleRequest,
-      response: ApiResponse(CapsuleDetail),
+      response: ApiResponse(CapsuleCreated),
       detail: {
         summary: "创建时间胶囊",
       },
@@ -51,5 +51,3 @@ export const capsuleRoutes = new Elysia({ prefix: "/api/v1/capsules", tags: ["Ca
       },
     }
   );
-
-

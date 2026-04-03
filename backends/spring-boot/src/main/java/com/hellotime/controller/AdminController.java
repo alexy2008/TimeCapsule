@@ -60,7 +60,9 @@ public class AdminController {
     public ApiResponse<PageResponse<CapsuleResponse>> list(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        return ApiResponse.ok(capsuleService.listCapsules(page, size));
+        int normalizedPage = Math.max(0, page);
+        int normalizedSize = Math.min(100, Math.max(1, size));
+        return ApiResponse.ok(capsuleService.listCapsules(normalizedPage, normalizedSize));
     }
 
     /**

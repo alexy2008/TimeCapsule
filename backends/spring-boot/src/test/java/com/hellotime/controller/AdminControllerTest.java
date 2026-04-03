@@ -84,6 +84,17 @@ class AdminControllerTest {
     }
 
     @Test
+    void listCapsules_withOversizedSize_shouldClampTo100() throws Exception {
+        String token = loginAndGetToken();
+
+        mockMvc.perform(get("/api/v1/admin/capsules")
+                        .param("size", "999")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.size").value(100));
+    }
+
+    @Test
     void deleteCapsule_withToken_shouldWork() throws Exception {
         String token = loginAndGetToken();
 

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"regexp"
 	"testing"
 	"time"
 
@@ -17,6 +18,8 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
+
+var capsuleCodePattern = regexp.MustCompile(`^[A-Z0-9]{8}$`)
 
 // setupTestRouter 创建测试用的 Gin 引擎和内存数据库
 func setupTestRouter() (*gin.Engine, *gorm.DB) {
@@ -102,6 +105,9 @@ func TestCreateCapsule(t *testing.T) {
 	code := data["code"].(string)
 	if len(code) != 8 {
 		t.Errorf("期望 code 长度为 8，得到 %d", len(code))
+	}
+	if !capsuleCodePattern.MatchString(code) {
+		t.Errorf("期望 code 只包含大写字母和数字，得到 %s", code)
 	}
 	if data["title"] != "测试胶囊" {
 		t.Errorf("期望 title 为 '测试胶囊'，得到 %v", data["title"])

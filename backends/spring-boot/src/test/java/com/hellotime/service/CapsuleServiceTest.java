@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -21,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @Transactional
 class CapsuleServiceTest {
+    private static final Pattern CODE_PATTERN = Pattern.compile("^[A-Z0-9]{8}$");
 
     @Autowired
     private CapsuleService capsuleService;
@@ -41,6 +43,7 @@ class CapsuleServiceTest {
 
         assertNotNull(response.code());
         assertEquals(8, response.code().length());
+        assertTrue(CODE_PATTERN.matcher(response.code()).matches());
         assertEquals("测试胶囊", response.title());
         assertEquals("测试者", response.creator());
         assertNotNull(response.createdAt());

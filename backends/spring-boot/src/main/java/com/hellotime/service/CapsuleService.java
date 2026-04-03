@@ -26,8 +26,8 @@ import java.util.List;
 @Service
 public class CapsuleService {
 
-    /** 胶囊码字符集：62 个字符（大小写字母 + 数字） */
-    private static final String CODE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    /** 胶囊码字符集：36 个字符（大写字母 + 数字） */
+    private static final String CODE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     /** 胶囊码长度：8 位 */
     private static final int CODE_LENGTH = 8;
     /** 生成唯一码的最大重试次数 */

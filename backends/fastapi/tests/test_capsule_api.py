@@ -30,6 +30,8 @@ def test_create_capsule(client):
     assert data["success"] is True
     assert len(data["data"]["code"]) == 8
     assert data["data"]["title"] == "测试胶囊"
+    assert "content" not in data["data"]
+    assert "opened" not in data["data"]
     assert data["message"] == "胶囊创建成功"
 
 

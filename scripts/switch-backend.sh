@@ -13,6 +13,7 @@ usage() {
   ./scripts/switch-backend.sh fastapi
   ./scripts/switch-backend.sh gin
   ./scripts/switch-backend.sh elysia
+  ./scripts/switch-backend.sh nest
   ./scripts/switch-backend.sh 18010
   ./scripts/switch-backend.sh status
   ./scripts/switch-backend.sh stop
@@ -25,6 +26,7 @@ usage() {
   fastapi     -> 18010
   gin         -> 18020
   elysia      -> 18030
+  nest        -> 18040
 EOF
 }
 
@@ -34,6 +36,7 @@ resolve_target() {
     fastapi) echo "fastapi 18010" ;;
     gin) echo "gin 18020" ;;
     elysia) echo "elysia 18030" ;;
+    nest) echo "nest 18040" ;;
     ''|help|-h|--help) usage; exit 0 ;;
     *)
       if [[ "$1" =~ ^[0-9]+$ ]]; then

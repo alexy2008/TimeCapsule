@@ -20,7 +20,7 @@ public class Capsule {
     private Long id;
 
     /**
-     * 8 位胶囊码，唯一标识一个胶囊（62 进制：A-Za-z0-9）
+     * 8 位胶囊码，唯一标识一个胶囊（大写字母 + 数字：A-Z0-9）
      */
     @Column(nullable = false, unique = true, length = 8)
     private String code;
