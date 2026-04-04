@@ -1,5 +1,5 @@
-// Package service 胶囊业务逻辑
-// 封装创建、查询、列表、删除等核心操作
+// Package service 聚合时间胶囊的核心业务规则。
+// 对照其他后端实现时，重点关注“未到开启时间不返回内容”这条规则如何落地。
 package service
 
 import (
@@ -28,7 +28,7 @@ var (
 	ErrCodeGeneration  = errors.New("无法生成唯一的胶囊码")
 )
 
-// generateCode 生成 8 位仅含大写字母和数字的随机码
+// generateCode 生成便于人工输入的 8 位胶囊码。
 func generateCode() (string, error) {
 	var sb strings.Builder
 	max := big.NewInt(int64(len(codeChars)))
@@ -42,7 +42,7 @@ func generateCode() (string, error) {
 	return sb.String(), nil
 }
 
-// generateUniqueCode 生成唯一的胶囊码，最多重试 maxRetries 次
+// generateUniqueCode 使用随机码加数据库查重的方式保证唯一性。
 func generateUniqueCode(db *gorm.DB) (string, error) {
 	for i := 0; i < maxRetries; i++ {
 		code, err := generateCode()
@@ -58,7 +58,7 @@ func generateUniqueCode(db *gorm.DB) (string, error) {
 	return "", ErrCodeGeneration
 }
 
-// formatTimeISO 格式化时间为 ISO 8601 字符串
+// formatTimeISO 统一输出 UTC ISO 8601 时间，便于前端跨时区展示。
 func formatTimeISO(t time.Time) string {
 	return t.UTC().Format("2006-01-02T15:04:05Z")
 }
@@ -71,7 +71,8 @@ func parseStoredTime(value string) (time.Time, error) {
 	return time.Parse(time.RFC3339Nano, normalized)
 }
 
-// toResponse 将 Capsule 实体转换为响应 DTO
+// toResponse 根据访问场景控制正文是否可见。
+// 普通访客在未到开启时间时拿到 nil content，管理员列表则强制包含正文。
 func toResponse(capsule *model.Capsule, includeContent bool) dto.CapsuleResponse {
 	now := time.Now().UTC()
 	openAt, err := parseStoredTime(capsule.OpenAt)
@@ -103,12 +104,10 @@ func toResponse(capsule *model.Capsule, includeContent bool) dto.CapsuleResponse
 	} else if opened {
 		resp.Content = &capsule.Content
 	}
-	// 未到时间且不强制包含 content 时，Content 为 nil
-
 	return resp
 }
 
-// CreateCapsule 创建时间胶囊
+// CreateCapsule 负责校验开启时间、生成随机码并写入数据库。
 func CreateCapsule(db *gorm.DB, req dto.CreateCapsuleRequest) (*dto.CapsuleResponse, error) {
 	openAt, err := time.Parse(time.RFC3339, req.OpenAt)
 	if err != nil {
@@ -139,7 +138,7 @@ func CreateCapsule(db *gorm.DB, req dto.CreateCapsuleRequest) (*dto.CapsuleRespo
 	}
 
 	resp := toResponse(&capsule, false)
-	// 创建响应不含 opened 和 content
+	// 创建成功页只需要胶囊码和基础信息，不需要把正文重新返回给前端。
 	resp.Opened = nil
 	resp.Content = nil
 	return &resp, nil
@@ -159,7 +158,7 @@ func GetCapsule(db *gorm.DB, code string) (*dto.CapsuleResponse, error) {
 	return &resp, nil
 }
 
-// ListCapsules 分页查询胶囊列表（管理员用）
+// ListCapsules 为管理员列表返回完整内容，和公开详情接口形成对照。
 func ListCapsules(db *gorm.DB, page, size int) (*dto.PageResponse, error) {
 	var total int64
 	db.Model(&model.Capsule{}).Count(&total)

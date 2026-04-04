@@ -1,6 +1,6 @@
 """
 FastAPI 应用入口
-CORS 配置、异常处理、路由注册
+集中处理路由注册、静态资源挂载与统一异常映射。
 """
 from pathlib import Path
 
@@ -16,12 +16,12 @@ from app.routers import health, capsule, admin
 from app.services.capsule_service import CapsuleNotFoundException
 from app.services.admin_service import UnauthorizedException
 
-# 创建表
+# 演示项目在启动时自动建表，降低首次运行门槛。
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="HelloTime API", version="1.0.0")
 
-# ===== CORS 配置 =====
+# 前后端分离实现都运行在 localhost 的不同端口，因此这里允许本地跨端口访问。
 app.add_middleware(
     CORSMiddleware,
     allow_origin_regex=r"http://localhost(:\d+)?",
@@ -34,14 +34,9 @@ app.add_middleware(
 tech_logos_dir = Path(__file__).resolve().parent.parent / "static" / "tech-logos"
 app.mount("/tech-logos", StaticFiles(directory=tech_logos_dir), name="tech-logos")
 
-# ===== 注册路由 =====
 app.include_router(health.router)
 app.include_router(capsule.router)
 app.include_router(admin.router)
-
-
-# ===== 全局异常处理 =====
-
 
 @app.exception_handler(CapsuleNotFoundException)
 async def capsule_not_found_handler(_request: Request, exc: CapsuleNotFoundException):
@@ -63,6 +58,8 @@ async def unauthorized_handler(_request: Request, exc: UnauthorizedException):
 
 @app.exception_handler(RequestValidationError)
 async def validation_handler(_request: Request, exc: RequestValidationError):
+    # FastAPI 默认会返回自己的校验错误格式，这里转成仓库统一的 ApiResponse 结构，
+    # 便于不同前端实现复用同一套错误处理逻辑。
     errors = exc.errors()
     messages = []
     for err in errors:
@@ -87,6 +84,7 @@ async def value_error_handler(_request: Request, exc: ValueError):
 
 @app.exception_handler(Exception)
 async def general_handler(_request: Request, _exc: Exception):
+    # 演示项目不暴露底层异常细节，统一返回简单错误码。
     response = ApiResponse.error("服务器内部错误", "INTERNAL_ERROR")
     return JSONResponse(
         status_code=500,

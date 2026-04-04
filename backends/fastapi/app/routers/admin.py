@@ -24,6 +24,7 @@ router = APIRouter(prefix="/api/v1/admin", tags=["admin"])
 
 @router.post("/login", response_model=ApiResponse[AdminTokenResponse])
 def login(request: AdminLoginRequest):
+    # 路由层只负责协议转换：解析请求、调用 service、包装统一响应。
     token = admin_service.login(request.password)
     if token is None:
         raise UnauthorizedException("密码错误")
@@ -40,6 +41,7 @@ def list_capsules(
     size: int = Query(default=20, ge=1, le=100),
     db: Session = Depends(get_db),
 ):
+    # 认证逻辑通过 Depends 注入，和业务查询保持解耦，便于读者理解 FastAPI 的依赖机制。
     result = capsule_service.list_capsules(db, page, size)
     return ApiResponse.ok(result)
 
@@ -50,5 +52,6 @@ def list_capsules(
     dependencies=[Depends(verify_admin_token)],
 )
 def delete_capsule(code: str, db: Session = Depends(get_db)):
+    # 删除成功后仍返回统一的 ApiResponse，方便不同前端共用同一套处理逻辑。
     capsule_service.delete_capsule(db, code)
     return ApiResponse.ok(None, "删除成功")

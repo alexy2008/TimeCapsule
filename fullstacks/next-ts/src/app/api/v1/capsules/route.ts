@@ -8,6 +8,7 @@ export async function POST(request: Request) {
   let body: Record<string, unknown>
 
   try {
+    // Route Handler 先把原始请求体转成普通对象，后续校验逻辑才能和其他入口复用。
     body = await request.json()
   } catch {
     return failure('请求体必须是有效的 JSON', 'INVALID_JSON', 400)
@@ -19,6 +20,7 @@ export async function POST(request: Request) {
   }
 
   try {
+    // 业务规则和数据库写入都放在 server lib 中，路由文件保持薄薄一层。
     const capsule = insertCapsule(validated.value)
     return success(capsule, '胶囊创建成功', { status: 201 })
   } catch (error) {

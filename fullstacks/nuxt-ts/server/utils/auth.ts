@@ -8,6 +8,8 @@ export function isValidAdminPassword(password: string) {
 }
 
 export async function createAdminToken() {
+  // Nuxt 全栈实现与 Next 一样把管理员态收敛到 cookie，
+  // 页面和 server api 都围绕同一份 token 工作。
   return new SignJWT({ role: 'admin' })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()

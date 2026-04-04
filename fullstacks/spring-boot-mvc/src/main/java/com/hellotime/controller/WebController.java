@@ -36,6 +36,7 @@ public class WebController {
         this.adminService = adminService;
     }
 
+    /** 传统 MVC 页面直接返回模板名，由 Thymeleaf 完成服务端渲染。 */
     @GetMapping("/")
     public String home() {
         return "index";
@@ -59,6 +60,8 @@ public class WebController {
             @Valid @ModelAttribute("form") CreateCapsuleFormData form,
             BindingResult bindingResult,
             Model model) {
+        // HTML 的 datetime-local 只保证表单字段非空，不保证业务上的“必须是未来时间”，
+        // 所以这里仍要保留一层服务端校验。
         if (form.getOpenAt() == null) {
             bindingResult.rejectValue("openAt", "required", "开启时间不能为空");
         }
@@ -96,6 +99,7 @@ public class WebController {
         try {
             model.addAttribute("capsule", capsuleService.getCapsule(code));
         } catch (CapsuleNotFoundException ex) {
+            // MVC 版本把错误直接放回模板模型，而不是像 REST 接口那样返回 JSON 错误体。
             model.addAttribute("openError", "未找到对应的时间胶囊");
             model.addAttribute("lookupCode", code);
         }
@@ -117,6 +121,7 @@ public class WebController {
             model.addAttribute("adminError", "密码错误");
             return "admin";
         }
+        // MVC 版本不把 JWT 暴露给页面脚本，而是退化成最容易理解的 HttpSession 登录态。
         session.setAttribute(ViewModelAdvice.ADMIN_SESSION_KEY, true);
         return "redirect:/admin";
     }
@@ -134,6 +139,7 @@ public class WebController {
             HttpServletResponse response,
             Model model) {
         if (!isLoggedIn(session)) {
+            // HTMX 片段请求无法直接走传统重定向时，用 HX-Redirect 告知前端回到登录页。
             response.setHeader("HX-Redirect", "/admin");
             return "fragments/admin-table :: tablePanel";
         }
@@ -155,6 +161,7 @@ public class WebController {
         capsuleService.deleteCapsule(code);
         int targetPage = Math.max(0, page);
         PageResponse<CapsuleResponse> pageData = capsuleService.listCapsules(targetPage, ADMIN_PAGE_SIZE);
+        // 删除后如果当前页已经没有数据，则回退一页，避免表格停留在空页上。
         if (targetPage > 0 && pageData.content().isEmpty()) {
             pageData = capsuleService.listCapsules(targetPage - 1, ADMIN_PAGE_SIZE);
         }

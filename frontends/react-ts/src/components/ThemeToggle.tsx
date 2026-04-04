@@ -4,6 +4,7 @@ export default function ThemeToggle() {
   const { theme, toggle } = useTheme()
 
   return (
+    // 组件本身只关心“当前主题”和“切换动作”，持久化与 DOM 同步都由 hook 处理。
     <button className="btn btn-icon outline-glow" aria-label="Toggle Theme" onClick={toggle} title={theme === 'light' ? '切换暗色模式' : '切换亮色模式'}>
        {theme === 'light' ? (
            <svg className="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

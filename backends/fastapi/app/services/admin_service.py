@@ -1,6 +1,6 @@
 """
 管理员认证服务
-JWT 令牌的生成与验证
+提供一个足够简单、便于教学的 JWT 登录流程。
 """
 from datetime import datetime, timedelta, timezone
 
@@ -17,8 +17,8 @@ class UnauthorizedException(Exception):
 
 def login(password: str) -> str | None:
     """
-    管理员登录
-    密码正确返回 JWT token，否则返回 None
+    管理员登录。
+    演示项目只保留一个固定管理员身份，因此密码通过后直接签发 token。
     """
     if password != ADMIN_PASSWORD:
         return None
@@ -33,7 +33,7 @@ def login(password: str) -> str | None:
 
 
 def validate_token(token: str) -> bool:
-    """验证 JWT 令牌"""
+    """验证 JWT 令牌是否可用。"""
     try:
         jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
         return True

@@ -1,14 +1,12 @@
 /**
- * 管理员 Hook
- * 封装管理员功能的业务逻辑：登录、登出、胶囊管理
- * Token 存储在 sessionStorage 中，会话结束自动清除
- * 使用 useSyncExternalStore 实现 token 跨组件共享
+ * 管理员 Hook。
+ * React 版本没有引入外部状态库，而是用 useSyncExternalStore 演示如何只靠 React 原生能力共享登录态。
  */
 import { useState, useCallback, useSyncExternalStore } from 'react'
 import type { Capsule, PageData } from '@/types'
 import { adminLogin as apiLogin, getAdminCapsules, deleteAdminCapsule } from '@/api'
 
-// 模块级共享 token 状态
+// token 放在模块级变量中，多个组件都可以订阅这份共享状态。
 let token: string | null =
   typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('admin_token') : null
 const tokenListeners = new Set<() => void>()
@@ -62,6 +60,7 @@ export function useAdmin() {
   }, [])
 
   const logout = useCallback(() => {
+    // 登出时同时清空列表和分页信息，避免界面短暂显示旧数据。
     setToken(null)
     setCapsules([])
     setPageInfo({
@@ -73,7 +72,8 @@ export function useAdmin() {
   }, [])
 
   const fetchCapsules = useCallback(async (page = 0) => {
-    const t = token // 直接读模块级变量，避免闭包问题
+    // 这里直接读取模块级 token，避免异步回调拿到过期闭包里的旧值。
+    const t = token
     if (!t) return
     setLoading(true)
     setError(null)
@@ -87,6 +87,7 @@ export function useAdmin() {
         size: res.data.size,
       })
     } catch (e: unknown) {
+      // 后端返回未授权时，前端直接清理本地会话，让 UI 回到未登录状态。
       if (e instanceof Error && (e.message.includes('认证') || e.message.includes('未授权'))) {
         setToken(null)
         setCapsules([])
@@ -111,7 +112,7 @@ export function useAdmin() {
     setError(null)
     try {
       await deleteAdminCapsule(t, code)
-      // 刷新当前页 — 读取最新 pageInfo
+      // 删除后保留当前页，符合管理台“继续留在当前位置”的交互预期。
       const currentPage = pageInfo.number
       const res = await getAdminCapsules(t, currentPage)
       setCapsules(res.data.content)

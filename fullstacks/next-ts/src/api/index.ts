@@ -1,15 +1,15 @@
 /**
  * API 客户端模块
- * 封装与后端 REST API 的交互逻辑
- * 基础路径：/api/v1
+ * Next 全栈实现虽然前后端同仓，但页面代码仍通过统一 API 层访问 Route Handler，
+ * 这样更容易和前后端分离实现对照阅读。
  */
 import type { ApiResponse, Capsule, CreateCapsuleForm, HealthInfo, PageData } from '@/types'
 
 const BASE_URL = '/api/v1'
 
 /**
- * 通用请求封装
- * 处理 JSON 序列化、统一错误处理
+ * 通用请求封装。
+ * 对页面层来说，它把“请求是否成功”和“返回什么业务数据”压缩成同一种接口。
  */
 async function request<T>(url: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
   const { headers: customHeaders, ...rest } = options
@@ -52,8 +52,7 @@ async function request<T>(url: string, options: RequestInit = {}): Promise<ApiRe
 }
 
 /**
- * 创建时间胶囊
- * POST /api/v1/capsules
+ * 创建时把浏览器本地日期转换成 ISO 字符串，和其他实现保持一致。
  */
 export function createCapsule(form: CreateCapsuleForm): Promise<ApiResponse<Capsule>> {
   return request<Capsule>('/capsules', {
@@ -66,16 +65,14 @@ export function createCapsule(form: CreateCapsuleForm): Promise<ApiResponse<Caps
 }
 
 /**
- * 查询胶囊详情
- * GET /api/v1/capsules/{code}
+ * 详情接口是否返回 content，仍由服务端业务规则决定。
  */
 export function getCapsule(code: string): Promise<ApiResponse<Capsule>> {
   return request<Capsule>(`/capsules/${code}`)
 }
 
 /**
- * 管理员登录
- * POST /api/v1/admin/login
+ * 登录接口成功后会由服务端把 token 写入 cookie。
  */
 export function adminLogin(password: string): Promise<ApiResponse<{ token: string }>> {
   return request<{ token: string }>('/admin/login', {
@@ -91,8 +88,8 @@ export function adminLogout(): Promise<ApiResponse<null>> {
 }
 
 /**
- * 分页查询所有胶囊（管理员）
- * GET /api/v1/admin/capsules?page=0&size=20
+ * 管理端请求不需要手工拼 Authorization 头，
+ * 因为同源请求会自动携带服务端设置的管理员 cookie。
  */
 export function getAdminCapsules(page = 0, size = 20): Promise<ApiResponse<PageData<Capsule>>> {
   return request<PageData<Capsule>>(`/admin/capsules?page=${page}&size=${size}`, {
@@ -100,8 +97,7 @@ export function getAdminCapsules(page = 0, size = 20): Promise<ApiResponse<PageD
 }
 
 /**
- * 删除胶囊（管理员）
- * DELETE /api/v1/admin/capsules/{code}
+ * 删除接口走同样的 cookie 认证链路。
  */
 export function deleteAdminCapsule(code: string): Promise<ApiResponse<null>> {
   return request<null>(`/admin/capsules/${code}`, {
@@ -110,8 +106,7 @@ export function deleteAdminCapsule(code: string): Promise<ApiResponse<null>> {
 }
 
 /**
- * 获取后端健康信息（含技术栈）
- * GET /api/v1/health
+ * health 接口除了存活检测，也为首页技术栈展示提供数据。
  */
 export function getHealthInfo(): Promise<ApiResponse<HealthInfo>> {
   return request<HealthInfo>('/health')

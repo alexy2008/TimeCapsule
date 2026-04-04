@@ -1,13 +1,13 @@
 /**
  * 主题切换 Hook
- * 支持亮色/暗色模式切换，主题偏好持久化到 localStorage
- * 使用 useSyncExternalStore 实现跨组件共享
+ * Next 客户端组件之间通过 useSyncExternalStore 共享主题，
+ * 让 ThemeToggle 不必关心持久化和 DOM 同步细节。
  */
 import { useSyncExternalStore, useCallback } from 'react'
 
 type Theme = 'light' | 'dark'
 
-// 模块级共享状态 - 延迟初始化
+// 主题状态在模块级共享，但初始化延后到真正运行在浏览器时再进行。
 let theme: Theme = 'light'
 let initialized = false
 const listeners = new Set<() => void>()
@@ -43,7 +43,7 @@ function initTheme() {
 }
 
 function subscribe(callback: () => void) {
-  // 首次订阅时初始化
+  // 只有客户端组件开始订阅时才执行初始化，避免服务端渲染阶段碰触浏览器 API。
   initTheme()
   listeners.add(callback)
   return () => { listeners.delete(callback) }

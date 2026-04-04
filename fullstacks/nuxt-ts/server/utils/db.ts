@@ -2,11 +2,13 @@ import Database from 'better-sqlite3'
 import { DATABASE_PATH } from './config'
 
 declare global {
+  // 利用全局单例避免 Nuxt 开发态热更新时重复创建数据库连接。
   var __hellotimeNuxtDb: Database.Database | undefined
 }
 
 function createDatabase() {
   const db = new Database(DATABASE_PATH)
+  // 和 Next 版本一样启用 WAL，便于读者对照两套全栈实现的数据库初始化方式。
   db.pragma('journal_mode = WAL')
   db.exec(`
     CREATE TABLE IF NOT EXISTS capsules (

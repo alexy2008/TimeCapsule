@@ -1,4 +1,5 @@
 <template>
+  <!-- 根组件只负责全局框架壳，不承载具体业务逻辑。 -->
   <div class="ambient-glow"></div>
   <div class="background-grid"></div>
 
@@ -6,6 +7,7 @@
     <AppHeader />
     <main class="app-main">
       <RouterView v-slot="{ Component }">
+        <!-- Vue 版本用 RouterView + Suspense 处理异步页面加载。 -->
         <Suspense>
           <component :is="Component" />
           <template #fallback>

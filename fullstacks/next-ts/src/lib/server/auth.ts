@@ -5,6 +5,7 @@ const secret = new TextEncoder().encode(JWT_SECRET)
 export const ADMIN_COOKIE_NAME = 'admin_token'
 
 export async function createAdminToken() {
+  // Next 全栈实现使用 httpOnly cookie 保存管理员态，因此 token 本身只需携带最小角色信息。
   return new SignJWT({ role: 'admin' })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
@@ -29,6 +30,8 @@ export function getAdminTokenFromCookieStore(cookieStore: { get(name: string): {
 }
 
 export function getAdminTokenFromRequest(request: Request) {
+  // 先读 Authorization，再回退到 cookie。
+  // 这样同一套校验逻辑既能服务服务端页面，也能服务 API 调用。
   const header = request.headers.get('authorization') || ''
   if (header.startsWith('Bearer ')) {
     return header.slice(7)

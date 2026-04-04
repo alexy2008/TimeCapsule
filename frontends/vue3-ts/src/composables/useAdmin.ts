@@ -1,44 +1,33 @@
 /**
- * 管理员 Composable
- * 封装管理员功能的业务逻辑：登录、登出、胶囊管理
- * Token 存储在 sessionStorage 中，会话结束自动清除
+ * 管理员 Composable。
+ * Vue 版本把页面交互之外的管理员逻辑集中在这里，方便读者对照 React hook 和 Angular service。
  */
 import { ref, computed } from 'vue'
 import type { Capsule, PageData } from '@/types'
 import { adminLogin as apiLogin, getAdminCapsules, deleteAdminCapsule } from '@/api'
 
-/**
- * 持久化 Token
- * 从 sessionStorage 读取初始值（如果存在）
- */
+/** 通过模块级 ref 共享管理员令牌，并在刷新页面后从 sessionStorage 恢复。 */
 const token = ref<string | null>(
   typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('admin_token') : null
 )
 
 export function useAdmin() {
-  // 响应式状态
-  const capsules = ref<Capsule[]>([])                    // 胶囊列表
-  const pageInfo = ref<Omit<PageData<Capsule>, 'content'>>({  // 分页信息（不含 content）
+  const capsules = ref<Capsule[]>([])
+  const pageInfo = ref<Omit<PageData<Capsule>, 'content'>>({
     totalElements: 0,
     totalPages: 0,
     number: 0,
     size: 20,
   })
-  const loading = ref(false)         // 加载状态
-  const error = ref<string | null>(null)  // 错误信息
+  const loading = ref(false)
+  const error = ref<string | null>(null)
 
-  /**
-   * 计算属性：是否已登录
-   * 根据 token 是否存在判断
-   */
+  /** 是否已登录完全取决于本地是否持有管理员令牌。 */
   const isLoggedIn = computed(() => !!token.value)
 
   /**
-   * 管理员登录
-   * 登录成功后将 Token 存入 sessionStorage
-   *
-   * @param password 管理员密码
-   * @throws 登录失败时抛出异常
+   * 登录成功后立即把 token 持久化到 sessionStorage，
+   * 这样刷新页面后仍能继续访问管理列表，但关闭会话后会自动失效。
    */
   async function login(password: string) {
     loading.value = true
@@ -55,10 +44,7 @@ export function useAdmin() {
     }
   }
 
-  /**
-   * 登出
-   * 清除 Token 和本地状态
-   */
+  /** 登出时同时清理本地缓存状态，避免界面残留旧数据。 */
   function logout() {
     token.value = null
     sessionStorage.removeItem('admin_token')
@@ -71,14 +57,9 @@ export function useAdmin() {
     }
   }
 
-  /**
-   * 分页加载胶囊列表
-   * 需要登录后才能调用
-   *
-   * @param page 页码（从 0 开始）
-   */
+  /** 分页加载管理员可见的胶囊列表。 */
   async function fetchCapsules(page = 0) {
-    if (!token.value) return  // 未登录直接返回
+    if (!token.value) return
     loading.value = true
     error.value = null
     try {
@@ -91,7 +72,7 @@ export function useAdmin() {
         size: res.data.size,
       }
     } catch (e: unknown) {
-      // Token 过期或无效时自动登出
+      // 如果后端判定会话失效，前端也要同步退回未登录状态。
       if (e instanceof Error && (e.message.includes('认证') || e.message.includes('未授权'))) {
         logout()
       }
@@ -101,19 +82,14 @@ export function useAdmin() {
     }
   }
 
-  /**
-   * 删除胶囊
-   * 删除成功后刷新当前页列表
-   *
-   * @param code 8 位胶囊码
-   */
+  /** 删除后刷新当前页，保持管理台的浏览位置不跳变。 */
   async function deleteCapsule(code: string) {
-    if (!token.value) return  // 未登录直接返回
+    if (!token.value) return
     loading.value = true
     error.value = null
     try {
       await deleteAdminCapsule(token.value, code)
-      await fetchCapsules(pageInfo.value.number)  // 刷新当前页
+      await fetchCapsules(pageInfo.value.number)
     } catch (e: unknown) {
       if (e instanceof Error && (e.message.includes('认证') || e.message.includes('未授权'))) {
         logout()
@@ -124,7 +100,6 @@ export function useAdmin() {
     }
   }
 
-  // 暴露响应式状态和方法供组件使用
   return {
     token,
     capsules,

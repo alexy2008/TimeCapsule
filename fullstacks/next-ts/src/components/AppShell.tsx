@@ -10,6 +10,7 @@ interface Props {
 export default function AppShell({ children }: Props) {
   return (
     <>
+      {/* 全栈 Next 版本把页面公共骨架抽到 AppShell，和前端分离实现的根组件作用对应。 */}
       <div className="ambient-glow"></div>
       <div className="background-grid"></div>
       <div className={styles.appContainer}>

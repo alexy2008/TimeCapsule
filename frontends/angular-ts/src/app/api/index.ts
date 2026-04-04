@@ -1,7 +1,6 @@
 /**
  * API 客户端模块
- * 封装与后端 REST API 的交互逻辑
- * 基础路径：/api/v1
+ * Angular 版本和 Vue / React 版本保持同样的 API 形状，便于横向比较。
  */
 import type { ApiResponse, Capsule, CreateCapsuleForm, PageData, AdminToken, HealthInfo } from '../types'
 
@@ -34,6 +33,7 @@ async function request<T>(url: string, options: RequestInit = {}): Promise<ApiRe
   }
 
   if (!data) {
+    // 兼容没有响应体的成功请求，例如删除接口可能返回 204。
     return {
       success: true,
       data: null as T,
@@ -52,6 +52,7 @@ export function createCapsule(form: CreateCapsuleForm): Promise<ApiResponse<Caps
     method: 'POST',
     body: JSON.stringify({
       ...form,
+      // 浏览器的 datetime-local 不带时区信息，这里统一补成 ISO 字符串后发送。
       openAt: new Date(form.openAt).toISOString(),
     }),
   })
@@ -74,12 +75,7 @@ export function getAdminCapsules(token: string, page = 0, size = 20): Promise<Ap
   })
 }
 
-/**
- * 删除指定的胶囊（管理员权限）
- * @param token 管理员认证令牌
- * @param code 胶囊的唯一代码
- * @returns 返回删除操作的结果
- */
+/** 删除接口本身不做业务判断，是否允许删除完全由后端认证层决定。 */
 export function deleteAdminCapsule(token: string, code: string): Promise<ApiResponse<null>> {
   return request<null>(`/admin/capsules/${code}`, {
     method: 'DELETE',

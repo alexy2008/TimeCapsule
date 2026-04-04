@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 
+// 所有页面都使用 loadComponent 懒加载，突出 standalone component 的现代 Angular 写法。
 export const routes: Routes = [
   {
     path: '',
@@ -17,6 +18,7 @@ export const routes: Routes = [
       import('./views/open/open.component').then(m => m.OpenComponent),
   },
   {
+    // 把 /open 和 /open/:code 拆成两条路由，比可选参数更直观，适合教学展示。
     path: 'open',
     loadComponent: () =>
       import('./views/open/open.component').then(m => m.OpenComponent),

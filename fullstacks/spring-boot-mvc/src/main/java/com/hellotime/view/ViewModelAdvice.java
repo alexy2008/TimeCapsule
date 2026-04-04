@@ -10,8 +10,10 @@ import java.util.List;
 @ControllerAdvice
 public class ViewModelAdvice {
 
+    /** MVC 版本直接用 session 标记管理员登录态，避免页面脚本接触 JWT。 */
     public static final String ADMIN_SESSION_KEY = "mvc_admin_logged_in";
 
+    /** 全栈 MVC 版本不依赖外部 health 接口，技术栈展示数据在服务端直接准备。 */
     private static final List<TechStackItem> TECH_STACK = List.of(
             new TechStackItem("/stack-logos/spring-boot.svg", "Spring Boot Logo", "Spring Boot", "Spring Boot 3"),
             new TechStackItem("/stack-logos/java.svg", "Java Logo", "Java", "Java 21"),
@@ -27,6 +29,7 @@ public class ViewModelAdvice {
 
     @ModelAttribute("techSummary")
     public String techSummary() {
+        // 提供给标题、副标题等轻量展示场景，避免模板里重复拼接。
         return String.join(" · ", TECH_STACK.stream().map(TechStackItem::label).toList());
     }
 

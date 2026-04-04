@@ -1,6 +1,6 @@
 /**
- * 时间胶囊数据类型定义
- * 与后端 API 响应格式保持一致
+ * Svelte 版本的共享类型。
+ * 这些接口和其他前端实现保持一致，方便读者横向比较而不被类型命名差异干扰。
  */
 
 /**
@@ -8,13 +8,13 @@
  * 对应后端 CapsuleResponse DTO
  */
 export interface Capsule {
-  code: string           // 8 位胶囊码
-  title: string          // 胶囊标题
-  content?: string | null  // 胶囊内容（时间未到时为 null/undefined）
-  creator: string        // 创建者昵称
-  openAt: string         // 开启时间（ISO 8601 格式）
-  createdAt: string      // 创建时间（ISO 8601 格式）
-  opened?: boolean       // 是否已开启（时间已到）
+  code: string           // 用户用来重新打开胶囊的唯一凭证
+  title: string
+  content?: string | null  // 未到开启时间时由后端返回 null
+  creator: string
+  openAt: string         // 服务端统一返回 ISO 8601 UTC 字符串
+  createdAt: string
+  opened?: boolean       // 仅表示当前响应时刻是否已到开启时间
 }
 
 /**
@@ -22,10 +22,10 @@ export interface Capsule {
  * 用于表单输入和 API 请求
  */
 export interface CreateCapsuleForm {
-  title: string      // 标题（必填，最多 100 字符）
-  content: string    // 内容（必填）
-  creator: string    // 创建者（必填，最多 30 字符）
-  openAt: string     // 开启时间（必填，ISO 日期格式）
+  title: string
+  content: string
+  creator: string
+  openAt: string     // 浏览器侧通常来自 datetime-local 输入
 }
 
 /**
@@ -33,10 +33,10 @@ export interface CreateCapsuleForm {
  * 所有后端接口返回的统一格式
  */
 export interface ApiResponse<T> {
-  success: boolean   // 请求是否成功
-  data: T            // 响应数据
-  message?: string   // 响应消息
-  errorCode?: string // 错误码（失败时）
+  success: boolean
+  data: T
+  message?: string
+  errorCode?: string // 各技术栈共用同一错误码语义
 }
 
 /**
@@ -44,11 +44,11 @@ export interface ApiResponse<T> {
  * 用于分页列表展示
  */
 export interface PageData<T> {
-  content: T[]           // 当前页数据
-  totalElements: number  // 总元素数
-  totalPages: number     // 总页数
-  number: number         // 当前页码（从 0 开始）
-  size: number           // 每页大小
+  content: T[]
+  totalElements: number
+  totalPages: number
+  number: number         // 当前页码从 0 开始，和后端分页参数保持一致
+  size: number
 }
 
 /**
@@ -64,16 +64,16 @@ export interface AdminToken {
  * 用于 health 接口响应
  */
 export interface TechStack {
-  framework: string  // 框架名称和版本
-  language: string   // 编程语言
-  database: string   // 数据库类型
+  framework: string
+  language: string
+  database: string
 }
 
 /**
- * Health 接口响应类型
+ * health 接口除了健康检查，也承载首页技术栈展示数据。
  */
 export interface HealthInfo {
-  status: string     // 服务状态（UP/DOWN）
-  timestamp: string  // 服务器时间戳
+  status: string
+  timestamp: string
   techStack: TechStack
 }

@@ -13,6 +13,7 @@ function createInitialPageInfo(): PageInfo {
 }
 
 const state = $state({
+  // Svelte 版本直接用模块级 rune state 管理管理员态，对照 Vue composable / React hook 会很直观。
   token: typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('admin_token') : null as string | null,
   capsules: [] as Capsule[],
   pageInfo: createInitialPageInfo(),
@@ -43,6 +44,7 @@ export async function loginAdmin(password: string) {
     if (res.success && res.data.token) {
       state.token = res.data.token;
       sessionStorage.setItem('admin_token', res.data.token);
+      // 登录成功后立即拉取第一页，减少页面层的编排代码。
       await fetchAdminCapsules(0);
       return;
     }
@@ -71,6 +73,7 @@ export async function fetchAdminCapsules(page = 0) {
 
     if (res.success) {
       state.capsules = res.data.content;
+      // pageInfo 只保留分页元数据，和其他前端实现保持相同的状态结构。
       const { content, ...rest } = res.data;
       state.pageInfo = rest;
       return;
@@ -101,6 +104,7 @@ export async function deleteAdminCapsuleByCode(code: string) {
     const res = await deleteAdminCapsule(state.token, code);
 
     if (res.success) {
+      // 删除后保留当前页，方便继续管理列表。
       await fetchAdminCapsules(state.pageInfo.number);
       return;
     }
