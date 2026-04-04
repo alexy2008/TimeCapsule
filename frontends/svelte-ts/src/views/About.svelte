@@ -3,6 +3,9 @@
   import { techStackState } from '../lib/tech-stack-state.svelte';
 
   let clickCount = 0;
+  $: backendLogo = techStackState.techStack ? `/tech-logos/backend.svg?v=${encodeURIComponent(techStackState.techStack.framework)}` : '/tech-logos/backend.svg';
+  $: languageLogo = techStackState.techStack ? `/tech-logos/language.svg?v=${encodeURIComponent(techStackState.techStack.language)}` : '/tech-logos/language.svg';
+  $: databaseLogo = techStackState.techStack ? `/tech-logos/database.svg?v=${encodeURIComponent(techStackState.techStack.database)}` : '/tech-logos/database.svg';
 
   function handleSecretClick() {
     clickCount++;
@@ -90,7 +93,7 @@
           </div>
         </div>
         <div class="tech-item about-tech-item">
-          <img src="/tech-logos/backend.svg" class="stack-icon about-stack-icon" alt="后端框架" />
+          <img src={backendLogo} class="stack-icon about-stack-icon" alt="后端框架" />
           <div class="text-center">
             <div class="text-glow about-tech-title">
               {#if techStackState.loading}
@@ -113,7 +116,7 @@
           </div>
         </div>
         <div class="tech-item about-tech-item">
-          <img src="/tech-logos/language.svg" class="stack-icon about-stack-icon" alt="后端语言" />
+          <img src={languageLogo} class="stack-icon about-stack-icon" alt="后端语言" />
           <div class="text-center">
             <div class="text-glow about-tech-title">
               {#if techStackState.loading}
@@ -136,7 +139,7 @@
           </div>
         </div>
         <div class="tech-item about-tech-item">
-          <img src="/tech-logos/database.svg" class="stack-icon about-stack-icon" alt="数据库" />
+          <img src={databaseLogo} class="stack-icon about-stack-icon" alt="数据库" />
           <div class="text-center">
             <div class="text-glow about-tech-title">
               {#if techStackState.loading}

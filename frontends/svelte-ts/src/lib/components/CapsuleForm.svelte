@@ -75,21 +75,6 @@
   </div>
 
   <div class="form-group">
-    <label for="capsule-open-at">开启时间</label>
-    <input
-      id="capsule-open-at"
-      type="datetime-local"
-      bind:value={form.openAt}
-      class="cyber-input {errors.openAt ? 'error' : ''}"
-      min={minDateTime}
-    />
-    <div class="helper-text">在这之前，任何人（包括您自己）都无法查看内容</div>
-    {#if errors.openAt}
-      <p class="input-error-text form-error">{errors.openAt}</p>
-    {/if}
-  </div>
-
-  <div class="form-group">
     <label for="capsule-content">内容</label>
     <textarea
       id="capsule-content"
@@ -103,18 +88,34 @@
     {/if}
   </div>
 
-  <div class="form-group">
-    <label for="capsule-creator">发布者</label>
-    <input
-      id="capsule-creator"
-      bind:value={form.creator}
-      class="cyber-input {errors.creator ? 'error' : ''}"
-      placeholder="你的昵称"
-      maxlength="30"
-    />
-    {#if errors.creator}
-      <p class="input-error-text form-error">{errors.creator}</p>
-    {/if}
+  <div class="meta-row">
+    <div class="form-group">
+      <label for="capsule-creator">发布者</label>
+      <input
+        id="capsule-creator"
+        bind:value={form.creator}
+        class="cyber-input {errors.creator ? 'error' : ''}"
+        placeholder="你的昵称"
+        maxlength="30"
+      />
+      {#if errors.creator}
+        <p class="input-error-text form-error">{errors.creator}</p>
+      {/if}
+    </div>
+
+    <div class="form-group">
+      <label for="capsule-open-at">开启时间</label>
+      <input
+        id="capsule-open-at"
+        type="datetime-local"
+        bind:value={form.openAt}
+        class="cyber-input {errors.openAt ? 'error' : ''}"
+        min={minDateTime}
+      />
+      {#if errors.openAt}
+        <p class="input-error-text form-error">{errors.openAt}</p>
+      {/if}
+    </div>
   </div>
 
   <div class="form-actions">
@@ -131,6 +132,28 @@
     flex-direction: column;
   }
 
+  .meta-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    align-items: start;
+  }
+
+  .meta-row .form-group {
+    min-width: 0;
+  }
+
+  .meta-row :global(.cyber-input) {
+    width: 100%;
+    min-height: 3.5rem;
+  }
+
+  .meta-row input[type='datetime-local'] {
+    min-height: 3.5rem;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+
   .form-error {
     color: var(--magenta);
     margin-top: 0.5rem;
@@ -143,5 +166,12 @@
 
   :global([data-theme="light"]) .capsule-form input[type="datetime-local"] {
     color-scheme: light;
+  }
+
+  @media (max-width: 640px) {
+    .meta-row {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
   }
 </style>

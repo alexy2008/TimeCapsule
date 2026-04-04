@@ -81,20 +81,6 @@ export default function CapsuleForm({ loading, onSubmit }: Props) {
       </div>
 
       <div className="form-group">
-        <label htmlFor="capsule-open-at">解锁时间</label>
-        <input
-          id="capsule-open-at"
-          type="datetime-local"
-          className={`cyber-input ${errors.openAt ? 'error' : ''}`}
-          value={form.openAt}
-          onChange={e => updateField('openAt', e.target.value)}
-          min={minDateTime}
-        />
-        <div className="helper-text">在这之前，任何人（包括您自己）都无法查看内容</div>
-        {errors.openAt && <p className="input-error-text" style={{color: 'var(--magenta)', marginTop: '0.5rem', fontSize: '0.85rem'}}>{errors.openAt}</p>}
-      </div>
-
-      <div className="form-group">
         <label htmlFor="capsule-content">内容</label>
         <textarea
           id="capsule-content"
@@ -107,17 +93,46 @@ export default function CapsuleForm({ loading, onSubmit }: Props) {
         {errors.content && <p className="input-error-text" style={{color: 'var(--magenta)', marginTop: '0.5rem', fontSize: '0.85rem'}}>{errors.content}</p>}
       </div>
 
-      <div className="form-group">
-        <label htmlFor="capsule-creator">创建者</label>
-        <input
-          id="capsule-creator"
-          className={`cyber-input ${errors.creator ? 'error' : ''}`}
-          value={form.creator}
-          onChange={e => updateField('creator', e.target.value)}
-          placeholder="你的昵称"
-          maxLength={30}
-        />
-        {errors.creator && <p className="input-error-text" style={{color: 'var(--magenta)', marginTop: '0.5rem', fontSize: '0.85rem'}}>{errors.creator}</p>}
+      <div className={styles.formRow}>
+        <div className={`form-group ${styles.formGroup}`}>
+          <label htmlFor="capsule-creator">发布者</label>
+          <input
+            id="capsule-creator"
+            className={`cyber-input ${errors.creator ? 'error' : ''}`}
+            value={form.creator}
+            onChange={e => updateField('creator', e.target.value)}
+            placeholder="你的昵称"
+            maxLength={30}
+          />
+          <div className={styles.fieldMeta}>
+            {errors.creator ? (
+              <p className="input-error-text" style={{color: 'var(--magenta)', marginTop: '0.5rem', fontSize: '0.85rem'}}>
+                {errors.creator}
+              </p>
+            ) : (
+              <span className={styles.metaSpacer} aria-hidden="true" />
+            )}
+          </div>
+        </div>
+
+        <div className={`form-group ${styles.formGroup}`}>
+          <label htmlFor="capsule-open-at">开启时间</label>
+          <input
+            id="capsule-open-at"
+            type="datetime-local"
+            className={`cyber-input ${errors.openAt ? 'error' : ''}`}
+            value={form.openAt}
+            onChange={e => updateField('openAt', e.target.value)}
+            min={minDateTime}
+          />
+          <div className={styles.fieldMeta}>
+            {errors.openAt && (
+              <p className="input-error-text" style={{color: 'var(--magenta)', marginTop: '0.5rem', fontSize: '0.85rem'}}>
+                {errors.openAt}
+              </p>
+            )}
+          </div>
+        </div>
       </div>
 
       <div className="form-actions">

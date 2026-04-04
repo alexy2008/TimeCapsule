@@ -91,7 +91,7 @@
     <ConfirmDialog
       visible={createState.showConfirm}
       title="确认创建"
-      message={`确定要创建标题为「${createState.pendingForm?.title || ''}」的时间胶囊吗？\n\n胶囊一经创建，内容和解锁时间将无法修改，也无法删除。`}
+      message={`确定要创建标题为「${createState.pendingForm?.title || ''}」的时间胶囊吗？\n\n胶囊一经创建，内容和开启时间将无法修改，也无法删除。`}
       on:confirm={confirmCreate}
       on:cancel={cancelCreateConfirmation}
     />

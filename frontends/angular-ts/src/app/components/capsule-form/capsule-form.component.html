@@ -16,23 +16,6 @@
   </div>
 
   <div class="form-group">
-    <label for="capsule-open-at">开启时间</label>
-    <input
-      id="capsule-open-at"
-      [(ngModel)]="form.openAt"
-      name="openAt"
-      type="datetime-local"
-      class="cyber-input"
-      [class.error]="errors.openAt"
-      [min]="minDateTime"
-    />
-    <div class="helper-text">在这之前，任何人（包括您自己）都无法查看内容</div>
-    @if (errors.openAt) {
-      <p class="input-error-text form-error">{{ errors.openAt }}</p>
-    }
-  </div>
-
-  <div class="form-group">
     <label for="capsule-content">内容</label>
     <textarea
       id="capsule-content"
@@ -48,20 +31,38 @@
     }
   </div>
 
-  <div class="form-group">
-    <label for="capsule-creator">发布者</label>
-    <input
-      id="capsule-creator"
-      [(ngModel)]="form.creator"
-      name="creator"
-      class="cyber-input"
-      [class.error]="errors.creator"
-      placeholder="你的昵称"
-      maxlength="30"
-    />
-    @if (errors.creator) {
-      <p class="input-error-text form-error">{{ errors.creator }}</p>
-    }
+  <div class="meta-row">
+    <div class="form-group">
+      <label for="capsule-creator">发布者</label>
+      <input
+        id="capsule-creator"
+        [(ngModel)]="form.creator"
+        name="creator"
+        class="cyber-input"
+        [class.error]="errors.creator"
+        placeholder="你的昵称"
+        maxlength="30"
+      />
+      @if (errors.creator) {
+        <p class="input-error-text form-error">{{ errors.creator }}</p>
+      }
+    </div>
+
+    <div class="form-group">
+      <label for="capsule-open-at">开启时间</label>
+      <input
+        id="capsule-open-at"
+        [(ngModel)]="form.openAt"
+        name="openAt"
+        type="datetime-local"
+        class="cyber-input"
+        [class.error]="errors.openAt"
+        [min]="minDateTime"
+      />
+      @if (errors.openAt) {
+        <p class="input-error-text form-error">{{ errors.openAt }}</p>
+      }
+    </div>
   </div>
 
   <div class="form-actions">

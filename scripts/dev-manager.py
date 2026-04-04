@@ -126,6 +126,30 @@ SERVICES: list[Service] = [
         command=["bash", str(ROOT_DIR / "frontends" / "svelte-ts" / "run")],
         port=5176,
     ),
+    Service(
+        key="next",
+        label="Next.js",
+        kind="fullstack",
+        workdir=ROOT_DIR / "fullstacks" / "next-ts",
+        command=["bash", str(ROOT_DIR / "fullstacks" / "next-ts" / "run")],
+        port=5177,
+    ),
+    Service(
+        key="nuxt",
+        label="Nuxt",
+        kind="fullstack",
+        workdir=ROOT_DIR / "fullstacks" / "nuxt-ts",
+        command=["bash", str(ROOT_DIR / "fullstacks" / "nuxt-ts" / "run")],
+        port=5178,
+    ),
+    Service(
+        key="spring-mvc",
+        label="Spring MVC",
+        kind="fullstack",
+        workdir=ROOT_DIR / "fullstacks" / "spring-boot-mvc",
+        command=["bash", str(ROOT_DIR / "fullstacks" / "spring-boot-mvc" / "run")],
+        port=4179,
+    ),
 ]
 
 BACKEND_KEYS = {"spring-boot", "fastapi", "gin", "elysia", "nest"}

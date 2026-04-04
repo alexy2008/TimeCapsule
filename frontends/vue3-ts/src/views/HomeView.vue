@@ -51,22 +51,25 @@ const { techStack, loading, error } = useTechStack()
 const techItems = computed(() => {
   const currentTechStack = techStack.value
   const fallback = error.value || !currentTechStack
+  const backendLogo = currentTechStack ? `/tech-logos/backend.svg?v=${encodeURIComponent(currentTechStack.framework)}` : '/tech-logos/backend.svg'
+  const languageLogo = currentTechStack ? `/tech-logos/language.svg?v=${encodeURIComponent(currentTechStack.language)}` : '/tech-logos/language.svg'
+  const databaseLogo = currentTechStack ? `/tech-logos/database.svg?v=${encodeURIComponent(currentTechStack.database)}` : '/tech-logos/database.svg'
 
   return [
     { src: '/frontend.svg', alt: 'Vue Logo', label: 'Vue' },
     { src: '/frontend-language.svg', alt: 'TypeScript Logo', label: 'TypeScript' },
     {
-      src: '/tech-logos/backend.svg',
+      src: backendLogo,
       alt: '后端框架 Logo',
       label: loading.value ? '...' : fallback ? '?' : simplifyTechLabel(currentTechStack!.framework),
     },
     {
-      src: '/tech-logos/language.svg',
+      src: languageLogo,
       alt: '后端语言 Logo',
       label: loading.value ? '加载中' : fallback ? '?' : simplifyTechLabel(currentTechStack!.language),
     },
     {
-      src: '/tech-logos/database.svg',
+      src: databaseLogo,
       alt: '数据库 Logo',
       label: loading.value ? '...' : fallback ? '?' : simplifyTechLabel(currentTechStack!.database),
     },

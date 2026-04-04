@@ -1,0 +1,7 @@
+#!/bin/bash
+set -e
+
+DIR="$(cd "$(dirname "$0")" && pwd)"
+cd "$DIR"
+
+./mvnw spring-boot:run -Dspring-boot.run.arguments="--server.port=${SERVER_PORT:-4179}"

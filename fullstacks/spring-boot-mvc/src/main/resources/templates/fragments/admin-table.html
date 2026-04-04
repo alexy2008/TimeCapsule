@@ -1,0 +1,75 @@
+<div th:fragment="tablePanel" id="capsule-table-panel" class="table-panel">
+    <div class="table-toolbar">
+        <p class="text-secondary">使用 HTMX 进行局部刷新与删除，无需整页跳转。</p>
+        <button
+                type="button"
+                class="btn btn-outline btn-sm"
+                hx-get="/admin/table?page=0"
+                hx-target="#capsule-table-panel"
+                hx-swap="outerHTML">
+            刷新列表
+        </button>
+    </div>
+
+    <div class="table-scroll cyber-glass-sm">
+        <table class="capsule-table" th:if="${capsules != null and !#lists.isEmpty(capsules)}">
+            <thead>
+            <tr>
+                <th>胶囊码</th>
+                <th>标题</th>
+                <th>发布者</th>
+                <th>开启时间</th>
+                <th>状态</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="capsule : ${capsules}">
+                <td class="capsule-code mono-font" th:text="${capsule.code}"></td>
+                <td th:text="${capsule.title}"></td>
+                <td th:text="${capsule.creator}"></td>
+                <td class="mono-font" th:text="${viewFormats.display(capsule.openAt)}"></td>
+                <td>
+                    <span th:class="${capsule.opened} ? 'badge badge-unlocked' : 'badge badge-locked'" th:text="${capsule.opened} ? '已解锁' : '未到时间'"></span>
+                </td>
+                <td>
+                    <button
+                            type="button"
+                            class="btn btn-danger-outline btn-sm"
+                            th:attr="hx-post=@{/admin/capsules/{code}/delete(code=${capsule.code},page=${currentPage})}"
+                            hx-target="#capsule-table-panel"
+                            hx-swap="outerHTML"
+                            th:attrappend="hx-confirm=${'确定要删除胶囊 ' + capsule.code + ' 吗？此操作不可恢复。'}">
+                        删除
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <div th:if="${capsules == null or #lists.isEmpty(capsules)}" class="table-empty">
+            暂无胶囊
+        </div>
+    </div>
+
+    <div class="pagination-bar" th:if="${totalPages != null and totalPages > 1}">
+        <button
+                type="button"
+                class="btn btn-outline btn-sm"
+                th:disabled="${currentPage == 0}"
+                th:attr="hx-get=@{/admin/table(page=${currentPage - 1})}"
+                hx-target="#capsule-table-panel"
+                hx-swap="outerHTML">
+            上一页
+        </button>
+        <span class="pagination-info" th:text="${'第 ' + (currentPage + 1) + ' / ' + totalPages + ' 页'}"></span>
+        <button
+                type="button"
+                class="btn btn-outline btn-sm"
+                th:disabled="${currentPage + 1 >= totalPages}"
+                th:attr="hx-get=@{/admin/table(page=${currentPage + 1})}"
+                hx-target="#capsule-table-panel"
+                hx-swap="outerHTML">
+            下一页
+        </button>
+    </div>
+</div>

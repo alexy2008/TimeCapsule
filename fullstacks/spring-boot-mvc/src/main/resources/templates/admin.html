@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark" xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="~{fragments/head :: head('管理 - 时间胶囊-Spring')}"></th:block>
+<body>
+<div class="background-grid"></div>
+<div class="ambient-glow"></div>
+<div class="app-shell">
+    <th:block th:replace="~{fragments/header :: header}"></th:block>
+    <main class="app-main">
+        <section id="view-admin" class="view active">
+            <div class="view-header">
+                <a class="btn-back" href="/">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                    返回
+                </a>
+                <h2>系统管理</h2>
+            </div>
+
+            <div th:if="${!mvcAdminLoggedIn}" class="admin-login-card cyber-glass">
+                <h3 style="text-align: center; margin-bottom: 1.5rem;">管理员登录</h3>
+                <form method="post" action="/admin/login" class="create-form-grid">
+                    <div class="form-field">
+                        <label for="adminPassword">管理员密码</label>
+                        <input id="adminPassword" type="password" name="password" class="cyber-input mono-font" required />
+                    </div>
+                    <div th:if="${adminError != null}" style="color: var(--magenta); text-align: center;" th:text="${adminError}"></div>
+                    <div style="display: flex; justify-content: center;">
+                        <button type="submit" class="btn btn-primary">登录</button>
+                    </div>
+                </form>
+            </div>
+
+            <div th:if="${mvcAdminLoggedIn}" class="cyber-glass admin-panel">
+                <div class="dashboard-header">
+                    <h3>胶囊列表</h3>
+                    <form method="post" action="/admin/logout">
+                        <button type="submit" class="btn btn-outline btn-sm">退出登录</button>
+                    </form>
+                </div>
+
+                <th:block th:replace="~{fragments/admin-table :: tablePanel}"></th:block>
+            </div>
+        </section>
+    </main>
+    <th:block th:replace="~{fragments/footer :: footer}"></th:block>
+</div>
+</body>
+</html>

@@ -56,17 +56,17 @@
 {#if capsule.opened && capsule.content}
   <div class="capsule-unlocked-card cyber-glass">
     <div class="locked-header">
-      <span class="mono-font label">提取码: {capsule.code}</span>
+      <span class="mono-font label">胶囊码: {capsule.code}</span>
       <span class="badge badge-unlocked">已解锁</span>
     </div>
 
     <h1 class="capsule-title text-glow-cyan">{capsule.title}</h1>
 
     <div class="meta-info border-bottom pb-4 mb-4">
-      <span class="creator">创建者: <span class="mono-font">{capsule.creator}</span></span>
+      <span class="creator">发布者: <span class="mono-font">{capsule.creator}</span></span>
       <div>
         <span class="created-at d-block">创建时间: <span class="mono-font">{formatTime(capsule.createdAt)}</span></span>
-        <span class="opened-at d-block mt-1 cyan-text">解锁时间: <span class="mono-font">{formatTime(capsule.openAt)}</span></span>
+        <span class="opened-at d-block mt-1 cyan-text">开启时间: <span class="mono-font">{formatTime(capsule.openAt)}</span></span>
       </div>
     </div>
 
@@ -85,13 +85,13 @@
 {:else}
   <div class="capsule-locked-card cyber-glass">
     <div class="locked-header">
-      <span class="mono-font label">提取码: {capsule.code}</span>
+      <span class="mono-font label">胶囊码: {capsule.code}</span>
       <span class="badge badge-locked pulse-danger">未到时间</span>
     </div>
 
     <h1 class="capsule-title">{capsule.title}</h1>
     <div class="meta-info">
-      <span class="creator">创建者: <span class="mono-font">{capsule.creator}</span></span>
+      <span class="creator">发布者: <span class="mono-font">{capsule.creator}</span></span>
       <span class="created-at">创建时间: <span class="mono-font">{formatTime(capsule.createdAt)}</span></span>
     </div>
 
@@ -105,7 +105,7 @@
         <div class="progress-bar" style:width={`${progress}%`}></div>
       </div>
       <div class="target-time mt-2" style="font-size: 0.85rem; color: var(--text-secondary)">
-        解锁时间: <span class="mono-font text-glow">{formatTime(capsule.openAt)}</span>
+        开启时间: <span class="mono-font text-glow">{formatTime(capsule.openAt)}</span>
       </div>
     </div>
   </div>

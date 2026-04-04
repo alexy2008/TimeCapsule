@@ -36,8 +36,8 @@ export default function CapsuleTable({ capsules, pageInfo, loading, onDelete, on
               <tr>
                 <th>标识码 (ID)</th>
                 <th>数据标题</th>
-                <th>创建者</th>
-                <th>预计解锁时间</th>
+                <th>发布者</th>
+                <th>开启时间</th>
                 <th>当前状态</th>
                 <th>操作</th>
               </tr>

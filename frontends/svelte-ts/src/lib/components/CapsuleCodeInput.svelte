@@ -27,7 +27,7 @@
 
 <div class="code-input-group">
   <div class="search-container cyber-glass center-card">
-    <p class="mb-6">输入8位提取码开启您的时间胶囊。</p>
+    <p class="mb-6">输入8位胶囊码开启您的时间胶囊。</p>
     <div class="search-input-wrapper">
     <input
       type="text"

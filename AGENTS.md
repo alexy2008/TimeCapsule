@@ -14,7 +14,7 @@ HelloTime (时间胶囊) is a time capsule application where users create messag
 
 ### Development
 ```bash
-# Start backend + all frontends (Vue, Angular)
+# Start backend + all frontends
 ./scripts/dev.sh
 
 # Backend only (port 8080)
@@ -34,6 +34,15 @@ cd frontends/svelte-ts && npm run dev
 
 # React frontend (port 5174)
 cd frontends/react-ts && npm run dev
+
+# Next 全栈实现 (port 5177)
+cd fullstacks/next-ts && npm run dev -- --hostname localhost --port 5177
+
+# Nuxt 全栈实现 (port 5178)
+cd fullstacks/nuxt-ts && npm run dev -- --host localhost --port 5178
+
+# Spring MVC 全栈实现 (port 4179)
+cd fullstacks/spring-boot-mvc && ./run
 ```
 
 ### Testing
@@ -65,6 +74,15 @@ cd frontends/react-ts && npm run test
 ./scripts/build.sh
 ```
 
+## 文档说明
+
+- 仓库内新增或重写文档默认使用中文。
+- 当前仓库除前后端分离实现外，还包含三套独立全栈实现：
+  - `fullstacks/next-ts`
+  - `fullstacks/nuxt-ts`
+  - `fullstacks/spring-boot-mvc`
+- 当任务涉及技术栈展示、启动命令、验证脚本、文档更新时，必须同时判断是否需要同步到这三套全栈实现。
+
 ## Architecture
 
 ### Monorepo Structure
@@ -77,6 +95,10 @@ cd frontends/react-ts && npm run test
   - `react-ts/` - React 19 + TypeScript + Vite (port 5174)
   - `angular-ts/` - Angular 18 + TypeScript + Angular CLI (port 5175)
   - `svelte-ts/` - Svelte 5 + TypeScript + Vite (port 5176)
+- **fullstacks/** - Full-stack implementations
+  - `next-ts/` - Next.js 15 + TypeScript 全栈实现 (port 5177)
+  - `nuxt-ts/` - Nuxt 3 + TypeScript 全栈实现 (port 5178)
+  - `spring-boot-mvc/` - Spring Boot MVC + Thymeleaf + HTMX 全栈实现 (port 4179)
 - **spec/** - Shared specifications (OpenAPI, design tokens, styles)
 - **docs/** - Documentation (API spec, database schema, deployment, design tokens)
 
@@ -155,6 +177,29 @@ Key configuration in `config/config.go`:
 - **API** (`api/index.ts`) - Identical fetch-based API client as Vue/React/Angular
 - **Types** (`types/index.ts`) - Identical shared TypeScript interfaces
 
+### Fullstack (Next.js 15 + TypeScript)
+- **Pages** (`src/app/`) - App Router pages and route-local client islands
+- **Server** (`src/lib/server/`) - SQLite, auth, validation, metadata helpers
+- **API** (`src/app/api/v1/`) - Route Handlers implementing the full API surface
+- **Auth** - `httpOnly cookie` + `middleware.ts`
+- **Tech Stack Display** - Fixed 3 items: framework, language, database
+
+### Fullstack (Nuxt 3 + TypeScript)
+- **Pages** (`pages/`) - File-based routing with SSR data flow
+- **Server API** (`server/api/v1/`) - Nitro endpoints
+- **Server Utils** (`server/utils/`) - SQLite, auth, validation, app info
+- **Composables** (`composables/`) - Shared page logic and state
+- **Auth** - Cookie + Nuxt middleware
+- **Tech Stack Display** - Fixed 3 items: framework, language, database
+
+### Fullstack (Spring Boot MVC)
+- **Web Controller** (`controller/WebController`) - MVC page routes and HTMX fragment endpoints
+- **Templates** (`src/main/resources/templates/`) - Thymeleaf pages and fragments
+- **Static** (`src/main/resources/static/`) - CSS, JS, logos
+- **Auth** - `HttpSession`
+- **Interaction Model** - SSR pages + HTMX partial updates
+- **Tech Stack Display** - Fixed 5 items: Spring Boot, Java, Thymeleaf, HTMX, SQLite
+
 ### API Contract
 All implementations must follow `spec/api/openapi.yaml`. Key endpoints:
 - `GET /api/v1/health` - Health check with tech stack info
@@ -164,7 +209,7 @@ All implementations must follow `spec/api/openapi.yaml`. Key endpoints:
 - `GET/DELETE /api/v1/admin/capsules` - Admin capsule management (JWT protected)
 
 ### Shared Styles
-Design tokens defined in `spec/styles/tokens.css` with CSS custom properties:
+Design system defined in `spec/styles/cyber.css` with CSS custom properties and shared component styles:
 - Colors (primary, background, text, status)
 - Typography, spacing, radius
 - Dark mode via `[data-theme="dark"]` selector
@@ -172,7 +217,7 @@ Design tokens defined in `spec/styles/tokens.css` with CSS custom properties:
 ## Database
 
 SQLite with JPA auto-DDL. Single table `capsules`:
-- `code` - 8-char unique identifier (base62)
+- `code` - 8-char unique identifier (uppercase letters and digits)
 - `title`, `content`, `creator` - capsule data
 - `open_at` - unlock timestamp (UTC)
 - `created_at` - creation timestamp (UTC)
@@ -182,8 +227,22 @@ SQLite with JPA auto-DDL. Single table `capsules`:
 1. **Unified API Response**: All responses follow `{ success, data, message, errorCode }` format
 2. **Content Hiding**: API returns `content: null` when `open_at` is in the future
 3. **Admin Auth**: Simple JWT token with 2-hour expiration
-4. **Capsule Codes**: 8-character base62 strings (62^8 collision space)
+4. **Capsule Codes**: 8-character strings using uppercase letters and digits only (36^8 collision space)
 5. **Health Endpoint**: `/api/v1/health` returns tech stack info for dynamic frontend display
+
+## 技术栈展示规则
+
+- 前后端分离实现：
+  - 首页、关于页、页脚展示 5 项
+  - 前端图标来自各自本地静态资源
+  - 后端图标来自后端固定路径 `/tech-logos/*`
+  - 名称来自 `/api/v1/health`
+- 全栈实现：
+  - 不依赖外部 `8080`
+  - 展示项数量由实现自身固定
+  - `next-ts` / `nuxt-ts` 为 3 项
+  - `spring-boot-mvc` 为 5 项
+  - 全部使用本实现自己的本地静态资源
 
 ## Frontend Patterns
 
@@ -207,7 +266,7 @@ SQLite with JPA auto-DDL. Single table `capsules`:
 ### React Patterns
 - **Hooks**: `useState()` for state, `useCallback()` for memoized handlers, `useSyncExternalStore()` for cross-component state
 - **CSS Modules**: Component-scoped styling via `.module.css` files
-- **JSX**: React.lazy() + Suspense for code splitting
+- **JSX**: Route components plus local hooks/components; current implementation may use route-level lazy loading when needed
 
 ### Angular Patterns
 - **Signals**: `signal()` for reactive state (replaces hooks), `computed()` for derived values, `effect()` for side effects

@@ -29,5 +29,26 @@ cd "$ROOT_DIR/frontends/angular-ts"
 npm run test
 echo "[Angular 前端] 测试完成"
 
+# Next 全栈构建验证
+echo ""
+echo "[全栈] 运行 Next.js 构建验证..."
+cd "$ROOT_DIR/fullstacks/next-ts"
+npm run build
+echo "[Next 全栈] 验证完成"
+
+# Nuxt 全栈构建验证
+echo ""
+echo "[全栈] 运行 Nuxt 构建验证..."
+cd "$ROOT_DIR/fullstacks/nuxt-ts"
+npm run build
+echo "[Nuxt 全栈] 验证完成"
+
+# Spring MVC 全栈测试
+echo ""
+echo "[全栈] 运行 Spring MVC 测试..."
+cd "$ROOT_DIR/fullstacks/spring-boot-mvc"
+./mvnw test
+echo "[Spring MVC 全栈] 验证完成"
+
 echo ""
 echo "=== 全部测试通过 ==="

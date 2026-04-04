@@ -6,24 +6,27 @@ export default function AboutView() {
   const navigate = useNavigate()
   const clickCount = useRef(0)
   const { techStack, loading, error } = useTechStack()
+  const backendLogo = techStack ? `/tech-logos/backend.svg?v=${encodeURIComponent(techStack.framework)}` : '/tech-logos/backend.svg'
+  const languageLogo = techStack ? `/tech-logos/language.svg?v=${encodeURIComponent(techStack.language)}` : '/tech-logos/language.svg'
+  const databaseLogo = techStack ? `/tech-logos/database.svg?v=${encodeURIComponent(techStack.database)}` : '/tech-logos/database.svg'
 
   const techItems = [
     { src: '/frontend.svg', alt: 'React', title: 'React', version: 'React 19' },
     { src: '/frontend-language.svg', alt: 'TypeScript', title: 'TypeScript', version: 'TypeScript 5' },
     {
-      src: '/tech-logos/backend.svg',
+      src: backendLogo,
       alt: '后端框架',
       title: loading ? '后端框架' : error || !techStack ? '暂不可用' : techStack.framework,
       version: loading ? '加载中...' : error || !techStack ? '技术栈信息暂不可用' : techStack.framework,
     },
     {
-      src: '/tech-logos/language.svg',
+      src: languageLogo,
       alt: '后端语言',
       title: loading ? '后端语言' : error || !techStack ? '暂不可用' : techStack.language,
       version: loading ? '加载中...' : error || !techStack ? '技术栈信息暂不可用' : techStack.language,
     },
     {
-      src: '/tech-logos/database.svg',
+      src: databaseLogo,
       alt: '数据库',
       title: loading ? '数据库' : error || !techStack ? '暂不可用' : techStack.database,
       version: loading ? '加载中...' : error || !techStack ? '技术栈信息暂不可用' : techStack.database,

@@ -17,6 +17,9 @@ backends/spring-boot/target/
 node_modules/
 dist/
 *.local
+.next/
+.nuxt/
+.output/
 
 # Python
 .venv/
@@ -42,6 +45,7 @@ __pycache__/
 .angular/
 *.tsbuildinfo
 frontends/angular-ts/out-tsc/
+fullstacks/spring-boot-mvc/target/
 
 # Local runtime
 .runtime/

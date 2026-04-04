@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="title desc">
+  <title id="title">Thymeleaf</title>
+  <desc id="desc">Thymeleaf logo badge</desc>
+  <rect width="120" height="120" rx="24" fill="#1f7a3d"/>
+  <circle cx="60" cy="60" r="34" fill="#ffffff" opacity="0.92"/>
+  <text x="60" y="70" text-anchor="middle" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#1f7a3d">T</text>
+</svg>

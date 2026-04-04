@@ -14,6 +14,12 @@ function frameworkLogoSelector() {
       return 'Angular Logo'
     case 'svelte-ts':
       return 'Svelte Logo'
+    case 'next-ts':
+      return 'Next.js Logo'
+    case 'nuxt-ts':
+      return 'Nuxt Logo'
+    case 'spring-boot-mvc':
+      return 'Spring Boot Logo'
     default:
       return '前端框架 Logo'
   }
@@ -29,9 +35,27 @@ function frameworkLabel() {
       return 'Angular'
     case 'svelte-ts':
       return 'Svelte'
+    case 'next-ts':
+      return 'Next.js'
+    case 'nuxt-ts':
+      return 'Nuxt'
+    case 'spring-boot-mvc':
+      return 'Spring Boot'
     default:
       return ''
   }
+}
+
+function languageLabel() {
+  return frontendName === 'spring-boot-mvc' ? 'Java' : 'TypeScript'
+}
+
+function languageLogoSelector() {
+  return frontendName === 'spring-boot-mvc' ? 'Java Logo' : 'TypeScript Logo'
+}
+
+function isFullstackFrontend() {
+  return frontendName === 'next-ts' || frontendName === 'nuxt-ts' || frontendName === 'spring-boot-mvc'
 }
 
 function futureDateTimeLocal() {
@@ -50,15 +74,26 @@ test(`首页展示技术栈卡片 [${frontendName}]`, async ({ page }) => {
 
   await expect(page.getByRole('heading', { name: /封存此刻.*开启未来/ })).toBeVisible()
   await expect(page.getByText('TECHNOLOGY STACK')).toBeVisible()
-  await expect(techCard).toContainText('TypeScript')
+  await expect(techCard).toContainText(languageLabel())
   await expect(techCard).toContainText(frameworkLabel())
+  await expect(techCard).toContainText('SQLite')
 
   await expect(techCard.getByAltText(frameworkLogoSelector())).toBeVisible()
-  await expect(techCard.getByAltText('TypeScript Logo')).toBeVisible()
-  await expect(techCard.getByAltText('后端框架 Logo')).toBeVisible()
-  await expect(techCard.getByAltText('后端语言 Logo')).toBeVisible()
-  await expect(techCard.getByAltText('数据库 Logo')).toBeVisible()
-  await expect(techCard).toContainText(/SQLite|技术栈信息暂不可用|加载中|\?/)
+  await expect(techCard.getByAltText(languageLogoSelector())).toBeVisible()
+  if (frontendName === 'spring-boot-mvc') {
+    await expect(techCard).toContainText('Thymeleaf')
+    await expect(techCard).toContainText('HTMX')
+    await expect(techCard.getByAltText('Thymeleaf Logo')).toBeVisible()
+    await expect(techCard.getByAltText('HTMX Logo')).toBeVisible()
+    await expect(techCard.getByAltText('SQLite Logo')).toBeVisible()
+  } else if (isFullstackFrontend()) {
+    await expect(techCard.getByAltText('SQLite Logo')).toBeVisible()
+  } else {
+    await expect(techCard.getByAltText('后端框架 Logo')).toBeVisible()
+    await expect(techCard.getByAltText('后端语言 Logo')).toBeVisible()
+    await expect(techCard.getByAltText('数据库 Logo')).toBeVisible()
+    await expect(techCard).toContainText(/SQLite|技术栈信息暂不可用|加载中|\?/)
+  }
 })
 
 test(`创建胶囊并验证锁定态 [${frontendName}]`, async ({ page }) => {
@@ -80,8 +115,13 @@ test(`创建胶囊并验证锁定态 [${frontendName}]`, async ({ page }) => {
 
   await expect(page.getByRole('heading', { name: '胶囊创建成功' })).toBeVisible()
 
-  const successCard = page.locator('body')
-  const codeMatch = (await successCard.textContent()).match(/\b[A-Z0-9]{8}\b/)
+  const codeDisplay = page.locator('.code-display').first()
+  const hasCodeDisplay = (await codeDisplay.count()) > 0
+  const rawCodeText = hasCodeDisplay
+    ? await codeDisplay.textContent()
+    : await page.locator('body').textContent()
+  const normalizedCodeText = (rawCodeText || '').replace(/\s+/g, '')
+  const codeMatch = normalizedCodeText.match(/\b[A-Z0-9]{8}\b/)
   expect(codeMatch).not.toBeNull()
   const capsuleCode = codeMatch[0]
 

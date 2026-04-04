@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: hellotime-spring-boot-mvc
+  datasource:
+    url: jdbc:sqlite:${DB_PATH:./hellotime-spring-mvc.db}
+    driver-class-name: org.sqlite.JDBC
+  jpa:
+    database-platform: org.hibernate.community.dialect.SQLiteDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+  # 启用虚拟线程 (Java 21+)
+  threads:
+    virtual:
+      enabled: true
+
+server:
+  port: ${SERVER_PORT:4179}
+
+app:
+  admin:
+    password: ${ADMIN_PASSWORD:timecapsule-admin}
+  jwt:
+    secret: ${JWT_SECRET:hellotime-jwt-secret-key-that-is-long-enough-for-hs256}
+    expiration-hours: 2

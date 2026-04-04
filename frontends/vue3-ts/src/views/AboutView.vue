@@ -92,19 +92,19 @@ const techItems = computed(() => [
   { src: '/frontend.svg', alt: 'Vue', title: 'Vue', version: 'Vue 3' },
   { src: '/frontend-language.svg', alt: 'TypeScript', title: 'TypeScript', version: 'TypeScript 5' },
   {
-    src: '/tech-logos/backend.svg',
+    src: techStack.value ? `/tech-logos/backend.svg?v=${encodeURIComponent(techStack.value.framework)}` : '/tech-logos/backend.svg',
     alt: '后端框架',
     title: loading.value ? '后端框架' : error.value || !techStack.value ? '暂不可用' : techStack.value.framework,
     version: loading.value ? '加载中...' : error.value || !techStack.value ? '技术栈信息暂不可用' : techStack.value.framework,
   },
   {
-    src: '/tech-logos/language.svg',
+    src: techStack.value ? `/tech-logos/language.svg?v=${encodeURIComponent(techStack.value.language)}` : '/tech-logos/language.svg',
     alt: '后端语言',
     title: loading.value ? '后端语言' : error.value || !techStack.value ? '暂不可用' : techStack.value.language,
     version: loading.value ? '加载中...' : error.value || !techStack.value ? '技术栈信息暂不可用' : techStack.value.language,
   },
   {
-    src: '/tech-logos/database.svg',
+    src: techStack.value ? `/tech-logos/database.svg?v=${encodeURIComponent(techStack.value.database)}` : '/tech-logos/database.svg',
     alt: '数据库',
     title: loading.value ? '数据库' : error.value || !techStack.value ? '暂不可用' : techStack.value.database,
     version: loading.value ? '加载中...' : error.value || !techStack.value ? '技术栈信息暂不可用' : techStack.value.database,

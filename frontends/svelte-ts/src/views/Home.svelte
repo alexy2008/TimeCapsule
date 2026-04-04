@@ -4,22 +4,25 @@
   import { simplifyTechLabel } from '../lib/tech-stack-utils';
 
   const Link = ObjectLink;
+  $: backendLogo = techStackState.techStack ? `/tech-logos/backend.svg?v=${encodeURIComponent(techStackState.techStack.framework)}` : '/tech-logos/backend.svg';
+  $: languageLogo = techStackState.techStack ? `/tech-logos/language.svg?v=${encodeURIComponent(techStackState.techStack.language)}` : '/tech-logos/language.svg';
+  $: databaseLogo = techStackState.techStack ? `/tech-logos/database.svg?v=${encodeURIComponent(techStackState.techStack.database)}` : '/tech-logos/database.svg';
 
   $: techItems = [
     { src: '/frontend.svg', alt: 'Svelte Logo', label: 'Svelte' },
     { src: '/frontend-language.svg', alt: 'TypeScript Logo', label: 'TypeScript' },
     {
-      src: '/tech-logos/backend.svg',
+      src: backendLogo,
       alt: '后端框架 Logo',
       label: techStackState.loading ? '...' : techStackState.error || !techStackState.techStack ? '?' : simplifyTechLabel(techStackState.techStack.framework),
     },
     {
-      src: '/tech-logos/language.svg',
+      src: languageLogo,
       alt: '后端语言 Logo',
       label: techStackState.loading ? '加载中' : techStackState.error || !techStackState.techStack ? '?' : simplifyTechLabel(techStackState.techStack.language),
     },
     {
-      src: '/tech-logos/database.svg',
+      src: databaseLogo,
       alt: '数据库 Logo',
       label: techStackState.loading ? '...' : techStackState.error || !techStackState.techStack ? '?' : simplifyTechLabel(techStackState.techStack.database),
     },

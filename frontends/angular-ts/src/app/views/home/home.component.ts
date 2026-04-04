@@ -28,17 +28,17 @@ export class HomeComponent implements OnInit {
       { src: '/frontend.svg', alt: 'Angular Logo', label: 'Angular' },
       { src: '/frontend-language.svg', alt: 'TypeScript Logo', label: 'TypeScript' },
       {
-        src: '/tech-logos/backend.svg',
+        src: techStack ? `/tech-logos/backend.svg?v=${encodeURIComponent(techStack.framework)}` : '/tech-logos/backend.svg',
         alt: '后端框架 Logo',
         label: this.loading() ? '...' : fallback ? '?' : simplifyTechLabel(techStack!.framework),
       },
       {
-        src: '/tech-logos/language.svg',
+        src: techStack ? `/tech-logos/language.svg?v=${encodeURIComponent(techStack.language)}` : '/tech-logos/language.svg',
         alt: '后端语言 Logo',
         label: this.loading() ? '加载中' : fallback ? '?' : simplifyTechLabel(techStack!.language),
       },
       {
-        src: '/tech-logos/database.svg',
+        src: techStack ? `/tech-logos/database.svg?v=${encodeURIComponent(techStack.database)}` : '/tech-logos/database.svg',
         alt: '数据库 Logo',
         label: this.loading() ? '...' : fallback ? '?' : simplifyTechLabel(techStack!.database),
       },

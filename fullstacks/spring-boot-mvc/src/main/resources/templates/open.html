@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark" xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="~{fragments/head :: head('开启 - 时间胶囊-Spring')}"></th:block>
+<body>
+<div class="background-grid"></div>
+<div class="ambient-glow"></div>
+<div class="app-shell">
+    <th:block th:replace="~{fragments/header :: header}"></th:block>
+    <main class="app-main">
+        <section id="view-search" class="view active">
+            <div class="view-header">
+                <a class="btn-back" th:href="${capsule != null or openError != null} ? '/open' : '/'">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                    返回
+                </a>
+                <h2 th:text="${capsule == null} ? '打开时间胶囊' : (${capsule.opened()} ? '状态: 已解锁' : '状态: 锁定中')">打开时间胶囊</h2>
+            </div>
+
+            <div th:if="${capsule == null}" class="view-shell">
+                <div class="cyber-glass create-form-card">
+                    <form method="get" action="/open" class="search-form">
+                        <div class="search-input-wrapper">
+                            <label for="capsuleCode">胶囊码</label>
+                            <input id="capsuleCode" name="code" type="text" maxlength="8" class="cyber-input mono-font search-input" placeholder="输入 8 位胶囊码" th:value="${lookupCode}" required />
+                        </div>
+                        <div th:if="${openError != null}" style="color: var(--magenta); text-align: center;" th:text="${openError}"></div>
+                        <div style="display: flex; justify-content: center;">
+                            <button type="submit" class="btn btn-primary">开启胶囊</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div th:if="${capsule != null}" th:class="${capsule.opened} ? 'cyber-glass capsule-card-shell capsule-unlocked-card' : 'cyber-glass capsule-card-shell capsule-locked-card'">
+                <div class="locked-header" style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                    <div class="mono-font">胶囊码：<span th:text="${capsule.code()}"></span></div>
+                    <span th:class="${capsule.opened()} ? 'badge badge-unlocked badge-success' : 'badge badge-locked'" th:text="${capsule.opened()} ? '已解锁' : '未到时间'"></span>
+                </div>
+
+                <div class="capsule-content-body" th:if="${!capsule.opened()}">
+                    <h3 th:text="${capsule.title()}"></h3>
+                    <div class="capsule-meta mono-font">
+                        <span th:text="${'发布者: ' + capsule.creator()}"></span>
+                        <span th:text="${'创建时间: ' + viewFormats.display(capsule.createdAt())}"></span>
+                    </div>
+                </div>
+
+                <div class="countdown-display" th:if="${!capsule.opened()}">
+                    <div class="countdown-ring">
+                        <div class="countdown-title">距离开启剩余时间</div>
+                        <div class="countdown-text" th:attr="data-countdown-target=${capsule.openAt().toString()}">
+                            <div class="time-block"><span data-countdown-block>00</span><small>天</small></div>
+                            <div class="colon">:</div>
+                            <div class="time-block"><span data-countdown-block>00</span><small>时</small></div>
+                            <div class="colon">:</div>
+                            <div class="time-block"><span data-countdown-block>00</span><small>分</small></div>
+                            <div class="colon">:</div>
+                            <div class="time-block"><span data-countdown-block>00</span><small>秒</small></div>
+                        </div>
+                        <div class="countdown-status" data-countdown-status>等待开启时间到达</div>
+                    </div>
+                </div>
+
+                <div class="capsule-content-area capsule-content-body" th:if="${capsule.opened()}">
+                    <div class="decrypt-animation-overlay">
+                        <div class="scanner-beam"></div>
+                        <div class="binary-rain mono-font">01001000 01100101 01101100 01101100 01101111 01010100 01101001 01101101 01100101 00100000 01010101 01001110 01001100 01001111 01000011 01001011 01000101 01000100 00100000 01000011 01000001 01010000 01010011 01010101 01001100 01000101</div>
+                    </div>
+                    <h3 th:text="${capsule.title()}"></h3>
+                    <div class="capsule-meta mono-font">
+                        <span th:text="${'发布者: ' + capsule.creator()}"></span>
+                        <span th:text="${'开启时间: ' + viewFormats.display(capsule.openAt())}"></span>
+                    </div>
+                    <div class="capsule-message" style="margin-top: 1.5rem;" th:text="${capsule.content()}"></div>
+                </div>
+
+                <div class="data-encryption-visual" th:if="${!capsule.opened()}">
+                    <div class="mono-font" style="display: flex; justify-content: space-between; gap: 1rem; color: var(--text-secondary);">
+                        <span th:text="${capsule.code().substring(0, 4) + '...' }"></span>
+                        <span>内容已被锁定</span>
+                        <span th:text="${'...' + capsule.code().substring(4)}"></span>
+                    </div>
+                    <div class="encryption-strip"></div>
+                    <div class="mono-font" style="margin-top: 1rem; color: var(--cyan);" th:text="${'开启时间: ' + viewFormats.display(capsule.openAt())}"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <th:block th:replace="~{fragments/footer :: footer}"></th:block>
+</div>
+</body>
+</html>

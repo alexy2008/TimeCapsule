@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: "jdbc:sqlite::memory:"
+    driver-class-name: org.sqlite.JDBC
+  jpa:
+    database-platform: org.hibernate.community.dialect.SQLiteDialect
+    hibernate:
+      ddl-auto: create-drop
+
+app:
+  admin:
+    password: test-password
+  jwt:
+    secret: test-jwt-secret-key-that-is-long-enough-for-hs256-algorithm
+    expiration-hours: 2

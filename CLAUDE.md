@@ -160,7 +160,7 @@ All implementations must follow `spec/api/openapi.yaml`. Key endpoints:
 - `GET/DELETE /api/v1/admin/capsules` - Admin capsule management (JWT protected)
 
 ### Shared Styles
-Design tokens defined in `spec/styles/tokens.css` with CSS custom properties:
+Design system defined in `spec/styles/cyber.css` with CSS custom properties and shared component styles:
 - Colors (primary, background, text, status)
 - Typography, spacing, radius
 - Dark mode via `[data-theme="dark"]` selector
@@ -168,7 +168,7 @@ Design tokens defined in `spec/styles/tokens.css` with CSS custom properties:
 ## Database
 
 SQLite with JPA auto-DDL. Single table `capsules`:
-- `code` - 8-char unique identifier (base62)
+- `code` - 8-char unique identifier (uppercase letters and digits)
 - `title`, `content`, `creator` - capsule data
 - `open_at` - unlock timestamp (UTC)
 - `created_at` - creation timestamp (UTC)
@@ -178,7 +178,7 @@ SQLite with JPA auto-DDL. Single table `capsules`:
 1. **Unified API Response**: All responses follow `{ success, data, message, errorCode }` format
 2. **Content Hiding**: API returns `content: null` when `open_at` is in the future
 3. **Admin Auth**: Simple JWT token with 2-hour expiration
-4. **Capsule Codes**: 8-character base62 strings (62^8 collision space)
+4. **Capsule Codes**: 8-character strings using uppercase letters and digits only (36^8 collision space)
 5. **Health Endpoint**: `/api/v1/health` returns tech stack info for dynamic frontend display
 
 ## Frontend Patterns

@@ -8,7 +8,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT_DIR="$(dirname "$(dirname "$SCRIPT_DIR")")"
 
 if [ "$#" -eq 0 ]; then
-  SELECTED_FRONTENDS="react-ts vue3-ts angular-ts svelte-ts"
+  SELECTED_FRONTENDS="react-ts vue3-ts angular-ts svelte-ts next-ts nuxt-ts spring-boot-mvc"
 else
   SELECTED_FRONTENDS="$*"
 fi
@@ -26,6 +26,9 @@ label_for() {
     vue3-ts) echo "Vue" ;;
     angular-ts) echo "Angular" ;;
     svelte-ts) echo "Svelte" ;;
+    next-ts) echo "Next" ;;
+    nuxt-ts) echo "Nuxt" ;;
+    spring-boot-mvc) echo "Spring MVC" ;;
     *) echo "Unknown" ;;
   esac
 }
@@ -36,6 +39,9 @@ dir_for() {
     vue3-ts) echo "$ROOT_DIR/frontends/vue3-ts" ;;
     angular-ts) echo "$ROOT_DIR/frontends/angular-ts" ;;
     svelte-ts) echo "$ROOT_DIR/frontends/svelte-ts" ;;
+    next-ts) echo "$ROOT_DIR/fullstacks/next-ts" ;;
+    nuxt-ts) echo "$ROOT_DIR/fullstacks/nuxt-ts" ;;
+    spring-boot-mvc) echo "$ROOT_DIR/fullstacks/spring-boot-mvc" ;;
     *) return 1 ;;
   esac
 }
@@ -46,6 +52,9 @@ home_file_for() {
     vue3-ts) echo "$ROOT_DIR/frontends/vue3-ts/src/views/HomeView.vue" ;;
     angular-ts) echo "$ROOT_DIR/frontends/angular-ts/src/app/views/home/home.component.html" ;;
     svelte-ts) echo "$ROOT_DIR/frontends/svelte-ts/src/views/Home.svelte" ;;
+    next-ts) echo "$ROOT_DIR/fullstacks/next-ts/src/app/page.tsx" ;;
+    nuxt-ts) echo "$ROOT_DIR/fullstacks/nuxt-ts/pages/index.vue" ;;
+    spring-boot-mvc) echo "$ROOT_DIR/fullstacks/spring-boot-mvc/src/main/resources/templates/index.html" ;;
     *) return 1 ;;
   esac
 }
@@ -53,6 +62,9 @@ home_file_for() {
 home_data_file_for() {
   case "$1" in
     angular-ts) echo "$ROOT_DIR/frontends/angular-ts/src/app/views/home/home.component.ts" ;;
+    next-ts) echo "$ROOT_DIR/fullstacks/next-ts/src/app/page.tsx" ;;
+    nuxt-ts) echo "$ROOT_DIR/fullstacks/nuxt-ts/pages/index.vue" ;;
+    spring-boot-mvc) echo "$ROOT_DIR/fullstacks/spring-boot-mvc/src/main/resources/templates/index.html $ROOT_DIR/fullstacks/spring-boot-mvc/src/main/java/com/hellotime/view/ViewModelAdvice.java" ;;
     *) home_file_for "$1" ;;
   esac
 }
@@ -63,23 +75,30 @@ frontend_logo_for() {
     vue3-ts) echo "$ROOT_DIR/frontends/vue3-ts/public/frontend.svg" ;;
     angular-ts) echo "$ROOT_DIR/frontends/angular-ts/src/assets/frontend.svg" ;;
     svelte-ts) echo "$ROOT_DIR/frontends/svelte-ts/public/frontend.svg" ;;
+    next-ts) echo "$ROOT_DIR/fullstacks/next-ts/public/frontend.svg" ;;
+    nuxt-ts) echo "$ROOT_DIR/fullstacks/nuxt-ts/public/frontend.svg" ;;
+    spring-boot-mvc) echo "$ROOT_DIR/fullstacks/spring-boot-mvc/src/main/resources/static/stack-logos/spring-boot.svg" ;;
     *) return 1 ;;
   esac
 }
 
-typescript_logo_for() {
+language_logo_for() {
   case "$1" in
     react-ts) echo "$ROOT_DIR/frontends/react-ts/public/frontend-language.svg" ;;
     vue3-ts) echo "$ROOT_DIR/frontends/vue3-ts/public/frontend-language.svg" ;;
     angular-ts) echo "$ROOT_DIR/frontends/angular-ts/src/assets/frontend-language.svg" ;;
     svelte-ts) echo "$ROOT_DIR/frontends/svelte-ts/public/frontend-language.svg" ;;
+    next-ts) echo "$ROOT_DIR/fullstacks/next-ts/public/frontend-language.svg" ;;
+    nuxt-ts) echo "$ROOT_DIR/fullstacks/nuxt-ts/public/frontend-language.svg" ;;
+    spring-boot-mvc) echo "$ROOT_DIR/fullstacks/spring-boot-mvc/src/main/resources/static/stack-logos/java.svg" ;;
     *) return 1 ;;
   esac
 }
 
 framework_logo_pattern_for() {
   case "$1" in
-    react-ts|vue3-ts|angular-ts|svelte-ts) echo '/frontend\.svg' ;;
+    react-ts|vue3-ts|angular-ts|svelte-ts|next-ts|nuxt-ts) echo '/frontend\.svg' ;;
+    spring-boot-mvc) echo '/stack-logos/spring-boot\.svg' ;;
     *) return 1 ;;
   esac
 }
@@ -90,6 +109,9 @@ verify_command_for() {
     vue3-ts) echo "npm run build" ;;
     angular-ts) echo "CI=1 npx ng build --no-progress" ;;
     svelte-ts) echo "npm run check" ;;
+    next-ts) echo "npm run build" ;;
+    nuxt-ts) echo "npm run build" ;;
+    spring-boot-mvc) echo "./mvnw test" ;;
     *) return 1 ;;
   esac
 }
@@ -99,7 +121,7 @@ run_static_checks() {
   home_file="$(home_file_for "$frontend")" || return 1
   home_data_file="$(home_data_file_for "$frontend")" || return 1
   logo_file="$(frontend_logo_for "$frontend")" || return 1
-  ts_logo_file="$(typescript_logo_for "$frontend")" || return 1
+  language_logo_file="$(language_logo_for "$frontend")" || return 1
   framework_logo_pattern="$(framework_logo_pattern_for "$frontend")" || return 1
 
   if [ ! -f "$home_file" ]; then
@@ -107,42 +129,66 @@ run_static_checks() {
     return 1
   fi
 
-  if [ ! -f "$home_data_file" ]; then
-    echo "  缺少首页数据文件: $home_data_file"
-    return 1
-  fi
+  for data_file in $home_data_file; do
+    if [ ! -f "$data_file" ]; then
+      echo "  缺少首页数据文件: $data_file"
+      return 1
+    fi
+  done
 
   if [ ! -f "$logo_file" ]; then
     echo "  缺少前端 logo 文件: $logo_file"
     return 1
   fi
 
-  if [ ! -f "$ts_logo_file" ]; then
-    echo "  缺少 TypeScript logo 文件: $ts_logo_file"
+  if [ ! -f "$language_logo_file" ]; then
+    echo "  缺少语言 logo 文件: $language_logo_file"
     return 1
   fi
 
-  if ! rg -q "$framework_logo_pattern" "$home_data_file"; then
+  if ! rg -q "$framework_logo_pattern" $home_data_file; then
     echo "  首页未引用本地前端框架 logo: $home_data_file"
     return 1
   fi
 
-  if ! rg -q '/frontend-language\.svg' "$home_data_file"; then
+  if [ "$frontend" = "spring-boot-mvc" ]; then
+    if ! rg -q '/stack-logos/java\.svg' $home_data_file; then
+      echo "  首页未引用 Java logo: $home_data_file"
+      return 1
+    fi
+    if ! rg -q '/stack-logos/thymeleaf\.svg' $home_data_file; then
+      echo "  首页未引用 Thymeleaf logo: $home_data_file"
+      return 1
+    fi
+    if ! rg -q '/stack-logos/htmx\.svg' $home_data_file; then
+      echo "  首页未引用 HTMX logo: $home_data_file"
+      return 1
+    fi
+    if ! rg -q '/stack-logos/sqlite\.svg' $home_data_file; then
+      echo "  首页未引用 SQLite logo: $home_data_file"
+      return 1
+    fi
+  elif ! rg -q '/frontend-language\.svg' $home_data_file; then
     echo "  首页未引用前端语言 logo: $home_data_file"
     return 1
   fi
 
-  if ! rg -q 'backend\.svg' "$home_data_file"; then
+  if [ "$frontend" = "next-ts" ] || [ "$frontend" = "nuxt-ts" ]; then
+    if ! rg -q '/sqlite-logo\.svg' $home_data_file; then
+      echo "  全栈首页未引用数据库 logo: $home_data_file"
+      return 1
+    fi
+  elif [ "$frontend" != "spring-boot-mvc" ] && ! rg -q 'backend\.svg' $home_data_file; then
     echo "  首页未引用后端框架 logo: $home_data_file"
     return 1
   fi
 
-  if ! rg -q 'language\.svg' "$home_data_file"; then
+  if [ "$frontend" != "next-ts" ] && [ "$frontend" != "nuxt-ts" ] && [ "$frontend" != "spring-boot-mvc" ] && ! rg -q 'language\.svg' $home_data_file; then
     echo "  首页未引用后端语言 logo: $home_data_file"
     return 1
   fi
 
-  if ! rg -q 'database\.svg' "$home_data_file"; then
+  if [ "$frontend" != "next-ts" ] && [ "$frontend" != "nuxt-ts" ] && [ "$frontend" != "spring-boot-mvc" ] && ! rg -q 'database\.svg' $home_data_file; then
     echo "  首页未引用后端数据库 logo: $home_data_file"
     return 1
   fi

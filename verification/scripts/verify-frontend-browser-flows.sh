@@ -12,7 +12,7 @@ CHROME_EXECUTABLE_PATH="${CHROME_EXECUTABLE_PATH:-/Applications/Google Chrome.ap
 FORCE_RESTART_FRONTENDS="${FORCE_RESTART_FRONTENDS:-0}"
 
 if [ "$#" -eq 0 ]; then
-  SELECTED_FRONTENDS="react-ts vue3-ts angular-ts svelte-ts"
+  SELECTED_FRONTENDS="react-ts vue3-ts angular-ts svelte-ts next-ts nuxt-ts spring-boot-mvc"
 else
   SELECTED_FRONTENDS="$*"
 fi
@@ -30,6 +30,9 @@ label_for() {
     vue3-ts) echo "Vue" ;;
     angular-ts) echo "Angular" ;;
     svelte-ts) echo "Svelte" ;;
+    next-ts) echo "Next" ;;
+    nuxt-ts) echo "Nuxt" ;;
+    spring-boot-mvc) echo "Spring MVC" ;;
     *) echo "Unknown" ;;
   esac
 }
@@ -40,6 +43,9 @@ dir_for() {
     vue3-ts) echo "$ROOT_DIR/frontends/vue3-ts" ;;
     angular-ts) echo "$ROOT_DIR/frontends/angular-ts" ;;
     svelte-ts) echo "$ROOT_DIR/frontends/svelte-ts" ;;
+    next-ts) echo "$ROOT_DIR/fullstacks/next-ts" ;;
+    nuxt-ts) echo "$ROOT_DIR/fullstacks/nuxt-ts" ;;
+    spring-boot-mvc) echo "$ROOT_DIR/fullstacks/spring-boot-mvc" ;;
     *) return 1 ;;
   esac
 }
@@ -50,6 +56,9 @@ base_url_for() {
     vue3-ts) echo "http://localhost:4173" ;;
     angular-ts) echo "http://localhost:4175" ;;
     svelte-ts) echo "http://localhost:4176" ;;
+    next-ts) echo "http://localhost:4177" ;;
+    nuxt-ts) echo "http://localhost:4178" ;;
+    spring-boot-mvc) echo "http://localhost:4179" ;;
     *) return 1 ;;
   esac
 }
@@ -60,6 +69,9 @@ port_for() {
     vue3-ts) echo "4173" ;;
     angular-ts) echo "4175" ;;
     svelte-ts) echo "4176" ;;
+    next-ts) echo "4177" ;;
+    nuxt-ts) echo "4178" ;;
+    spring-boot-mvc) echo "4179" ;;
     *) return 1 ;;
   esac
 }
@@ -70,6 +82,9 @@ dev_command_for() {
     vue3-ts) echo "npm run dev -- --host localhost --port 4173 --strictPort" ;;
     angular-ts) echo "./node_modules/.bin/ng serve --host localhost --port 4175 --proxy-config proxy.conf.json" ;;
     svelte-ts) echo "npm run dev -- --host localhost --port 4176 --strictPort" ;;
+    next-ts) echo "rm -rf .next && npm run build && npm run start -- --hostname localhost --port 4177" ;;
+    nuxt-ts) echo "npm run dev -- --host localhost --port 4178" ;;
+    spring-boot-mvc) echo "./run" ;;
     *) return 1 ;;
   esac
 }
@@ -112,6 +127,16 @@ ensure_backend_ready() {
       exit 1
     fi
   done
+}
+
+selected_frontends_require_backend() {
+  for frontend in $SELECTED_FRONTENDS; do
+    if [ "$frontend" != "next-ts" ] && [ "$frontend" != "nuxt-ts" ] && [ "$frontend" != "spring-boot-mvc" ]; then
+      return 0
+    fi
+  done
+
+  return 1
 }
 
 ensure_playwright_ready() {
@@ -179,19 +204,26 @@ stop_frontend_if_started() {
 run_browser_verification() {
   frontend="$1"
   base_url="$(base_url_for "$frontend")" || return 1
+  api_backend_url="$BACKEND_URL"
+
+  if [ "$frontend" = "next-ts" ] || [ "$frontend" = "nuxt-ts" ] || [ "$frontend" = "spring-boot-mvc" ]; then
+    api_backend_url="$base_url"
+  fi
 
   (
     cd "$VERIFICATION_DIR" &&
     FRONTEND_NAME="$frontend" \
     BASE_URL="$base_url" \
-    BACKEND_URL="$BACKEND_URL" \
+    BACKEND_URL="$api_backend_url" \
     ADMIN_PASSWORD="$ADMIN_PASSWORD" \
     CHROME_EXECUTABLE_PATH="$CHROME_EXECUTABLE_PATH" \
     npx playwright test tests/frontend-major-flows.spec.js
   )
 }
 
-ensure_backend_ready
+if selected_frontends_require_backend; then
+  ensure_backend_ready
+fi
 ensure_playwright_ready
 
 echo "=== HelloTime 前端浏览器验证 ==="

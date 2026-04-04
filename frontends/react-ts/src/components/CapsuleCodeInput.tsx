@@ -23,7 +23,7 @@ export default function CapsuleCodeInput({ value, onChange, onSubmit, loading, e
 
   return (
     <div className="search-container cyber-glass center-card">
-        <p className="mb-6">输入8位提取码开启您的时间胶囊。</p>
+        <p className="mb-6">输入8位胶囊码开启您的时间胶囊。</p>
         <div className="search-input-wrapper">
             <input
               type="text"

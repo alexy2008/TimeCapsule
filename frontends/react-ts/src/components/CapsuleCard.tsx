@@ -29,17 +29,17 @@ export default function CapsuleCard({ capsule, onExpired }: Props) {
     return (
       <div className="capsule-unlocked-card cyber-glass">
           <div className="locked-header">
-              <span className="mono-font label">提取码: {capsule.code}</span>
+              <span className="mono-font label">胶囊码: {capsule.code}</span>
               <span className="badge badge-unlocked">已解锁</span>
           </div>
 
           <h1 className="capsule-title text-glow-cyan">{capsule.title}</h1>
 
           <div className="meta-info border-bottom pb-4 mb-4">
-              <span className="creator">创建者: <span className="mono-font">{capsule.creator}</span></span>
+              <span className="creator">发布者: <span className="mono-font">{capsule.creator}</span></span>
               <div>
                   <span className="created-at d-block">创建时间: <span className="mono-font">{formatTime(capsule.createdAt)}</span></span>
-                  <span className="opened-at d-block mt-1 cyan-text">解锁时间: <span className="mono-font">{formatTime(capsule.openAt)}</span></span>
+                  <span className="opened-at d-block mt-1 cyan-text">开启时间: <span className="mono-font">{formatTime(capsule.openAt)}</span></span>
               </div>
           </div>
 
@@ -67,13 +67,13 @@ export default function CapsuleCard({ capsule, onExpired }: Props) {
   return (
     <div className="capsule-locked-card cyber-glass">
         <div className="locked-header">
-            <span className="mono-font label">提取码: {capsule.code}</span>
+            <span className="mono-font label">胶囊码: {capsule.code}</span>
             <span className="badge badge-locked pulse-danger">未到时间</span>
         </div>
 
         <h1 className="capsule-title">{capsule.title}</h1>
         <div className="meta-info">
-            <span className="creator">创建者: <span className="mono-font">{capsule.creator}</span></span>
+            <span className="creator">发布者: <span className="mono-font">{capsule.creator}</span></span>
             <span className="created-at">创建时间: <span className="mono-font">{formatTime(capsule.createdAt)}</span></span>
         </div>
 
@@ -87,7 +87,7 @@ export default function CapsuleCard({ capsule, onExpired }: Props) {
                 <div className="progress-bar" style={{ width: `${progress}%` }}></div>
             </div>
             <div className="target-time mt-2" style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-              解锁时间: <span className="mono-font text-glow">{formatTime(capsule.openAt)}</span>
+              开启时间: <span className="mono-font text-glow">{formatTime(capsule.openAt)}</span>
             </div>
         </div>
     </div>

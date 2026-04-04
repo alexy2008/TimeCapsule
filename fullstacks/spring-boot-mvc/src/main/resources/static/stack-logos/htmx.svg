@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="title desc">
+  <title id="title">HTMX</title>
+  <desc id="desc">HTMX logo badge</desc>
+  <rect width="120" height="120" rx="24" fill="#334d80"/>
+  <rect x="18" y="18" width="84" height="84" rx="18" fill="#ffffff" opacity="0.94"/>
+  <text x="60" y="67" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" font-weight="700" fill="#334d80">HX</text>
+</svg>

@@ -2,9 +2,9 @@
 
 ## 概述
 
-共享样式系统使用 CSS 自定义属性 (Custom Properties) 作为设计令牌，确保不同前端实现保持一致的视觉风格。
+共享样式系统统一收敛到 `spec/styles/cyber.css`，其中同时包含设计令牌、基础重置、共享组件样式和兼容工具类，确保不同前端实现保持一致的视觉风格。
 
-所有令牌定义在 `spec/styles/tokens.css` 中。
+所有令牌定义在 `spec/styles/cyber.css` 中。
 
 ## 颜色系统
 
@@ -12,66 +12,56 @@
 
 | 令牌 | 亮色值 | 暗色值 | 说明 |
 |------|--------|--------|------|
-| `--color-primary` | #6366f1 | #818cf8 | 主色（靛蓝） |
-| `--color-primary-hover` | #4f46e5 | #6366f1 | 悬停状态 |
-| `--color-primary-light` | #e0e7ff | #312e81 | 浅色变体 |
+| `--cyan` | #0077ff | #00f0ff | 主强调色 |
+| `--cyan-dim` | rgba(0, 119, 255, 0.1) | rgba(0, 240, 255, 0.2) | 弱化高光 |
+| `--cyan-glow` | rgba(0, 119, 255, 0.3) | rgba(0, 240, 255, 0.5) | 发光阴影 |
+| `--magenta` | #e6004c | #ff003c | 次强调色 |
 
 ### 背景色
 
 | 令牌 | 亮色值 | 暗色值 |
 |------|--------|--------|
-| `--color-bg` | #ffffff | #0f172a |
-| `--color-bg-secondary` | #f8fafc | #1e293b |
-| `--color-bg-tertiary` | #f1f5f9 | #334155 |
+| `--bg-base` | #f0f4f8 | #030712 |
+| `--bg-grid` | rgba(0, 0, 0, 0.05) | rgba(20, 30, 50, 0.4) |
+| `--glass-bg` | rgba(255, 255, 255, 0.6) | rgba(15, 23, 42, 0.4) |
+| `--glass-border` | rgba(0, 0, 0, 0.1) | rgba(56, 189, 248, 0.15) |
 
 ### 文字色
 
 | 令牌 | 亮色值 | 暗色值 |
 |------|--------|--------|
-| `--color-text` | #0f172a | #f1f5f9 |
-| `--color-text-secondary` | #475569 | #94a3b8 |
-| `--color-text-tertiary` | #94a3b8 | #64748b |
-| `--color-text-inverse` | #ffffff | #0f172a |
+| `--text-primary` | #1e293b | #f8fafc |
+| `--text-secondary` | #475569 | #94a3b8 |
+| `--text-muted` | #64748b | #475569 |
 
 ### 状态色
 
 | 令牌 | 值 | 说明 |
 |------|------|------|
-| `--color-success` | #22c55e | 成功 |
-| `--color-warning` | #f59e0b | 警告 |
-| `--color-error` | #ef4444 | 错误 |
-| `--color-info` | #3b82f6 | 信息 |
+| `--green-neon` | #39ff14 / #00aa00 | 成功、完成态 |
+| `--red-alert` | #ff3366 / #d32f2f | 删除、危险操作 |
+| `--magenta` | #ff003c / #e6004c | 次强调、扫描动效 |
 
 ## 排版
 
-- **字体族**: Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif
-- **等宽字体**: JetBrains Mono, Fira Code, monospace
+- **字体族**: Inter, system-ui, sans-serif
+- **等宽字体**: JetBrains Mono, monospace
 
 ### 字号
 
-| 令牌 | 值 |
-|------|------|
-| `--text-xs` | 0.75rem |
-| `--text-sm` | 0.875rem |
-| `--text-base` | 1rem |
-| `--text-lg` | 1.125rem |
-| `--text-xl` | 1.25rem |
-| `--text-2xl` | 1.5rem |
-| `--text-3xl` | 1.875rem |
+`cyber.css` 目前主要通过语义化类名和局部组件样式控制字号，例如 `.hero-title`、`.countdown-text`、`.card-title`、`.btn` 等；同时保留了一组兼容性工具类，例如 `.text-sm`、`.text-xl`、`.text-3xl`。
 
 ## 间距
 
-使用 4px 基准的间距系统: `--space-1` (4px) 到 `--space-16` (64px)。
+样式以组件内显式间距为主，并保留少量兼容性工具类，例如 `.gap-2`、`.gap-4`、`.mt-4`、`.py-8`。
 
 ## 圆角
 
 | 令牌 | 值 |
 |------|------|
-| `--radius-sm` | 0.25rem |
-| `--radius-md` | 0.5rem |
-| `--radius-lg` | 0.75rem |
-| `--radius-xl` | 1rem |
-| `--radius-full` | 9999px |
+| `--radius-sm` | 4px |
+| `--radius-md` | 8px |
+| `--radius-lg` | 16px |
 
 ## 暗色模式
 
@@ -84,7 +74,4 @@
 
 | 文件 | 说明 |
 |------|------|
-| `spec/styles/tokens.css` | 设计令牌（颜色、排版、间距等） |
-| `spec/styles/base.css` | CSS 重置和基础样式 |
-| `spec/styles/components.css` | 共享组件样式（按钮、卡片、输入框等） |
-| `spec/styles/layout.css` | 布局工具类（flex、grid、间距等） |
+| `spec/styles/cyber.css` | 统一设计系统，包含设计令牌、基础样式、共享组件和兼容工具类 |
