@@ -63,8 +63,66 @@
     min-height: 3.75rem;
 }
 
+.datetime-input-shell {
+    position: relative;
+}
+
+.datetime-input-shell .cyber-input {
+    padding-right: 3.75rem;
+}
+
+.datetime-input-icon {
+    position: absolute;
+    top: 50%;
+    right: 1rem;
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    pointer-events: none;
+    transition: var(--transition);
+}
+
+.datetime-input-shell:focus-within .datetime-input-icon {
+    color: var(--cyan);
+}
+
 .form-row-split input[type="datetime-local"].cyber-input {
     line-height: 1.4;
+}
+
+[data-theme="dark"] .form-row-split input[type="datetime-local"].cyber-input {
+    color-scheme: dark;
+    background: rgba(10, 15, 25, 0.85);
+    color: var(--text-primary);
+    border-color: var(--glass-border);
+}
+
+[data-theme="light"] .form-row-split input[type="datetime-local"].cyber-input {
+    color-scheme: light;
+}
+
+[data-theme="dark"] .form-row-split input[type="datetime-local"].cyber-input::-webkit-datetime-edit,
+[data-theme="dark"] .form-row-split input[type="datetime-local"].cyber-input::-webkit-datetime-edit-fields-wrapper,
+[data-theme="dark"] .form-row-split input[type="datetime-local"].cyber-input::-webkit-datetime-edit-text,
+[data-theme="dark"] .form-row-split input[type="datetime-local"].cyber-input::-webkit-datetime-edit-month-field,
+[data-theme="dark"] .form-row-split input[type="datetime-local"].cyber-input::-webkit-datetime-edit-day-field,
+[data-theme="dark"] .form-row-split input[type="datetime-local"].cyber-input::-webkit-datetime-edit-year-field,
+[data-theme="dark"] .form-row-split input[type="datetime-local"].cyber-input::-webkit-datetime-edit-hour-field,
+[data-theme="dark"] .form-row-split input[type="datetime-local"].cyber-input::-webkit-datetime-edit-minute-field {
+    color: var(--text-primary);
+}
+
+.form-row-split input[type="datetime-local"].cyber-input::-webkit-calendar-picker-indicator {
+    position: absolute;
+    right: 0;
+    width: 3.75rem;
+    height: 100%;
+    margin: 0;
+    filter: none;
+    opacity: 0;
+    cursor: pointer;
 }
 
 .field-error {
