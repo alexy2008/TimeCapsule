@@ -47,6 +47,8 @@ useSeoMeta({
   description: '创建与开启时间胶囊的 Nuxt 全栈实现首页',
 })
 
+// 相比分离版前台，全栈架构下的组件具有感知系统栈的能力。
+// 因为内置了 Nitro 服务端引擎，不再强依赖远端接口加载健康状态，而是统一在此静态声明。
 const techItems = [
   { src: '/frontend.svg', alt: 'Nuxt Logo', label: 'Nuxt' },
   { src: '/frontend-language.svg', alt: 'TypeScript Logo', label: 'TypeScript' },

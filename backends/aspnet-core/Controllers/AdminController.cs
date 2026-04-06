@@ -5,6 +5,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HelloTime.AspNetCore.Controllers;
 
+/// <summary>
+/// 管理员接口。
+/// 主要演示 ASP.NET Core 的 [Authorize] 注解以及基于 JWT 的权限拦截。
+/// </summary>
 [ApiController]
 [Route("api/v1/admin")]
 public sealed class AdminController : ControllerBase

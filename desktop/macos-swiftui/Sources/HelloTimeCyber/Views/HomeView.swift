@@ -1,7 +1,9 @@
 import SwiftUI
 
 // MARK: - Home View
-// Mirrors HomeView.tsx: hero badge, glowing title, two action cards, tech stack bar.
+// SwiftUI 渲染的原生首页。由于 SwiftUI 无法直接复用前端 Web 版本的 DOM/CSS 结构，
+// 这里体现了它必须使用原生修饰器结合 HStack/VStack 重新构建「Cyber-Glass」风格视图，
+// 作为跨端桌面应用与 Web 端在原生 UI 层面的设计对照。
 
 struct HomeView: View {
     @Binding var nav: NavDestination

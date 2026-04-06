@@ -213,6 +213,12 @@
         box-shadow: inset 0 0 0 1px rgba(255, 186, 94, 0.22), 0 0 22px rgba(158, 101, 36, 0.24);
       }
       .card.kind-fullstack::before { background: #ffba5e; }
+      .card.kind-desktop {
+        border-color: rgba(186, 94, 255, 0.78);
+        background: linear-gradient(180deg, rgba(72, 27, 112, 0.4), rgba(3, 12, 20, 0.5));
+        box-shadow: inset 0 0 0 1px rgba(186, 94, 255, 0.22), 0 0 22px rgba(101, 36, 158, 0.24);
+      }
+      .card.kind-desktop::before { background: #ba5eff; }
       .card.state-running {
         border-width: 1.5px;
       }
@@ -491,6 +497,9 @@
 
         <h2 class="group-title">全栈</h2>
         <div class="grid" id="fullstackGrid"></div>
+
+        <h2 class="group-title">桌面端</h2>
+        <div class="grid" id="desktopGrid"></div>
       </section>
 
       <section class="panel">
@@ -632,9 +641,12 @@
         const kindClass = `kind-${service.kind}`;
         const stateClass = cardStatusClass(service.status);
         const iconUrl = `/assets/icons/${encodeURIComponent(service.key)}.svg`;
-        const openOrTest = service.kind === 'backend'
-          ? `<button data-health="${escapeHtml(service.key)}" ${service.status === '已停止' ? 'disabled' : ''}>测试</button>`
-          : `<a href="${escapeHtml(service.url)}" target="_blank" rel="noreferrer"><button>打开</button></a>`;
+        let openOrTest = '';
+        if (service.kind === 'backend') {
+          openOrTest = `<button data-health="${escapeHtml(service.key)}" ${service.status === '已停止' ? 'disabled' : ''}>测试</button>`;
+        } else if (service.kind !== 'desktop') {
+          openOrTest = `<a href="${escapeHtml(service.url)}" target="_blank" rel="noreferrer"><button>打开</button></a>`;
+        }
 
         return `
           <article class="card ${escapeHtml(kindClass)} ${escapeHtml(stateClass)}">
@@ -655,14 +667,18 @@
         `;
       }
 
+      const desktopGrid = document.getElementById('desktopGrid');
+
       function renderGroupedServices(services) {
         const backends = services.filter((s) => s.kind === 'backend');
         const frontends = services.filter((s) => s.kind === 'frontend');
         const fullstacks = services.filter((s) => s.kind === 'fullstack');
+        const desktops = services.filter((s) => s.kind === 'desktop');
 
         backendGrid.innerHTML = backends.map(serviceCard).join('');
         frontendGrid.innerHTML = frontends.map(serviceCard).join('');
         fullstackGrid.innerHTML = fullstacks.map(serviceCard).join('');
+        desktopGrid.innerHTML = desktops.map(serviceCard).join('');
       }
 
       function syncLogServiceTabs(services) {

@@ -23,6 +23,11 @@ enum APIError: LocalizedError {
 }
 
 // MARK: - HTTP client (mirrors TypeScript api/index.ts)
+//
+// 这是与 Web 端通用的核心网络层 API：
+// 职责是对齐各前端项目中的 `api/index.ts` 结构，提供强类型网络交互。
+// 为了在不同语言间做到无缝衔接，这里强制要求响应始终解包为 APIEnvelope 层结构，
+// 并把所有框架内或远程服务的异常集中抛出为 APIError 类型。
 
 struct APIClient: Sendable {
     let baseURL: URL

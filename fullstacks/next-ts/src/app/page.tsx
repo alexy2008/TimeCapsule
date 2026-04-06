@@ -5,6 +5,8 @@ import styles from './home.module.css'
 
 export const metadata: Metadata = buildPageMetadata('首页', '创建与开启时间胶囊的 Next.js 实现首页')
 
+// 全栈架构下无需调用 /api/v1/health 获取后端堆栈，
+// 因为其自身已内置了完整层级的服务端服务机制，所以在这里直接声明自身组合。
 const techItems = [
   { src: '/frontend.svg', alt: 'Next.js Logo', label: 'Next.js' },
   { src: '/frontend-language.svg', alt: 'TypeScript Logo', label: 'TypeScript' },

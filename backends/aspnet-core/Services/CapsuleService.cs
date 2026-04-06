@@ -4,6 +4,12 @@ using HelloTime.AspNetCore.Models;
 
 namespace HelloTime.AspNetCore.Services;
 
+/// <summary>
+/// 胶囊核心业务服务。
+/// 在 ASP.NET Core 层级设计中，Service 层负责承载全部业务规则（时间校验、胶囊码生成等），
+/// 以保持 Controller 的轻量化。
+/// 通过依赖注入（Dependency Injection）和 TimeProvider 方便在测试中 mock 真实时间。
+/// </summary>
 public sealed class CapsuleService
 {
     private const string CodeChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -19,6 +25,9 @@ public sealed class CapsuleService
         _timeProvider = timeProvider;
     }
 
+    /// <summary>
+    /// 创建胶囊
+    /// </summary>
     public async Task<CapsuleCreatedResponse> CreateAsync(CreateCapsuleRequest request, CancellationToken cancellationToken = default)
     {
         if (!DateTimeFormats.TryParseUtc(request.OpenAt, out var openAt))
@@ -52,6 +61,10 @@ public sealed class CapsuleService
         return new CapsuleCreatedResponse(code, request.Title, request.Creator, openAtFormatted, createdAt);
     }
 
+    /// <summary>
+    /// 获取单个胶囊详情
+    /// 核心逻辑：在这里控制访客在到达开启时间前不能提前看到内容（content）。
+    /// </summary>
     public async Task<CapsuleDetailResponse> GetAsync(string code, CancellationToken cancellationToken = default)
     {
         var capsule = await _repository.FindByCodeAsync(code, cancellationToken);
@@ -110,6 +123,11 @@ public sealed class CapsuleService
         return new string(buffer);
     }
 
+    /// <summary>
+    /// 将实体转换为详情响应对象
+    /// </summary>
+    /// <param name="capsule">数据库实体</param>
+    /// <param name="includeContent">如果是管理员请求或已过开启时间，该值为 true，以此决定是否返回真正内容</param>
     private CapsuleDetailResponse ToDetail(CapsuleEntity capsule, bool includeContent)
     {
         DateTimeFormats.TryParseUtc(capsule.OpenAt, out var openAt);

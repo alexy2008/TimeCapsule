@@ -8,6 +8,9 @@ export default function HomeView() {
   const backendLogo = techStack ? `http://localhost:8080/tech-logos/backend.svg?v=${encodeURIComponent(techStack.framework)}` : 'http://localhost:8080/tech-logos/backend.svg'
   const languageLogo = techStack ? `http://localhost:8080/tech-logos/language.svg?v=${encodeURIComponent(techStack.language)}` : 'http://localhost:8080/tech-logos/language.svg'
   const databaseLogo = techStack ? `http://localhost:8080/tech-logos/database.svg?v=${encodeURIComponent(techStack.database)}` : 'http://localhost:8080/tech-logos/database.svg'
+  // 桌面端技术栈展示：
+  // 相比于 Web 版，这里加入了本机宿主平台（Tauri）标识，说明外壳特性。
+  // 至于底层后端的信息，则依然复用原先针对 Web 端设计的 useTechStack 钩子做动态获取。
   const techItems = [
     { src: '/tauri.svg', alt: 'Tauri Logo', label: 'Tauri 2' },
     { src: '/frontend.svg', alt: 'React Logo', label: 'React' },

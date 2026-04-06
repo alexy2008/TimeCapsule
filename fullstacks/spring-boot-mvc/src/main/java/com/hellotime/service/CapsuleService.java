@@ -51,15 +51,12 @@ public class CapsuleService {
      */
     @Transactional
     public CapsuleResponse createCapsule(CreateCapsuleRequest request) {
-        // 校验：开启时间必须在未来
         if (request.openAt().isBefore(Instant.now())) {
             throw new IllegalArgumentException("开启时间必须在未来");
         }
 
-        // 生成唯一的 8 位胶囊码
         String code = generateUniqueCode();
 
-        // 构建胶囊实体
         Capsule capsule = new Capsule();
         capsule.setCode(code);
         capsule.setTitle(request.title());
@@ -67,7 +64,6 @@ public class CapsuleService {
         capsule.setCreator(request.creator());
         capsule.setOpenAt(request.openAt());
 
-        // 保存到数据库
         capsule = capsuleRepository.save(capsule);
         return toCreatedResponse(capsule);
     }

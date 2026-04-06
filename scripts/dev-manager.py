@@ -166,6 +166,22 @@ SERVICES: list[Service] = [
         command=["bash", str(ROOT_DIR / "fullstacks" / "spring-boot-mvc" / "run")],
         port=4179,
     ),
+    Service(
+        key="tauri",
+        label="Tauri 桌面",
+        kind="desktop",
+        workdir=ROOT_DIR / "desktop" / "tauri",
+        command=["bash", str(ROOT_DIR / "desktop" / "tauri" / "run")],
+        port=1420,
+    ),
+    Service(
+        key="macos-swiftui",
+        label="macOS 原生",
+        kind="desktop",
+        workdir=ROOT_DIR / "desktop" / "macos-swiftui",
+        command=["bash", str(ROOT_DIR / "desktop" / "macos-swiftui" / "run")],
+        port=0,
+    ),
 ]
 
 BACKEND_KEYS = {"spring-boot", "fastapi", "gin", "elysia", "nest", "aspnet-core"}
@@ -198,6 +214,7 @@ def read_key() -> str:
         return f"\x1b[{third}"
     finally:
         termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+    return ""
 
 
 def interactive_select(
@@ -211,11 +228,11 @@ def interactive_select(
     if not sys.stdin.isatty() or not sys.stdout.isatty():
         return None
 
-    selected = 0
+    selected: int = 0
 
     while True:
         clear_screen()
-        if header_lines:
+        if header_lines is not None:
             for line in header_lines:
                 print(line)
             print()
@@ -236,11 +253,12 @@ def interactive_select(
         print(" / ".join(tips))
 
         key = read_key()
+        num_options = len(options)
         if key == "\x1b[A":
-            selected = (selected - 1) % len(options)
+            selected = (selected - 1) % num_options
             continue
         if key == "\x1b[B":
-            selected = (selected + 1) % len(options)
+            selected = (selected + 1) % num_options
             continue
         if key in {"\r", "\n"}:
             return options[selected][0]
@@ -506,7 +524,11 @@ def tail_log(service: Service, lines: int = 20) -> str:
         return f"{service.label} 还没有日志文件。"
 
     content = service.log_file.read_text(errors="replace").splitlines()
-    return "\n".join(content[-lines:]) if content else "(日志为空)"
+    if not content:
+        return "(日志为空)"
+    # 使用显式切片以满足部分 Linter 要求
+    last_lines = content[-lines:] if lines > 0 else []
+    return "\n".join(last_lines)
 
 
 def format_table(services: Iterable[Service]) -> str:
@@ -532,7 +554,10 @@ def format_table(services: Iterable[Service]) -> str:
             widths[idx] = max(widths[idx], len(value))
 
     def render_row(row: list[str]) -> str:
-        return "  ".join(value.ljust(widths[idx]) for idx, value in enumerate(row))
+        parts = []
+        for i, val in enumerate(row):
+            parts.append(val.ljust(widths[i]))
+        return "  ".join(parts)
 
     lines = [render_row(headers), render_row(["-" * width for width in widths])]
     lines.extend(render_row(row) for row in rows)
@@ -587,11 +612,12 @@ def check_service_health(service: Service) -> dict[str, Any]:
             status_code = getattr(response, "status", 200)
     except HTTPError as exc:
         body = exc.read().decode("utf-8", errors="replace")
+        body_str = body if body is not None else ""
         return {
             "ok": False,
             "statusCode": exc.code,
             "message": f"HTTP {exc.code}",
-            "body": body[:500],
+            "body": body_str[:500],
         }
     except URLError as exc:
         return {"ok": False, "message": f"连接失败: {exc.reason}"}
@@ -619,11 +645,12 @@ def check_service_health(service: Service) -> dict[str, Any]:
             "response": parsed,
         }
 
+    body_str = body if body is not None else ""
     return {
         "ok": 200 <= status_code < 300,
         "statusCode": status_code,
         "message": f"HTTP {status_code}",
-        "body": body[:500],
+        "body": body_str[:500],
     }
 
 
@@ -681,7 +708,8 @@ class DevManagerWebHandler(BaseHTTPRequestHandler):
             self._send_html(read_web_ui())
             return
         if path.startswith("/assets/"):
-            relative = path[len("/assets/"):].lstrip("/")
+            prefix_len = len("/assets/")
+            relative = path[prefix_len:].lstrip("/")
             asset_path = (ASSETS_DIR / relative).resolve()
             try:
                 asset_path.relative_to(ASSETS_DIR.resolve())
