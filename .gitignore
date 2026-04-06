@@ -50,3 +50,17 @@ fullstacks/spring-boot-mvc/target/
 # Local runtime
 .runtime/
 verification/test-results/
+
+# Swift / SwiftUI
+.build/
+.swiftpm/
+
+# Rust / Cargo
+**/src-tauri/target/
+
+# .NET
+**/bin/
+**/obj/
+
+# Tool-generated
+.qoder/
