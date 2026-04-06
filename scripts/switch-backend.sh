@@ -14,6 +14,7 @@ usage() {
   ./scripts/switch-backend.sh gin
   ./scripts/switch-backend.sh elysia
   ./scripts/switch-backend.sh nest
+  ./scripts/switch-backend.sh aspnet-core
   ./scripts/switch-backend.sh 18010
   ./scripts/switch-backend.sh status
   ./scripts/switch-backend.sh stop
@@ -27,6 +28,7 @@ usage() {
   gin         -> 18020
   elysia      -> 18030
   nest        -> 18040
+  aspnet-core -> 18050
 EOF
 }
 
@@ -37,6 +39,7 @@ resolve_target() {
     gin) echo "gin 18020" ;;
     elysia) echo "elysia 18030" ;;
     nest) echo "nest 18040" ;;
+    aspnet-core|aspnet) echo "aspnet-core 18050" ;;
     ''|help|-h|--help) usage; exit 0 ;;
     *)
       if [[ "$1" =~ ^[0-9]+$ ]]; then

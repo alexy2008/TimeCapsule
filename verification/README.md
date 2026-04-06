@@ -70,6 +70,7 @@ verification/
 - `gin`
 - `elysia`
 - `nest`
+- `aspnet-core`
 
 ### 前端
 
@@ -178,6 +179,7 @@ verification/
 - FastAPI: `pytest`
 - Gin: `go test ./tests/...`
 - Elysia: `bun test`
+- ASP.NET Core: `./dotnetw test tests/tests.csproj`
 - React: `npm run test`
 - Vue: `npm run test`
 - Angular: `npm run test`

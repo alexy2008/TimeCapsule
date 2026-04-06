@@ -3,7 +3,6 @@ package com.hellotime.service;
 import com.hellotime.dto.CapsuleResponse;
 import com.hellotime.dto.CreateCapsuleRequest;
 import com.hellotime.exception.CapsuleNotFoundException;
-import com.hellotime.repository.CapsuleRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,9 +25,6 @@ class CapsuleServiceTest {
 
     @Autowired
     private CapsuleService capsuleService;
-
-    @Autowired
-    private CapsuleRepository capsuleRepository;
 
     @Test
     void createCapsule_shouldReturnCodeAndTitle() {

@@ -43,6 +43,12 @@ cd fullstacks/nuxt-ts && npm run dev -- --host localhost --port 5178
 
 # Spring MVC 全栈实现 (port 4179)
 cd fullstacks/spring-boot-mvc && ./run
+
+# Tauri 桌面端
+cd desktop/tauri && ./run
+
+# macOS SwiftUI 桌面端
+cd desktop/macos-swiftui && ./run
 ```
 
 ### Testing
@@ -81,15 +87,22 @@ cd frontends/react-ts && npm run test
   - `fullstacks/next-ts`
   - `fullstacks/nuxt-ts`
   - `fullstacks/spring-boot-mvc`
-- 当任务涉及技术栈展示、启动命令、验证脚本、文档更新时，必须同时判断是否需要同步到这三套全栈实现。
+- 当前仓库还包含两套桌面端实现：
+  - `desktop/tauri` — Tauri 2 + React 19 + Rust
+  - `desktop/macos-swiftui` — SwiftUI + Swift 6.1
+- 当任务涉及技术栈展示、启动命令、验证脚本、文档更新时，必须同时判断是否需要同步到全栈实现和桌面端。
+- `.qoder/` 目录为工具自动生成，已加入 `.gitignore`，不要扫描也不要修改。
 
 ## Architecture
 
 ### Monorepo Structure
 - **backends/** - Backend implementations
-  - `spring-boot/` - Spring Boot 3 + Java 17 + SQLite
+  - `spring-boot/` - Spring Boot 3 + Java 21 + SQLite
   - `fastapi/` - FastAPI + Python 3.12 + SQLite
   - `gin/` - Gin 1.10 + Go 1.24 + SQLite
+  - `elysia/` - Elysia + Bun + TypeScript + SQLite
+  - `nest/` - NestJS + Node.js + TypeScript + SQLite
+  - `aspnet-core/` - ASP.NET Core 8 + C# 12 + SQLite
 - **frontends/** - Frontend implementations
   - `vue3-ts/` - Vue 3 + TypeScript + Vite (port 5173)
   - `react-ts/` - React 19 + TypeScript + Vite (port 5174)
@@ -99,6 +112,9 @@ cd frontends/react-ts && npm run test
   - `next-ts/` - Next.js 15 + TypeScript 全栈实现 (port 5177)
   - `nuxt-ts/` - Nuxt 3 + TypeScript 全栈实现 (port 5178)
   - `spring-boot-mvc/` - Spring Boot MVC + Thymeleaf + HTMX 全栈实现 (port 4179)
+- **desktop/** - Desktop implementations
+  - `tauri/` - Tauri 2 + React 19 + Rust 跨平台桌面
+  - `macos-swiftui/` - SwiftUI + Swift 6.1 macOS 原生桌面
 - **spec/** - Shared specifications (OpenAPI, design tokens, styles)
 - **docs/** - Documentation (API spec, database schema, deployment, design tokens)
 

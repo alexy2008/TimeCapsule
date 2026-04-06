@@ -15,6 +15,12 @@ cd "$ROOT_DIR/backends/spring-boot"
 ./mvnw test
 echo "[后端] 测试完成"
 
+echo ""
+echo "[后端] 运行 ASP.NET Core 测试..."
+cd "$ROOT_DIR/backends/aspnet-core"
+./dotnetw test tests/tests.csproj
+echo "[ASP.NET Core 后端] 测试完成"
+
 # Vue 前端测试
 echo ""
 echo "[前端] 运行 Vue 3 Vitest 测试..."
@@ -49,6 +55,18 @@ echo "[全栈] 运行 Spring MVC 测试..."
 cd "$ROOT_DIR/fullstacks/spring-boot-mvc"
 ./mvnw test
 echo "[Spring MVC 全栈] 验证完成"
+
+# macOS 桌面端测试
+if [[ "$(uname -s)" == "Darwin" ]] && command -v swift >/dev/null 2>&1; then
+  echo ""
+  echo "[桌面端] 运行 macOS SwiftUI 测试..."
+  cd "$ROOT_DIR/desktop/macos-swiftui"
+  swift test
+  echo "[macOS 桌面端] 验证完成"
+else
+  echo ""
+  echo "[桌面端] 跳过 macOS SwiftUI 测试（需要 macOS + Swift）"
+fi
 
 echo ""
 echo "=== 全部测试通过 ==="

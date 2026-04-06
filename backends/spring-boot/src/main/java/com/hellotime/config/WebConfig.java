@@ -1,6 +1,7 @@
 package com.hellotime.config;
 
 import org.springframework.context.annotation.Configuration;
+import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -11,6 +12,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
+    @NonNull
     private final AdminAuthInterceptor adminAuthInterceptor;
 
     public WebConfig(AdminAuthInterceptor adminAuthInterceptor) {
@@ -23,7 +25,7 @@ public class WebConfig implements WebMvcConfigurer {
      * 但排除 /api/v1/admin/login（登录接口不需要认证）
      */
     @Override
-    public void addInterceptors(InterceptorRegistry registry) {
+    public void addInterceptors(@NonNull InterceptorRegistry registry) {
         registry.addInterceptor(adminAuthInterceptor)
                 .addPathPatterns("/api/v1/admin/**")      // 拦截所有管理员接口
                 .excludePathPatterns("/api/v1/admin/login");  // 排除登录接口

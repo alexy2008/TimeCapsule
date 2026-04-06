@@ -17,7 +17,7 @@ def health() -> ApiResponse[dict]:
         "status": "UP",
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "techStack": {
-            "framework": "FastAPI >=0.115",
+            "framework": "FastAPI 0.115",
             "language": "Python 3.12",
             "database": "SQLite"
         }

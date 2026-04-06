@@ -11,7 +11,7 @@ RUBY_BIN="${RUBY_BIN:-/usr/bin/ruby}"
 SAFE_PATH="/usr/bin:/bin:/usr/sbin:/sbin"
 
 if [ "$#" -eq 0 ]; then
-  SELECTED_BACKENDS="spring-boot fastapi gin elysia nest"
+  SELECTED_BACKENDS="spring-boot fastapi gin elysia nest aspnet-core"
 else
   SELECTED_BACKENDS="$*"
 fi
@@ -30,6 +30,7 @@ label_for() {
     gin) echo "Gin" ;;
     elysia) echo "Elysia" ;;
     nest) echo "NestJS" ;;
+    aspnet-core) echo "ASP.NET Core" ;;
     *) echo "Unknown" ;;
   esac
 }
@@ -41,6 +42,7 @@ dir_for() {
     gin) echo "$ROOT_DIR/backends/gin" ;;
     elysia) echo "$ROOT_DIR/backends/elysia" ;;
     nest) echo "$ROOT_DIR/backends/nest" ;;
+    aspnet-core) echo "$ROOT_DIR/backends/aspnet-core" ;;
     *) return 1 ;;
   esac
 }
@@ -52,6 +54,7 @@ base_url_for() {
     gin) echo "http://127.0.0.1:18020" ;;
     elysia) echo "http://127.0.0.1:18030" ;;
     nest) echo "http://127.0.0.1:18040" ;;
+    aspnet-core) echo "http://127.0.0.1:18050" ;;
     *) return 1 ;;
   esac
 }
@@ -63,6 +66,7 @@ port_for() {
     gin) echo "18020" ;;
     elysia) echo "18030" ;;
     nest) echo "18040" ;;
+    aspnet-core) echo "18050" ;;
     *) return 1 ;;
   esac
 }
@@ -74,6 +78,7 @@ run_command_for() {
     gin) echo "./run" ;;
     elysia) echo "./run" ;;
     nest) echo "./run" ;;
+    aspnet-core) echo "./run" ;;
     *) return 1 ;;
   esac
 }

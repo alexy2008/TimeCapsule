@@ -10,6 +10,8 @@ HelloTime 本地开发服务管理工具。
 
 from __future__ import annotations
 
+import argparse
+import json
 import os
 import signal
 import socket
@@ -19,8 +21,12 @@ import termios
 import time
 import tty
 from dataclasses import dataclass
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from typing import Callable, Iterable
+from typing import Any, Callable, Iterable
+from urllib.error import HTTPError, URLError
+from urllib.parse import parse_qs, urlparse
+from urllib.request import Request, urlopen
 
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
@@ -28,6 +34,8 @@ RUNTIME_DIR = ROOT_DIR / ".runtime" / "dev-manager"
 PID_DIR = RUNTIME_DIR / "pids"
 LOG_DIR = RUNTIME_DIR / "logs"
 SWITCH_SCRIPT = ROOT_DIR / "scripts" / "switch-backend.sh"
+WEB_UI_FILE = ROOT_DIR / "scripts" / "dev-manager-web.html"
+ASSETS_DIR = ROOT_DIR / "scripts" / "dev-manager-assets"
 PROXY_META_FILE = Path("/tmp/hellotime-backend-proxy.meta")
 
 
@@ -95,6 +103,14 @@ SERVICES: list[Service] = [
         port=18040,
     ),
     Service(
+        key="aspnet-core",
+        label="ASP.NET Core",
+        kind="backend",
+        workdir=ROOT_DIR / "backends" / "aspnet-core",
+        command=["bash", str(ROOT_DIR / "backends" / "aspnet-core" / "run")],
+        port=18050,
+    ),
+    Service(
         key="vue3",
         label="Vue 3",
         kind="frontend",
@@ -152,7 +168,7 @@ SERVICES: list[Service] = [
     ),
 ]
 
-BACKEND_KEYS = {"spring-boot", "fastapi", "gin", "elysia", "nest"}
+BACKEND_KEYS = {"spring-boot", "fastapi", "gin", "elysia", "nest", "aspnet-core"}
 
 
 def ensure_runtime_dirs() -> None:
@@ -523,6 +539,310 @@ def format_table(services: Iterable[Service]) -> str:
     return "\n".join(lines)
 
 
+def serialize_service(service: Service) -> dict[str, Any]:
+    info = get_service_status(service)
+    return {
+        "key": service.key,
+        "label": service.label,
+        "kind": service.kind,
+        "port": service.port,
+        "url": service.url,
+        "status": info["status"],
+        "pid": info["pid"],
+        "portOpen": info["port_open"] == "yes",
+        "logFile": str(service.log_file),
+    }
+
+
+def build_snapshot() -> dict[str, Any]:
+    return {
+        "services": [serialize_service(service) for service in SERVICES],
+        "proxyMapping": get_proxy_mapping(),
+        "generatedAt": int(time.time()),
+    }
+
+
+def find_service(key: str) -> Service | None:
+    for service in SERVICES:
+        if service.key == key:
+            return service
+    return None
+
+
+def read_web_ui() -> str:
+    if WEB_UI_FILE.exists():
+        return WEB_UI_FILE.read_text(encoding="utf-8")
+    return "<!doctype html><meta charset='utf-8'><title>HelloTime</title><h1>Web UI 文件缺失</h1>"
+
+
+def check_service_health(service: Service) -> dict[str, Any]:
+    if service.kind != "backend":
+        return {"ok": False, "message": "仅后端服务支持健康检查"}
+
+    url = f"{service.url}/api/v1/health"
+    request = Request(url, headers={"Accept": "application/json"})
+    try:
+        with urlopen(request, timeout=3.5) as response:
+            body = response.read().decode("utf-8", errors="replace")
+            status_code = getattr(response, "status", 200)
+    except HTTPError as exc:
+        body = exc.read().decode("utf-8", errors="replace")
+        return {
+            "ok": False,
+            "statusCode": exc.code,
+            "message": f"HTTP {exc.code}",
+            "body": body[:500],
+        }
+    except URLError as exc:
+        return {"ok": False, "message": f"连接失败: {exc.reason}"}
+    except TimeoutError:
+        return {"ok": False, "message": "请求超时"}
+
+    parsed: Any = None
+    try:
+        parsed = json.loads(body)
+    except json.JSONDecodeError:
+        pass
+
+    if isinstance(parsed, dict):
+        data = parsed.get("data")
+        inner_status = ""
+        if isinstance(data, dict):
+            inner_status = str(data.get("status", "")).strip()
+        message = f"HTTP {status_code}"
+        if inner_status:
+            message = f"{message} / {inner_status}"
+        return {
+            "ok": 200 <= status_code < 300,
+            "statusCode": status_code,
+            "message": message,
+            "response": parsed,
+        }
+
+    return {
+        "ok": 200 <= status_code < 300,
+        "statusCode": status_code,
+        "message": f"HTTP {status_code}",
+        "body": body[:500],
+    }
+
+
+class DevManagerWebHandler(BaseHTTPRequestHandler):
+    server_version = "HelloTimeDevManagerWeb/1.0"
+
+    def _send_json(self, payload: dict[str, Any], status: int = 200) -> None:
+        body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+        self.send_response(status)
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+    def _send_html(self, html: str, status: int = 200) -> None:
+        body = html.encode("utf-8")
+        self.send_response(status)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+    def _read_json_body(self) -> dict[str, Any]:
+        content_length = self.headers.get("Content-Length", "0").strip()
+        if not content_length.isdigit():
+            return {}
+        size = int(content_length)
+        if size <= 0:
+            return {}
+        raw = self.rfile.read(size)
+        if not raw:
+            return {}
+        try:
+            data = json.loads(raw.decode("utf-8"))
+            if isinstance(data, dict):
+                return data
+        except json.JSONDecodeError:
+            return {}
+        return {}
+
+    def _ok(self, message: str, extra: dict[str, Any] | None = None) -> None:
+        payload: dict[str, Any] = {"success": True, "message": message}
+        if extra:
+            payload.update(extra)
+        self._send_json(payload, 200)
+
+    def _error(self, message: str, status: int = 400) -> None:
+        self._send_json({"success": False, "message": message}, status)
+
+    def do_GET(self) -> None:
+        parsed = urlparse(self.path)
+        path = parsed.path.rstrip("/") or "/"
+
+        if path == "/" or path == "/index.html":
+            self._send_html(read_web_ui())
+            return
+        if path.startswith("/assets/"):
+            relative = path[len("/assets/"):].lstrip("/")
+            asset_path = (ASSETS_DIR / relative).resolve()
+            try:
+                asset_path.relative_to(ASSETS_DIR.resolve())
+            except ValueError:
+                self._error("非法资源路径", 403)
+                return
+            if not asset_path.exists() or not asset_path.is_file():
+                self._error("资源不存在", 404)
+                return
+            suffix = asset_path.suffix.lower()
+            content_type = "application/octet-stream"
+            if suffix == ".svg":
+                content_type = "image/svg+xml; charset=utf-8"
+            elif suffix == ".png":
+                content_type = "image/png"
+            elif suffix == ".jpg" or suffix == ".jpeg":
+                content_type = "image/jpeg"
+            body = asset_path.read_bytes()
+            self.send_response(200)
+            self.send_header("Content-Type", content_type)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+            return
+        if path == "/api/snapshot":
+            self._send_json({"success": True, "data": build_snapshot()})
+            return
+        if path.startswith("/api/services/") and path.endswith("/health"):
+            parts = path.strip("/").split("/")
+            if len(parts) != 4:
+                self._error("无效的健康检查路径", 404)
+                return
+            service = find_service(parts[2])
+            if service is None:
+                self._error("服务不存在", 404)
+                return
+            self._send_json(
+                {
+                    "success": True,
+                    "data": {
+                        "service": serialize_service(service),
+                        "health": check_service_health(service),
+                    },
+                }
+            )
+            return
+        if path.startswith("/api/services/") and path.endswith("/logs"):
+            parts = path.strip("/").split("/")
+            if len(parts) != 4:
+                self._error("无效的日志请求路径", 404)
+                return
+            service = find_service(parts[2])
+            if service is None:
+                self._error("服务不存在", 404)
+                return
+            query = parse_qs(parsed.query)
+            lines = 40
+            try:
+                if "lines" in query and query["lines"]:
+                    lines = max(10, min(500, int(query["lines"][0])))
+            except ValueError:
+                lines = 40
+            self._send_json(
+                {
+                    "success": True,
+                    "data": {
+                        "service": serialize_service(service),
+                        "lines": lines,
+                        "content": tail_log(service, lines=lines),
+                    },
+                }
+            )
+            return
+
+        self._error("未找到资源", 404)
+
+    def do_POST(self) -> None:
+        parsed = urlparse(self.path)
+        path = parsed.path.rstrip("/") or "/"
+        body = self._read_json_body()
+
+        # 前端若误用 POST 访问健康检查，也兼容返回结果，避免“资源未找到”。
+        if path.startswith("/api/services/") and path.endswith("/health"):
+            parts = path.strip("/").split("/")
+            if len(parts) != 4:
+                self._error("无效的健康检查路径", 404)
+                return
+            service = find_service(parts[2])
+            if service is None:
+                self._error("服务不存在", 404)
+                return
+            self._send_json(
+                {
+                    "success": True,
+                    "data": {
+                        "service": serialize_service(service),
+                        "health": check_service_health(service),
+                    },
+                }
+            )
+            return
+
+        if path == "/api/services/start-all":
+            self._ok("已执行启动全部服务", {"results": start_all(), "data": build_snapshot()})
+            return
+        if path == "/api/services/stop-all":
+            self._ok("已执行停止全部服务", {"results": stop_all(), "data": build_snapshot()})
+            return
+        if path == "/api/services/restart-all":
+            self._ok("已执行重启全部服务", {"results": restart_all(), "data": build_snapshot()})
+            return
+        if path == "/api/proxy/switch":
+            target = str(body.get("target", "")).strip()
+            if not target:
+                self._error("target 不能为空")
+                return
+            output = switch_proxy(target)
+            self._ok("已执行 8080 映射切换", {"result": output, "data": build_snapshot()})
+            return
+        if path == "/api/proxy/stop":
+            output = switch_proxy("stop")
+            self._ok("已停止 8080 映射", {"result": output, "data": build_snapshot()})
+            return
+        if path.startswith("/api/services/"):
+            parts = path.strip("/").split("/")
+            if len(parts) != 4 or parts[3] not in {"start", "stop", "restart"}:
+                self._error("无效的服务操作路径", 404)
+                return
+            service = find_service(parts[2])
+            if service is None:
+                self._error("服务不存在", 404)
+                return
+            action = parts[3]
+            if action == "start":
+                result = start_service(service)
+            elif action == "stop":
+                result = stop_service(service)
+            else:
+                result = restart_service(service)
+            self._ok(f"已执行 {service.label} {action}", {"result": result, "data": build_snapshot()})
+            return
+
+        self._error("未找到资源", 404)
+
+    def log_message(self, format: str, *args: Any) -> None:
+        return
+
+
+def run_web_server(host: str, port: int) -> None:
+    ensure_runtime_dirs()
+    server = ThreadingHTTPServer((host, port), DevManagerWebHandler)
+    print(f"HelloTime Web 服务管理已启动: http://{host}:{port}")
+    print("按 Ctrl+C 退出。")
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        print("\n已停止 Web 服务管理。")
+    finally:
+        server.server_close()
+
+
 def print_dashboard(message: str | None = None) -> None:
     clear_screen()
     print("HelloTime 开发服务管理")
@@ -656,7 +976,7 @@ def handle_choice(choice: str) -> str | None:
     return "未知操作，请重新输入。"
 
 
-def main() -> None:
+def run_cli() -> None:
     ensure_runtime_dirs()
     message: str | None = None
 
@@ -694,7 +1014,16 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="HelloTime 开发服务管理工具")
+    parser.add_argument("--web", action="store_true", help="启动 Web 管理模式")
+    parser.add_argument("--host", default="127.0.0.1", help="Web 模式监听地址，默认 127.0.0.1")
+    parser.add_argument("--port", type=int, default=8090, help="Web 模式监听端口，默认 8090")
+    args = parser.parse_args()
+
     try:
-        main()
+        if args.web:
+            run_web_server(args.host, args.port)
+        else:
+            run_cli()
     except KeyboardInterrupt:
         print("\n退出管理工具。")

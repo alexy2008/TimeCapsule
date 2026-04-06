@@ -1,0 +1,860 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HelloTime Web 服务管理</title>
+    <style>
+      :root {
+        --line: rgba(107, 173, 219, 0.3);
+        --bg: #061522;
+        --panel: rgba(9, 30, 46, 0.86);
+        --text: #d7ebff;
+        --muted: #8fb2d1;
+        --ok: #29e3a2;
+        --warn: #ffc36d;
+        --err: #ff7488;
+        --focus: #3fd0ff;
+        --font-ui: "Avenir Next", "SF Pro Text", "Segoe UI", "PingFang SC", sans-serif;
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--text);
+        font-family: var(--font-ui);
+        display: flex;
+        justify-content: center;
+        background:
+          radial-gradient(1000px 560px at 0% -15%, rgba(63, 208, 255, 0.22), transparent 55%),
+          radial-gradient(1000px 560px at 100% 0%, rgba(41, 227, 162, 0.15), transparent 60%),
+          linear-gradient(160deg, #06101a 0%, #081a29 55%, #071320 100%);
+      }
+
+      .shell {
+        width: min(1310px, calc(100vw - 24px));
+        margin: 14px auto 24px;
+        display: grid;
+        gap: 12px;
+      }
+
+      .panel {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: var(--panel);
+        backdrop-filter: blur(8px);
+        box-shadow: 0 12px 34px rgba(0, 0, 0, 0.26);
+      }
+
+      .top {
+        padding: 16px 18px 14px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        justify-content: space-between;
+        align-items: flex-end;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(24px, 4vw, 34px);
+      }
+
+      .subtitle {
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .chips {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .chip {
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 4px 10px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .ops-row {
+        padding: 0 18px 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: nowrap;
+        gap: 10px;
+      }
+
+      .toolbar {
+        padding: 0;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        flex: 0 0 auto;
+      }
+
+      .proxy-row {
+        padding: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: nowrap;
+        justify-content: flex-end;
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+
+      .proxy-current {
+        border: 1px dashed var(--line);
+        border-radius: 10px;
+        padding: 8px 12px;
+        color: var(--muted);
+        font-size: 12px;
+        white-space: nowrap;
+        flex: 0 0 auto;
+      }
+
+      .proxy-select {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 8px;
+        flex: 0 0 auto;
+      }
+
+      .proxy-select select {
+        min-width: 240px;
+      }
+
+      button,
+      select {
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--text);
+        padding: 8px 12px;
+        font-size: 13px;
+      }
+
+      button { cursor: pointer; }
+
+      button:hover:not(:disabled) {
+        border-color: var(--focus);
+        background: rgba(63, 208, 255, 0.16);
+      }
+
+      button:disabled {
+        opacity: 0.42;
+        cursor: not-allowed;
+      }
+
+      .warn:hover:not(:disabled) {
+        border-color: var(--err);
+        background: rgba(255, 116, 136, 0.14);
+      }
+
+      .group-title {
+        margin: 0;
+        padding: 10px 12px 0;
+        color: var(--muted);
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .grid {
+        display: grid;
+        gap: 10px;
+        grid-template-columns: repeat(5, 250px);
+        justify-content: start;
+        padding: 8px 10px 10px;
+      }
+
+      .card {
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: rgba(3, 12, 20, 0.38);
+        padding: 10px;
+        display: grid;
+        gap: 8px;
+        height: 156px;
+        grid-template-rows: auto auto 1fr auto;
+        position: relative;
+        overflow: hidden;
+      }
+      .card::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 3px;
+        opacity: 0.95;
+      }
+      .card.kind-backend {
+        border-color: rgba(61, 181, 255, 0.75);
+        background: linear-gradient(180deg, rgba(17, 79, 124, 0.42), rgba(3, 12, 20, 0.48));
+        box-shadow: inset 0 0 0 1px rgba(61, 181, 255, 0.2), 0 0 22px rgba(22, 102, 166, 0.22);
+      }
+      .card.kind-backend::before { background: #3db5ff; }
+      .card.kind-frontend {
+        border-color: rgba(56, 232, 171, 0.75);
+        background: linear-gradient(180deg, rgba(18, 90, 70, 0.38), rgba(3, 12, 20, 0.48));
+        box-shadow: inset 0 0 0 1px rgba(56, 232, 171, 0.2), 0 0 22px rgba(22, 135, 97, 0.22);
+      }
+      .card.kind-frontend::before { background: #38e8ab; }
+      .card.kind-fullstack {
+        border-color: rgba(255, 186, 94, 0.78);
+        background: linear-gradient(180deg, rgba(112, 72, 27, 0.4), rgba(3, 12, 20, 0.5));
+        box-shadow: inset 0 0 0 1px rgba(255, 186, 94, 0.22), 0 0 22px rgba(158, 101, 36, 0.24);
+      }
+      .card.kind-fullstack::before { background: #ffba5e; }
+      .card.state-running {
+        border-width: 1.5px;
+      }
+      .card.kind-backend.state-running {
+        box-shadow: inset 0 0 0 1px rgba(61, 181, 255, 0.34), 0 0 28px rgba(32, 146, 236, 0.38);
+      }
+      .card.kind-frontend.state-running {
+        box-shadow: inset 0 0 0 1px rgba(56, 232, 171, 0.34), 0 0 28px rgba(35, 184, 131, 0.38);
+      }
+      .card.kind-fullstack.state-running {
+        box-shadow: inset 0 0 0 1px rgba(255, 186, 94, 0.34), 0 0 28px rgba(210, 144, 48, 0.4);
+      }
+      .card.state-stopped {
+        filter: saturate(0.72) brightness(0.78);
+        border-color: rgba(124, 154, 182, 0.34) !important;
+      }
+      .card.state-stopped::before {
+        opacity: 0.36;
+      }
+      .card.state-starting {
+        border-color: rgba(255, 202, 107, 0.68) !important;
+      }
+      .card.state-conflict {
+        border-color: rgba(255, 116, 136, 0.72) !important;
+        box-shadow: inset 0 0 0 1px rgba(255, 116, 136, 0.28), 0 0 24px rgba(172, 52, 75, 0.3);
+      }
+
+      .card-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .title { margin: 0; font-size: 15px; }
+      .card-header .title {
+        flex: 1 1 auto;
+        min-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .service-icon {
+        width: 20px;
+        height: 20px;
+        flex: 0 0 20px;
+        border-radius: 4px;
+        object-fit: contain;
+        background: rgba(255, 255, 255, 0.04);
+      }
+      .small { color: var(--muted); font-size: 11px; }
+      .health-line {
+        color: var(--muted);
+        font-size: 11px;
+        line-height: 1.4;
+        min-height: 30px;
+        max-height: 30px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .status {
+        font-size: 11px;
+        font-weight: 700;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 2px 8px;
+      }
+      .s-running { color: var(--ok); border-color: rgba(41, 227, 162, 0.44); }
+      .s-starting { color: var(--warn); border-color: rgba(255, 195, 109, 0.44); }
+      .s-conflict { color: var(--err); border-color: rgba(255, 116, 136, 0.45); }
+      .s-stopped { color: var(--muted); }
+
+      .actions { display: flex; gap: 6px; flex-wrap: wrap; }
+      .actions button { padding: 6px 10px; font-size: 12px; }
+      .log-tools {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+        flex-wrap: wrap;
+      }
+      .log-tabs {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+      .log-tab {
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.03);
+        color: var(--muted);
+        padding: 5px 10px;
+        font-size: 12px;
+        cursor: pointer;
+      }
+      .log-tab:hover {
+        border-color: var(--focus);
+        color: var(--text);
+      }
+      .log-tab.active {
+        border-color: rgba(61, 181, 255, 0.8);
+        background: rgba(61, 181, 255, 0.16);
+        color: var(--text);
+      }
+      .log-switch {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .log-area {
+        padding: 12px;
+        min-width: 0;
+      }
+
+      pre {
+        margin: 0;
+        max-height: 300px;
+        max-width: 100%;
+        width: 100%;
+        overflow: auto;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: rgba(2, 8, 15, 0.75);
+        color: #a7d5ff;
+        font-size: 12px;
+        line-height: 1.5;
+        padding: 12px;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+      }
+      .log-ts { color: #58b7ff; }
+      .log-level-error { color: #ff6b7a; font-weight: 700; }
+      .log-level-warn { color: #ffcc6f; font-weight: 700; }
+      .log-level-info { color: #5fd6ff; font-weight: 700; }
+      .log-level-debug { color: #9cb7cf; font-weight: 700; }
+      .log-level-trace { color: #8ce7c2; font-weight: 700; }
+      .log-arrow { color: #7fa7c8; }
+      .log-pipe { color: #6e8aa3; }
+
+      #toast {
+        position: fixed;
+        right: 16px;
+        bottom: 16px;
+        max-width: min(520px, calc(100vw - 24px));
+        border-radius: 12px;
+        border: 1px solid var(--line);
+        background: rgba(7, 20, 33, 0.95);
+        color: var(--text);
+        padding: 12px;
+        display: none;
+        white-space: pre-wrap;
+      }
+
+      #healthOverlay {
+        position: fixed;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 20;
+        background: rgba(3, 11, 19, 0.72);
+      }
+
+      #healthDialog {
+        width: min(560px, calc(100vw - 24px));
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: rgba(8, 22, 34, 0.96);
+        box-shadow: 0 20px 46px rgba(0, 0, 0, 0.34);
+        padding: 12px;
+        display: grid;
+        gap: 10px;
+      }
+
+      #healthTitle {
+        margin: 0;
+        font-size: 16px;
+      }
+
+      #healthMessage {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+        white-space: pre-wrap;
+      }
+
+      @media (max-width: 760px) {
+        .top { align-items: flex-start; }
+        .proxy-row {
+          flex-wrap: wrap;
+        }
+        .proxy-select {
+          width: 100%;
+        }
+      }
+
+      @media (max-width: 1290px) {
+        .grid {
+          grid-template-columns: repeat(4, 250px);
+        }
+      }
+
+      @media (max-width: 1030px) {
+        .grid {
+          grid-template-columns: repeat(3, 250px);
+        }
+      }
+
+      @media (max-width: 770px) {
+        .ops-row {
+          flex-wrap: wrap;
+          justify-content: flex-start;
+        }
+        .proxy-row {
+          width: 100%;
+          justify-content: flex-start;
+        }
+        .grid {
+          grid-template-columns: repeat(2, minmax(220px, 1fr));
+        }
+      }
+
+      @media (max-width: 520px) {
+        .grid {
+          grid-template-columns: minmax(220px, 1fr);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <section class="panel">
+        <div class="top">
+          <div>
+            <h1>HelloTime Web 服务管理</h1>
+            <div class="subtitle">服务控制台（核心） + 日志查看 + 端口映射</div>
+          </div>
+          <div class="chips">
+            <span class="chip" id="generatedAt">最近更新: -</span>
+            <span class="chip" id="serviceCount">服务数: -</span>
+          </div>
+        </div>
+
+        <div class="ops-row">
+          <div class="toolbar">
+            <button data-action="refresh">刷新状态</button>
+            <button data-action="start-all">启动全部</button>
+            <button data-action="stop-all" class="warn">停止全部</button>
+            <button data-action="restart-all">重启全部</button>
+          </div>
+          <div class="proxy-row">
+            <div class="small">8080 映射</div>
+            <div id="proxyCurrent" class="proxy-current">-</div>
+            <div class="proxy-select">
+              <select id="proxyTarget">
+                <option value="spring-boot">Spring Boot</option>
+                <option value="fastapi">FastAPI</option>
+                <option value="gin">Gin</option>
+                <option value="elysia">Elysia</option>
+                <option value="nest">NestJS</option>
+                <option value="aspnet-core">ASP.NET Core</option>
+                <option value="__stop__">停止转发</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <h2 class="group-title">后端</h2>
+        <div class="grid" id="backendGrid"></div>
+
+        <h2 class="group-title">前端</h2>
+        <div class="grid" id="frontendGrid"></div>
+
+        <h2 class="group-title">全栈</h2>
+        <div class="grid" id="fullstackGrid"></div>
+      </section>
+
+      <section class="panel">
+        <h2 class="group-title" style="padding-bottom:10px">日志区域</h2>
+        <div class="log-area">
+          <div class="log-tools">
+            <div id="logServiceTabs" class="log-tabs"></div>
+            <button id="refreshLog">刷新日志</button>
+            <label class="log-switch">
+              <input id="autoScrollLogs" type="checkbox" checked />
+              自动滚动到底部
+            </label>
+          </div>
+          <pre id="logContent">请选择服务查看日志。</pre>
+        </div>
+      </section>
+    </div>
+
+    <div id="toast"></div>
+    <div id="healthOverlay">
+      <div id="healthDialog">
+        <h3 id="healthTitle">测试结果</h3>
+        <p id="healthMessage">-</p>
+        <div class="actions">
+          <button id="closeHealthDialog">关闭</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const state = {
+        snapshot: null,
+        selectedLogKey: null,
+        healthResults: {},
+      };
+
+      const backendGrid = document.getElementById('backendGrid');
+      const frontendGrid = document.getElementById('frontendGrid');
+      const fullstackGrid = document.getElementById('fullstackGrid');
+      const generatedAt = document.getElementById('generatedAt');
+      const serviceCount = document.getElementById('serviceCount');
+      const proxyCurrent = document.getElementById('proxyCurrent');
+      const proxyTarget = document.getElementById('proxyTarget');
+      const logServiceTabs = document.getElementById('logServiceTabs');
+      const refreshLog = document.getElementById('refreshLog');
+      const autoScrollLogs = document.getElementById('autoScrollLogs');
+      const logContent = document.getElementById('logContent');
+      const toast = document.getElementById('toast');
+      const healthOverlay = document.getElementById('healthOverlay');
+      const healthTitle = document.getElementById('healthTitle');
+      const healthMessage = document.getElementById('healthMessage');
+      const closeHealthDialog = document.getElementById('closeHealthDialog');
+
+      function showToast(text) {
+        toast.textContent = text;
+        toast.style.display = 'block';
+        setTimeout(() => {
+          toast.style.display = 'none';
+        }, 2800);
+      }
+
+      function statusClass(status) {
+        if (status === '运行中') return 'status s-running';
+        if (status === '启动中') return 'status s-starting';
+        if (status === '端口占用') return 'status s-conflict';
+        return 'status s-stopped';
+      }
+
+      function cardStatusClass(status) {
+        if (status === '运行中') return 'state-running';
+        if (status === '启动中') return 'state-starting';
+        if (status === '端口占用') return 'state-conflict';
+        return 'state-stopped';
+      }
+
+      function escapeHtml(input) {
+        return String(input)
+          .replaceAll('&', '&amp;')
+          .replaceAll('<', '&lt;')
+          .replaceAll('>', '&gt;')
+          .replaceAll('"', '&quot;')
+          .replaceAll("'", '&#39;');
+      }
+
+      function highlightLogLine(rawLine) {
+        let line = escapeHtml(rawLine);
+        line = line.replace(/^(\d{4}-\d{2}-\d{2}T[^\s]*)/, '<span class="log-ts">$1</span>');
+        line = line.replace(/\bERROR\b/g, '<span class="log-level-error">ERROR</span>');
+        line = line.replace(/\bWARN\b/g, '<span class="log-level-warn">WARN</span>');
+        line = line.replace(/\bINFO\b/g, '<span class="log-level-info">INFO</span>');
+        line = line.replace(/\bDEBUG\b/g, '<span class="log-level-debug">DEBUG</span>');
+        line = line.replace(/\bTRACE\b/g, '<span class="log-level-trace">TRACE</span>');
+        line = line.replace(/---/g, '<span class="log-arrow">---</span>');
+        line = line.replace(/\|/g, '<span class="log-pipe">|</span>');
+        return line;
+      }
+
+      function setLogContent(value) {
+        const text = String(value || '');
+        const html = text
+          .split('\n')
+          .map((line) => highlightLogLine(line))
+          .join('\n');
+        logContent.innerHTML = html || escapeHtml('(日志为空)');
+      }
+
+      function canStart(status) {
+        return status === '已停止' || status === '端口占用';
+      }
+
+      function canStop(status) {
+        return status !== '已停止';
+      }
+
+      function canRestart(status) {
+        return status !== '启动中';
+      }
+
+      function showHealthOverlay(title, message) {
+        healthTitle.textContent = title;
+        healthMessage.textContent = message;
+        healthOverlay.style.display = 'flex';
+      }
+
+      async function requestJson(url, options = {}) {
+        const res = await fetch(url, {
+          headers: { 'Content-Type': 'application/json' },
+          ...options,
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.success) {
+          throw new Error(data.message || `请求失败: ${res.status}`);
+        }
+        return data;
+      }
+
+      function serviceCard(service) {
+        const healthInfo = state.healthResults[service.key] || '';
+        const kindClass = `kind-${service.kind}`;
+        const stateClass = cardStatusClass(service.status);
+        const iconUrl = `/assets/icons/${encodeURIComponent(service.key)}.svg`;
+        const openOrTest = service.kind === 'backend'
+          ? `<button data-health="${escapeHtml(service.key)}" ${service.status === '已停止' ? 'disabled' : ''}>测试</button>`
+          : `<a href="${escapeHtml(service.url)}" target="_blank" rel="noreferrer"><button>打开</button></a>`;
+
+        return `
+          <article class="card ${escapeHtml(kindClass)} ${escapeHtml(stateClass)}">
+            <div class="card-header">
+              <img class="service-icon" src="${iconUrl}" alt="${escapeHtml(service.label)}" onerror="this.style.visibility='hidden'" />
+              <h3 class="title">${escapeHtml(service.label)}</h3>
+              <span class="${statusClass(service.status)}">${escapeHtml(service.status)}</span>
+            </div>
+            <div class="small">端口: ${escapeHtml(service.port)} ｜ PID: ${escapeHtml(service.pid)}</div>
+            <div class="health-line">${healthInfo ? escapeHtml(healthInfo) : '&nbsp;'}</div>
+            <div class="actions">
+              <button data-service-action="start" data-service-key="${escapeHtml(service.key)}" ${canStart(service.status) ? '' : 'disabled'}>启动</button>
+              <button data-service-action="stop" data-service-key="${escapeHtml(service.key)}" class="warn" ${canStop(service.status) ? '' : 'disabled'}>停止</button>
+              <button data-service-action="restart" data-service-key="${escapeHtml(service.key)}" ${canRestart(service.status) ? '' : 'disabled'}>重启</button>
+              ${openOrTest}
+            </div>
+          </article>
+        `;
+      }
+
+      function renderGroupedServices(services) {
+        const backends = services.filter((s) => s.kind === 'backend');
+        const frontends = services.filter((s) => s.kind === 'frontend');
+        const fullstacks = services.filter((s) => s.kind === 'fullstack');
+
+        backendGrid.innerHTML = backends.map(serviceCard).join('');
+        frontendGrid.innerHTML = frontends.map(serviceCard).join('');
+        fullstackGrid.innerHTML = fullstacks.map(serviceCard).join('');
+      }
+
+      function syncLogServiceTabs(services) {
+        const keys = services.map((s) => s.key);
+        if (state.selectedLogKey && !keys.includes(state.selectedLogKey)) {
+          state.selectedLogKey = null;
+        }
+        const tabs = services
+          .map((service) => {
+            const activeClass = state.selectedLogKey === service.key ? 'active' : '';
+            return `<button class="log-tab ${activeClass}" data-log-tab="${escapeHtml(service.key)}">${escapeHtml(service.label)}</button>`;
+          })
+          .join('');
+        logServiceTabs.innerHTML = tabs || '<span class="small">当前没有可选服务</span>';
+      }
+
+      function parseProxyTarget(mappingText) {
+        const matched = mappingText.match(/当前\s+8080\s+->\s+([^\s]+)\s*\(/);
+        if (matched && matched[1]) {
+          return matched[1];
+        }
+        return '__stop__';
+      }
+
+      async function refreshSnapshot(showTip = false) {
+        const payload = await requestJson('/api/snapshot');
+        state.snapshot = payload.data;
+
+        renderGroupedServices(state.snapshot.services);
+        syncLogServiceTabs(state.snapshot.services);
+
+        const mappingSummary = String(state.snapshot.proxyMapping || '').split('\n')[0] || '当前没有运行中的 8080 转发';
+        proxyCurrent.textContent = mappingSummary;
+        const guessedTarget = parseProxyTarget(mappingSummary);
+        if ([...proxyTarget.options].some((item) => item.value === guessedTarget)) {
+          proxyTarget.value = guessedTarget;
+        } else {
+          proxyTarget.value = '__stop__';
+        }
+
+        const date = new Date(state.snapshot.generatedAt * 1000);
+        generatedAt.textContent = `最近更新: ${date.toLocaleString()}`;
+        serviceCount.textContent = `服务数: ${state.snapshot.services.length}`;
+
+        if (showTip) showToast('状态已刷新');
+      }
+
+      async function loadSelectedLogs() {
+        if (!state.selectedLogKey) {
+          setLogContent('未选择日志服务。');
+          return;
+        }
+        const payload = await requestJson(`/api/services/${encodeURIComponent(state.selectedLogKey)}/logs?lines=80`);
+        setLogContent(payload.data.content || '(日志为空)');
+        if (autoScrollLogs && autoScrollLogs.checked) {
+          logContent.scrollTop = logContent.scrollHeight;
+        }
+      }
+
+      async function applyProxyMapping() {
+        const target = proxyTarget.value;
+        if (target === '__stop__') {
+          await requestJson('/api/proxy/stop', { method: 'POST' });
+          await refreshSnapshot(false);
+          showToast('已停止 8080 转发');
+          return;
+        }
+        await requestJson('/api/proxy/switch', {
+          method: 'POST',
+          body: JSON.stringify({ target }),
+        });
+        await refreshSnapshot(false);
+        showToast(`已切换 8080 到 ${target}`);
+      }
+
+      async function runServiceAction(serviceKey, action) {
+        const payload = await requestJson(`/api/services/${encodeURIComponent(serviceKey)}/${action}`, {
+          method: 'POST',
+        });
+        await refreshSnapshot(false);
+        state.selectedLogKey = serviceKey;
+        syncLogServiceTabs(state.snapshot?.services || []);
+        await loadSelectedLogs();
+        showToast(payload.result || `${serviceKey} ${action} 已执行`);
+      }
+
+      async function testBackendHealth(serviceKey) {
+        const payload = await requestJson(`/api/services/${encodeURIComponent(serviceKey)}/health`);
+        const health = payload.data.health || {};
+        const line = health.ok
+          ? `${serviceKey} 健康检查通过: ${health.message || 'OK'}`
+          : `${serviceKey} 健康检查失败: ${health.message || '未知错误'}`;
+        state.healthResults[serviceKey] = line;
+        renderGroupedServices(state.snapshot?.services || []);
+        const detail = health.response
+          ? JSON.stringify(health.response, null, 2)
+          : (health.body || line);
+        const title = health.ok ? '测试成功' : '测试失败';
+        showHealthOverlay(title, `${line}\n\n${detail}`);
+      }
+
+      document.body.addEventListener('click', async (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLElement)) return;
+
+        const action = target.dataset.action;
+        const serviceAction = target.dataset.serviceAction;
+        const serviceKey = target.dataset.serviceKey;
+        const healthKey = target.dataset.health;
+        const logTabKey = target.dataset.logTab;
+
+        try {
+          if (action === 'refresh') {
+            await refreshSnapshot(true);
+            await loadSelectedLogs();
+            return;
+          }
+          if (action === 'start-all') {
+            await requestJson('/api/services/start-all', { method: 'POST' });
+            await refreshSnapshot(false);
+            showToast('已执行启动全部服务');
+            return;
+          }
+          if (action === 'stop-all') {
+            await requestJson('/api/services/stop-all', { method: 'POST' });
+            await refreshSnapshot(false);
+            showToast('已执行停止全部服务');
+            return;
+          }
+          if (action === 'restart-all') {
+            await requestJson('/api/services/restart-all', { method: 'POST' });
+            await refreshSnapshot(false);
+            showToast('已执行重启全部服务');
+            return;
+          }
+
+          if (serviceAction && serviceKey) {
+            await runServiceAction(serviceKey, serviceAction);
+            return;
+          }
+
+          if (healthKey) {
+            await testBackendHealth(healthKey);
+            return;
+          }
+
+          if (logTabKey) {
+            state.selectedLogKey = logTabKey;
+            syncLogServiceTabs(state.snapshot?.services || []);
+            await loadSelectedLogs();
+            return;
+          }
+        } catch (error) {
+          showToast(error instanceof Error ? error.message : String(error));
+        }
+      });
+
+      proxyTarget.addEventListener('change', () => {
+        applyProxyMapping().catch((error) => {
+          showToast(error instanceof Error ? error.message : String(error));
+        });
+      });
+
+      refreshLog.addEventListener('click', () => {
+        loadSelectedLogs().catch((error) => {
+          showToast(error instanceof Error ? error.message : String(error));
+        });
+      });
+
+      closeHealthDialog.addEventListener('click', () => {
+        healthOverlay.style.display = 'none';
+      });
+
+      healthOverlay.addEventListener('click', (event) => {
+        if (event.target === healthOverlay) {
+          healthOverlay.style.display = 'none';
+        }
+      });
+
+      async function bootstrap() {
+        try {
+          await refreshSnapshot(false);
+          setLogContent('未选择日志服务。');
+        } catch (error) {
+          showToast(error instanceof Error ? error.message : String(error));
+        }
+      }
+
+      bootstrap();
+      setInterval(() => {
+        refreshSnapshot(false).catch(() => {});
+      }, 5000);
+    </script>
+  </body>
+</html>

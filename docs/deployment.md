@@ -34,6 +34,7 @@ Spring Boot 默认运行在 http://localhost:18000
 - `gin`: `18020`
 - `elysia`: `18030`
 - `nest`: `18040`
+- `aspnet-core`: `18050`
 
 ### 启动前端
 
@@ -61,6 +62,7 @@ npm run dev
 ./scripts/switch-backend.sh gin
 ./scripts/switch-backend.sh elysia
 ./scripts/switch-backend.sh nest
+./scripts/switch-backend.sh aspnet-core
 
 # 构建生产版本
 ./scripts/build.sh
@@ -102,7 +104,7 @@ java -jar backends/spring-boot/target/hellotime-backend-1.0.0.jar
 | `ADMIN_PASSWORD` | timecapsule-admin | 管理员密码 |
 | `JWT_SECRET` | (内置默认值) | JWT 签名密钥，生产环境必须修改 |
 | `SERVER_PORT` | 18000 | Spring Boot 端口 |
-| `PORT` | 各后端不同 | FastAPI/Gin/Elysia/Nest 端口，默认分别为 18010/18020/18030/18040 |
+| `PORT` | 各后端不同 | FastAPI/Gin/Elysia/Nest/ASP.NET Core 端口，默认分别为 18010/18020/18030/18040/18050 |
 
 ### 生产环境示例
 
