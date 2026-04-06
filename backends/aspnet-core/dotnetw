@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ -n "${DOTNET_ROOT:-}" && -x "${DOTNET_ROOT}/dotnet" ]]; then
+  exec "${DOTNET_ROOT}/dotnet" "$@"
+fi
+
+if [[ -x "/Users/alex/.vmr/versions/dotnet_versions/dotnet/dotnet" ]]; then
+  exec "/Users/alex/.vmr/versions/dotnet_versions/dotnet/dotnet" "$@"
+fi
+
+exec dotnet "$@"
