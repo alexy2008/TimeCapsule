@@ -1,8 +1,10 @@
 import SwiftUI
 
 // MARK: - Tech Stack Footer Bar
-// Shows 3 fixed desktop tech items: SwiftUI · Swift · macOS
-// Mirrors .tech-stack-simple + .tech-logos-grid but for the desktop implementation.
+// Simplified single-line footer matching Tauri's AppFooter component:
+// "HelloTime · 时间胶囊 · SwiftUI · Swift 6 · {backend} · {language} · {database}"
+// The previous version rendered a large glass panel with icons; this version
+// mirrors the compact `.stack-info.cyber-glass-sm` pattern used by all Web/Tauri frontends.
 
 struct TechStackBar: View {
     @Environment(\.colorScheme) private var scheme
@@ -10,61 +12,31 @@ struct TechStackBar: View {
     var appState: AppState
 
     private func simplify(_ text: String) -> String {
-        return text.components(separatedBy: .whitespaces).first ?? text
+        // Strip trailing version numbers like "Spring Boot 3.4.1" → "Spring"
+        text.components(separatedBy: .whitespaces).first ?? text
     }
 
     var body: some View {
         let palette = theme.palette(for: scheme)
-        let backendFramework = appState.isTechStackLoading ? "Loading..." : (appState.techStackError || appState.techStack == nil ? "?" : simplify(appState.techStack!.framework))
-        let backendLang = appState.isTechStackLoading ? "Loading..." : (appState.techStackError || appState.techStack == nil ? "?" : simplify(appState.techStack!.language))
-        let db = appState.isTechStackLoading ? "Loading..." : (appState.techStackError || appState.techStack == nil ? "?" : simplify(appState.techStack!.database))
 
-        let items: [(icon: String, label: String)] = [
-            ("swift", "SwiftUI"),
-            ("swift", "Swift 6"),
-            ("server.rack", backendFramework),
-            ("curlybraces", backendLang),
-            ("externaldrive.fill", db)
-        ]
+        let backendParts: [String] = {
+            if appState.isTechStackLoading { return ["加载中..."] }
+            guard !appState.techStackError, let ts = appState.techStack else { return ["技术栈信息暂不可用"] }
+            return [simplify(ts.framework), simplify(ts.language), simplify(ts.database)]
+        }()
 
-        GlassPanel(padding: 16, cornerRadius: 12) {
-            ZStack {
-                // Side items pushed to edges
-                HStack(spacing: 0) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("TECHNOLOGY STACK")
-                            .font(CyberFont.label)
-                            .foregroundStyle(palette.textMuted)
-                            .tracking(3)
-                    }
+        let summary = (["SwiftUI", "Swift 6"] + backendParts).joined(separator: " · ")
 
-                    Spacer()
-
-                    HStack(spacing: 6) {
-                        StatusDot()
-                        Text("运行正常")
-                            .font(CyberFont.mono(size: 11))
-                            .foregroundStyle(palette.textMuted)
-                    }
-                }
-
-                // Tech stack items centered
-                HStack(spacing: 32) {
-                    ForEach(items, id: \.label) { item in
-                        HStack(spacing: 8) {
-                            Image(systemName: item.icon)
-                                .font(.system(size: 18))
-                                .foregroundStyle(palette.accent)
-                                .shadow(color: palette.accentGlow, radius: 4)
-
-                            Text(item.label)
-                                .font(CyberFont.mono(size: 13))
-                                .foregroundStyle(palette.textSecondary)
-                        }
-                    }
-                }
-            }
+        HStack(spacing: 8) {
+            StatusDot()
+            Text("HelloTime · 时间胶囊 · \(summary)")
+                .font(CyberFont.mono(size: 12))
+                .foregroundStyle(palette.textSecondary)
+                .opacity(0.82)
         }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+        .glassPanel(cornerRadius: 8)
         .onAppear {
             if appState.techStack == nil {
                 Task { await appState.fetchTechStack() }

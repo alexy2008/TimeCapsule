@@ -16,7 +16,11 @@ let package = Package(
         .executableTarget(
             name: "HelloTimeCyber",
             path: "Sources/HelloTimeCyber",
-            resources: [.process("logo.png")]
+            resources: [
+                .process("logo.png"),
+                .process("logo-swift.svg"),
+                .process("logo-swiftui.png"),
+            ]
         ),
         .testTarget(
             name: "HelloTimeCyberTests",

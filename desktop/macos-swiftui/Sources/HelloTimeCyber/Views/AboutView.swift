@@ -78,51 +78,8 @@ struct AboutView: View {
                     )
                 }
 
-                // MARK: - Tech Deep Dive
-                GlassPanel(padding: 32, cornerRadius: 16) {
-                    VStack(alignment: .leading, spacing: 28) {
-                        Text("核心驱动 (Core Technologies)")
-                            .font(.system(size: 22, weight: .bold))
-                            .foregroundStyle(palette.accent)
-                            .shadow(color: palette.accentGlow, radius: 6)
-
-                        let palette2 = palette
-                        let backendFramework = appState.isTechStackLoading ? "Loading..." : (appState.techStackError || appState.techStack == nil ? "?" : appState.techStack!.framework)
-                        let backendLang = appState.isTechStackLoading ? "Loading..." : (appState.techStackError || appState.techStack == nil ? "?" : appState.techStack!.language)
-                        let db = appState.isTechStackLoading ? "Loading..." : (appState.techStackError || appState.techStack == nil ? "?" : appState.techStack!.database)
-
-                        let items: [(String, String, String)] = [
-                            ("SwiftUI", "swift", "桌面端框架"),
-                            ("Swift 6", "swift", "桌面端语言"),
-                            (backendFramework, "server.rack", "后端框架"),
-                            (backendLang, "curlybraces", "后端语言"),
-                            (db, "externaldrive.fill", "数据库")
-                        ]
-
-                        HStack(spacing: 0) {
-                            ForEach(items, id: \.2) { item in
-                                VStack(spacing: 14) {
-                                    Image(systemName: item.1)
-                                        .font(.system(size: 48))
-                                        .foregroundStyle(palette2.accent)
-                                        .shadow(color: palette2.accentGlow, radius: 10)
-
-                                    VStack(spacing: 4) {
-                                        Text(item.0)
-                                            .font(CyberFont.sans(size: 15, weight: .bold))
-                                            .foregroundStyle(palette2.accent)
-                                            .shadow(color: palette2.accentGlow, radius: 4)
-                                        Text(item.2)
-                                            .font(CyberFont.mono(size: 12))
-                                            .foregroundStyle(palette2.textMuted)
-                                    }
-                                }
-                                .frame(maxWidth: .infinity)
-                            }
-                        }
-                        .padding(.top, 12)
-                    }
-                }
+                // MARK: - Tech Deep Dive (real logos instead of SF Symbols)
+                AboutTechPanel(appState: appState)
 
                 // MARK: - Version / secret trigger
                 Button {
@@ -150,6 +107,108 @@ struct AboutView: View {
     }
 
 
+}
+
+// MARK: - About Tech Panel (Core Technologies with real logos)
+// Mirrors Tauri's tech-logos-grid in AboutView.tsx, using actual SVG logos
+// instead of SF Symbols for visual consistency across all implementations.
+
+private struct AboutTechPanel: View {
+    var appState: AppState
+
+    @Environment(\.colorScheme) private var scheme
+    @Environment(\.cyberTheme) private var theme
+
+    var body: some View {
+        let palette = theme.palette(for: scheme)
+        let baseURL = appState.apiBaseURLString
+            .replacingOccurrences(of: "/api/v1", with: "")
+
+        let backendFramework = appState.isTechStackLoading ? "后端框架" : (appState.techStackError || appState.techStack == nil ? "暂不可用" : appState.techStack!.framework)
+        let backendLang = appState.isTechStackLoading ? "后端语言" : (appState.techStackError || appState.techStack == nil ? "暂不可用" : appState.techStack!.language)
+        let db = appState.isTechStackLoading ? "数据库" : (appState.techStackError || appState.techStack == nil ? "暂不可用" : appState.techStack!.database)
+
+        let backendFrameworkSub = appState.isTechStackLoading ? "加载中..." : (appState.techStackError || appState.techStack == nil ? "API Server" : appState.techStack!.framework)
+        let backendLangSub = appState.isTechStackLoading ? "加载中..." : (appState.techStackError || appState.techStack == nil ? "服务语言" : appState.techStack!.language)
+        let dbSub = appState.isTechStackLoading ? "加载中..." : (appState.techStackError || appState.techStack == nil ? "存储层" : appState.techStack!.database)
+
+        GlassPanel(padding: 32, cornerRadius: 16) {
+            VStack(alignment: .leading, spacing: 28) {
+                Text("核心驱动 (Core Technologies)")
+                    .font(.system(size: 22, weight: .bold))
+                    .foregroundStyle(palette.accent)
+                    .shadow(color: palette.accentGlow, radius: 6)
+
+                HStack(spacing: 0) {
+                    // SwiftUI — local bundle logo
+                    AboutTechItem(title: "SwiftUI", subtitle: "Desktop Core") {
+                        BundleLogoImage(resourceName: "logo-swiftui", size: 64)
+                    }
+
+                    // Swift — local bundle logo
+                    AboutTechItem(title: "Swift 6", subtitle: "UI Layer") {
+                        BundleLogoImage(resourceName: "logo-swift", size: 64)
+                    }
+
+                    // Backend framework — remote logo
+                    AboutTechItem(title: backendFramework, subtitle: backendFrameworkSub) {
+                        if let url = URL(string: "\(baseURL)/tech-logos/backend.svg") {
+                            RemoteSVGImage(url: url, fallbackSystemName: "server.rack", size: 64)
+                        }
+                    }
+
+                    // Backend language — remote logo
+                    AboutTechItem(title: backendLang, subtitle: backendLangSub) {
+                        if let url = URL(string: "\(baseURL)/tech-logos/language.svg") {
+                            RemoteSVGImage(url: url, fallbackSystemName: "curlybraces", size: 64)
+                        }
+                    }
+
+                    // Database — remote logo
+                    AboutTechItem(title: db, subtitle: dbSub) {
+                        if let url = URL(string: "\(baseURL)/tech-logos/database.svg") {
+                            RemoteSVGImage(url: url, fallbackSystemName: "externaldrive.fill", size: 64)
+                        }
+                    }
+                }
+                .padding(.top, 12)
+            }
+        }
+        .onAppear {
+            if appState.techStack == nil {
+                Task { await appState.fetchTechStack() }
+            }
+        }
+    }
+}
+
+// MARK: - Single tech item in About deep-dive grid
+
+private struct AboutTechItem<Icon: View>: View {
+    var title: String
+    var subtitle: String
+    @ViewBuilder var icon: () -> Icon
+
+    @Environment(\.colorScheme) private var scheme
+    @Environment(\.cyberTheme) private var theme
+
+    var body: some View {
+        let palette = theme.palette(for: scheme)
+        VStack(spacing: 14) {
+            icon()
+
+            VStack(spacing: 4) {
+                Text(title)
+                    .font(CyberFont.sans(size: 15, weight: .bold))
+                    .foregroundStyle(palette.accent)
+                    .shadow(color: palette.accentGlow, radius: 4)
+                Text(subtitle)
+                    .font(CyberFont.mono(size: 12))
+                    .foregroundStyle(palette.textMuted)
+            }
+        }
+        .frame(maxWidth: .infinity)
+    }
 }
 
 // MARK: - Feature card

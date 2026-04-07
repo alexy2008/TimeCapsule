@@ -73,6 +73,11 @@ struct HomeView: View {
                 .opacity(appeared ? 1 : 0)
                 .offset(y: appeared ? 0 : 12)
 
+                // MARK: Technology Stack
+                // Mirrors .tech-stack-simple.cyber-glass section shown on Tauri/Web home pages.
+                HomeTechStackPanel(appState: appState)
+                    .opacity(appeared ? 1 : 0)
+                    .offset(y: appeared ? 0 : 12)
 
             }
             .padding(.horizontal, 40)
@@ -80,6 +85,107 @@ struct HomeView: View {
         }
         .onAppear {
             withAnimation(.easeOut(duration: 0.4)) { appeared = true }
+        }
+    }
+}
+
+// MARK: - Home Tech Stack Panel (mirrors .tech-stack-simple cyber-glass)
+
+private struct HomeTechStackPanel: View {
+    var appState: AppState
+
+    @Environment(\.colorScheme) private var scheme
+    @Environment(\.cyberTheme) private var theme
+
+    private func simplify(_ text: String) -> String {
+        text.components(separatedBy: .whitespaces).first ?? text
+    }
+
+    var body: some View {
+        let palette = theme.palette(for: scheme)
+        let baseURL = appState.apiBaseURLString
+            .replacingOccurrences(of: "/api/v1", with: "")
+
+        let backendFramework = appState.isTechStackLoading ? "..." : (appState.techStackError || appState.techStack == nil ? "?" : simplify(appState.techStack!.framework))
+        let backendLang = appState.isTechStackLoading ? "加载中" : (appState.techStackError || appState.techStack == nil ? "?" : simplify(appState.techStack!.language))
+        let db = appState.isTechStackLoading ? "..." : (appState.techStackError || appState.techStack == nil ? "?" : simplify(appState.techStack!.database))
+
+        GlassPanel(padding: 24, cornerRadius: 16) {
+            VStack(spacing: 24) {
+                Text("TECHNOLOGY STACK")
+                    .font(CyberFont.label)
+                    .foregroundStyle(palette.textMuted)
+                    .tracking(3)
+
+                HStack(spacing: 0) {
+                    Spacer()
+                    // SwiftUI — local bundle logo
+                    TechStackItem(label: "SwiftUI") {
+                        BundleLogoImage(resourceName: "logo-swiftui", size: 36)
+                    }
+                    
+                    Spacer()
+
+                    // Swift — local bundle logo
+                    TechStackItem(label: "Swift 6") {
+                        BundleLogoImage(resourceName: "logo-swift", size: 36)
+                    }
+                    
+                    Spacer()
+
+                    // Backend framework — remote logo from backend
+                    TechStackItem(label: backendFramework) {
+                        if let url = URL(string: "\(baseURL)/tech-logos/backend.svg") {
+                            RemoteSVGImage(url: url, fallbackSystemName: "server.rack", size: 36)
+                        }
+                    }
+                    
+                    Spacer()
+
+                    // Backend language — remote logo
+                    TechStackItem(label: backendLang) {
+                        if let url = URL(string: "\(baseURL)/tech-logos/language.svg") {
+                            RemoteSVGImage(url: url, fallbackSystemName: "curlybraces", size: 36)
+                        }
+                    }
+                    
+                    Spacer()
+
+                    // Database — remote logo
+                    TechStackItem(label: db) {
+                        if let url = URL(string: "\(baseURL)/tech-logos/database.svg") {
+                            RemoteSVGImage(url: url, fallbackSystemName: "externaldrive.fill", size: 36)
+                        }
+                    }
+                    Spacer()
+                }
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .onAppear {
+            if appState.techStack == nil {
+                Task { await appState.fetchTechStack() }
+            }
+        }
+    }
+}
+
+// MARK: - Tech Stack Item (icon + label)
+
+struct TechStackItem<Icon: View>: View {
+    var label: String
+    @ViewBuilder var icon: () -> Icon
+
+    @Environment(\.colorScheme) private var scheme
+    @Environment(\.cyberTheme) private var theme
+
+    var body: some View {
+        let palette = theme.palette(for: scheme)
+        VStack(spacing: 8) {
+            icon()
+            Text(label)
+                .font(CyberFont.mono(size: 12))
+                .foregroundStyle(palette.textSecondary)
         }
     }
 }
