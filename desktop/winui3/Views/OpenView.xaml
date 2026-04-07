@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="HelloTimeWinUI.Views.OpenView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Spacing="18">
+            <Border Padding="32" Style="{StaticResource CyberPanelStyle}">
+                <StackPanel Spacing="18">
+                    <TextBlock
+                        Foreground="{StaticResource CyberTextBrush}"
+                        FontSize="32"
+                        FontWeight="SemiBold"
+                        Text="开启胶囊" />
+                    <TextBlock
+                        Foreground="{StaticResource CyberMutedTextBrush}"
+                        Text="输入 8 位胶囊码，查看它是否已经到达开启时间。" />
+
+                    <TextBlock
+                        x:Name="OpenErrorText"
+                        Foreground="#FF8FB8"
+                        TextWrapping="Wrap"
+                        Visibility="Collapsed" />
+
+                    <TextBox
+                        x:Name="CodeInput"
+                        Header="胶囊唯一码"
+                        PlaceholderText="输入 8 位唯一码"
+                        MaxLength="8" />
+
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Button
+                            x:Name="OpenButton"
+                            Click="OnOpenClicked"
+                            Content="尝试开启"
+                            Style="{StaticResource CyberNavButtonStyle}" />
+                        <ProgressRing
+                            x:Name="OpenProgress"
+                            Width="28"
+                            Height="28"
+                            IsActive="False" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Border
+                x:Name="CapsulePanel"
+                Padding="32"
+                Style="{StaticResource CyberPanelStyle}"
+                Visibility="Collapsed">
+                <StackPanel Spacing="16">
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Spacing="6">
+                            <TextBlock
+                                x:Name="CapsuleTitleText"
+                                Foreground="{StaticResource CyberTextBrush}"
+                                FontSize="30"
+                                FontWeight="SemiBold" />
+                            <TextBlock
+                                x:Name="CapsuleMetaText"
+                                Foreground="{StaticResource CyberMutedTextBrush}"
+                                TextWrapping="WrapWholeWords" />
+                        </StackPanel>
+
+                        <Border
+                            x:Name="CapsuleBadge"
+                            Grid.Column="1"
+                            Padding="12,8"
+                            Background="#1A56CCF2"
+                            BorderBrush="{StaticResource CyberPanelBorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="999">
+                            <TextBlock
+                                x:Name="CapsuleBadgeText"
+                                Foreground="{StaticResource CyberTextBrush}"
+                                FontWeight="SemiBold" />
+                        </Border>
+                    </Grid>
+
+                    <Border
+                        Padding="18"
+                        Background="#16233B55"
+                        BorderBrush="{StaticResource CyberPanelBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="20">
+                        <StackPanel Spacing="10">
+                            <TextBlock
+                                x:Name="CapsuleStateText"
+                                Foreground="{StaticResource CyberAccentBrush}" />
+                            <TextBlock
+                                x:Name="CountdownText"
+                                Foreground="{StaticResource CyberAccentStrongBrush}"
+                                FontFamily="Consolas"
+                                FontSize="28" />
+                            <ProgressBar
+                                x:Name="UnlockProgressBar"
+                                Height="6"
+                                Minimum="0"
+                                Maximum="1"
+                                Value="0" />
+                            <Button
+                                x:Name="RefreshCapsuleButton"
+                                Click="OnRefreshCapsuleClicked"
+                                Content="重新查询"
+                                HorizontalAlignment="Left"
+                                Style="{StaticResource CyberNavButtonStyle}"
+                                Visibility="Collapsed" />
+                        </StackPanel>
+                    </Border>
+
+                    <Grid>
+                        <Border
+                            Padding="18"
+                            Background="#120E1828"
+                            BorderBrush="{StaticResource CyberPanelBorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="20">
+                            <TextBlock
+                                x:Name="CapsuleContentText"
+                                Foreground="{StaticResource CyberTextBrush}"
+                                TextWrapping="WrapWholeWords" />
+                        </Border>
+
+                        <Border
+                            x:Name="DecryptOverlay"
+                            Background="#DD08101C"
+                            CornerRadius="20"
+                            Opacity="0"
+                            Visibility="Collapsed">
+                            <Grid>
+                                <Rectangle
+                                    Margin="24"
+                                    RadiusX="12"
+                                    RadiusY="12"
+                                    Stroke="{StaticResource CyberAccentStrongBrush}"
+                                    StrokeThickness="1"
+                                    StrokeDashArray="4 4" />
+                                <StackPanel
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Spacing="10">
+                                    <TextBlock
+                                        Foreground="{StaticResource CyberAccentStrongBrush}"
+                                        FontFamily="Consolas"
+                                        FontSize="16"
+                                        Text="DECRYPTING..." />
+                                    <TextBlock
+                                        Foreground="{StaticResource CyberMutedTextBrush}"
+                                        FontFamily="Consolas"
+                                        Text="01001000 01000101 01001100 01001100 01001111" />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="HelloTimeWinUI.Views.AdminView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid>
+        <Border
+            x:Name="LoginPanel"
+            Padding="32"
+            Style="{StaticResource CyberPanelStyle}">
+            <StackPanel Spacing="20">
+                <TextBlock
+                    Foreground="{StaticResource CyberTextBrush}"
+                    FontSize="32"
+                    FontWeight="SemiBold"
+                    Text="系统管理" />
+                <TextBlock
+                    Foreground="{StaticResource CyberMutedTextBrush}"
+                    Text="输入管理员密码后，可分页查看胶囊并执行删除。" />
+                <TextBlock
+                    x:Name="LoginErrorText"
+                    Foreground="#FF8FB8"
+                    Visibility="Collapsed"
+                    TextWrapping="WrapWholeWords" />
+                <PasswordBox
+                    x:Name="PasswordInput"
+                    Width="320"
+                    PlaceholderText="管理员密码" />
+                <StackPanel Orientation="Horizontal" Spacing="12">
+                    <Button
+                        x:Name="LoginButton"
+                        Click="OnLoginClicked"
+                        Content="登录"
+                        Style="{StaticResource CyberNavButtonStyle}" />
+                    <ProgressRing
+                        x:Name="LoginProgress"
+                        Width="28"
+                        Height="28"
+                        IsActive="False" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <Border
+            x:Name="DashboardPanel"
+            Padding="24"
+            Style="{StaticResource CyberPanelStyle}"
+            Visibility="Collapsed">
+            <Grid RowSpacing="16">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock
+                        Foreground="{StaticResource CyberTextBrush}"
+                        FontSize="28"
+                        FontWeight="SemiBold"
+                        Text="胶囊列表" />
+                    <StackPanel
+                        Grid.Column="1"
+                        Orientation="Horizontal"
+                        Spacing="12">
+                        <Button Click="OnRefreshClicked" Content="刷新" Style="{StaticResource CyberNavButtonStyle}" />
+                        <Button Click="OnLogoutClicked" Content="退出登录" Style="{StaticResource CyberNavButtonStyle}" />
+                    </StackPanel>
+                </Grid>
+
+                <TextBlock
+                    x:Name="AdminErrorText"
+                    Grid.Row="1"
+                    Foreground="#FF8FB8"
+                    Visibility="Collapsed"
+                    TextWrapping="WrapWholeWords" />
+
+                <Grid Grid.Row="2" RowSpacing="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <Grid ColumnSpacing="10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="110" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="110" />
+                            <ColumnDefinition Width="150" />
+                            <ColumnDefinition Width="90" />
+                            <ColumnDefinition Width="90" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Foreground="{StaticResource CyberMutedTextBrush}" Text="标识码" />
+                        <TextBlock Grid.Column="1" Foreground="{StaticResource CyberMutedTextBrush}" Text="标题" />
+                        <TextBlock Grid.Column="2" Foreground="{StaticResource CyberMutedTextBrush}" Text="创建者" />
+                        <TextBlock Grid.Column="3" Foreground="{StaticResource CyberMutedTextBrush}" Text="开启时间" />
+                        <TextBlock Grid.Column="4" Foreground="{StaticResource CyberMutedTextBrush}" Text="状态" />
+                        <TextBlock Grid.Column="5" Foreground="{StaticResource CyberMutedTextBrush}" Text="操作" />
+                    </Grid>
+
+                    <ListView
+                        x:Name="CapsuleListView"
+                        Grid.Row="1"
+                        SelectionMode="None"
+                        IsItemClickEnabled="False"
+                        HorizontalContentAlignment="Stretch">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Border
+                                    Margin="0,0,0,10"
+                                    Padding="12"
+                                    Background="#1418263D"
+                                    BorderBrush="{StaticResource CyberPanelBorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="16">
+                                    <Grid ColumnSpacing="10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="110" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="110" />
+                                            <ColumnDefinition Width="150" />
+                                            <ColumnDefinition Width="90" />
+                                            <ColumnDefinition Width="90" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Foreground="{StaticResource CyberAccentBrush}" Text="{Binding Code}" />
+                                        <TextBlock Grid.Column="1" Foreground="{StaticResource CyberTextBrush}" Text="{Binding Title}" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Grid.Column="2" Foreground="{StaticResource CyberMutedTextBrush}" Text="{Binding Creator}" />
+                                        <TextBlock Grid.Column="3" Foreground="{StaticResource CyberMutedTextBrush}" Text="{Binding OpenAt, Converter={StaticResource DateTimeOffsetConverter}}" />
+                                        <TextBlock Grid.Column="4" Foreground="{StaticResource CyberAccentStrongBrush}" Text="{Binding IsUnlocked, Converter={StaticResource CapsuleStateConverter}}" />
+                                        <Button
+                                            Grid.Column="5"
+                                            Click="OnDeleteClicked"
+                                            Content="删除"
+                                            Style="{StaticResource CyberNavButtonStyle}"
+                                            Tag="{Binding Code}" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+
+                    <TextBlock
+                        x:Name="EmptyStateText"
+                        Grid.Row="1"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Foreground="{StaticResource CyberMutedTextBrush}"
+                        Text="当前没有可展示的胶囊数据。"
+                        Visibility="Collapsed" />
+                </Grid>
+
+                <Grid Grid.Row="3">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <Button
+                        x:Name="PrevPageButton"
+                        Click="OnPrevPageClicked"
+                        Content="上一页"
+                        Style="{StaticResource CyberNavButtonStyle}" />
+                    <TextBlock
+                        x:Name="PageText"
+                        Grid.Column="1"
+                        HorizontalAlignment="Center"
+                        Foreground="{StaticResource CyberMutedTextBrush}" />
+                    <Button
+                        x:Name="NextPageButton"
+                        Grid.Column="2"
+                        Click="OnNextPageClicked"
+                        Content="下一页"
+                        Style="{StaticResource CyberNavButtonStyle}" />
+                </Grid>
+            </Grid>
+        </Border>
+    </Grid>
+</Page>
