@@ -32,6 +32,15 @@ cd desktop/macos-swiftui
 swift run
 ```
 
+Windows PowerShell:
+
+```powershell
+cd desktop/macos-swiftui
+.\run.ps1
+```
+
+这个 `run.ps1` 只会明确提示当前实现为 macOS-only，不会在 Windows 上启动 SwiftUI 应用。
+
 ### 仅编译检查
 
 ```bash

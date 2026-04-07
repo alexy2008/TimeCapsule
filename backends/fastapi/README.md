@@ -48,12 +48,25 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 18010
 uvicorn app.main:app --host 0.0.0.0 --port 18010 --workers 4
 ```
 
+Windows PowerShell:
+
+```powershell
+cd backends/fastapi
+.\run.ps1
+```
+
 应用默认将在 `http://localhost:18010` 启动。
 
 如需保持前端仍访问 `http://localhost:8080`，可在仓库根目录执行：
 
 ```bash
 ./scripts/switch-backend.sh fastapi
+```
+
+Windows PowerShell:
+
+```powershell
+.\scripts\switch-backend.ps1 fastapi
 ```
 
 ### 访问 API 文档

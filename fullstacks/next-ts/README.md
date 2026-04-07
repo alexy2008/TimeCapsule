@@ -22,6 +22,13 @@ npm install
 npm run dev -- --hostname localhost --port 5177
 ```
 
+Windows PowerShell:
+
+```powershell
+cd fullstacks/next-ts
+.\run.ps1
+```
+
 默认地址：
 
 - 应用入口：[http://localhost:5177](http://localhost:5177)

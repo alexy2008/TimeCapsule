@@ -23,6 +23,13 @@ npm run dev
 npm run build
 ```
 
+Windows PowerShell 一键启动：
+
+```powershell
+cd frontends/svelte-ts
+.\run.ps1
+```
+
 ## 项目结构
 
 ```

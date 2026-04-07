@@ -38,6 +38,13 @@ npm install
 npm run dev
 ```
 
+Windows PowerShell:
+
+```powershell
+cd frontends/vue3-ts
+.\run.ps1
+```
+
 应用将在 `http://localhost:5173` 启动。
 
 ### 环境变量

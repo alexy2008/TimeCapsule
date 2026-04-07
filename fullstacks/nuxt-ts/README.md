@@ -22,6 +22,13 @@ npm install
 npm run dev -- --host localhost --port 5178
 ```
 
+Windows PowerShell:
+
+```powershell
+cd fullstacks/nuxt-ts
+.\run.ps1
+```
+
 默认地址：
 
 - 应用入口：[http://localhost:5178](http://localhost:5178)

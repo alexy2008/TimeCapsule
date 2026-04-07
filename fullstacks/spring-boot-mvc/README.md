@@ -22,6 +22,13 @@ cd fullstacks/spring-boot-mvc
 ./run
 ```
 
+Windows PowerShell:
+
+```powershell
+cd fullstacks/spring-boot-mvc
+.\run.ps1
+```
+
 默认地址：
 
 - 应用入口：[http://localhost:4179](http://localhost:4179)

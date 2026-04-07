@@ -41,12 +41,25 @@ bun install
 bun run src/index.ts
 ```
 
+Windows PowerShell:
+
+```powershell
+cd backends/elysia
+.\run.ps1
+```
+
 应用默认将在 `http://localhost:18030` 启动。
 
 如需保持前端仍访问 `http://localhost:8080`，可在仓库根目录执行：
 
 ```bash
 ./scripts/switch-backend.sh elysia
+```
+
+Windows PowerShell:
+
+```powershell
+.\scripts\switch-backend.ps1 elysia
 ```
 
 ### 访问 API 文档

@@ -18,6 +18,13 @@ cd backends/aspnet-core
 ./run
 ```
 
+Windows PowerShell 也可以直接运行：
+
+```powershell
+cd backends/aspnet-core
+.\run.ps1
+```
+
 默认地址：
 
 - `http://127.0.0.1:18050`

@@ -19,6 +19,13 @@ npm run test
 npm run test:watch  # 监听模式
 ```
 
+Windows PowerShell 一键启动：
+
+```powershell
+cd frontends/angular-ts
+.\run.ps1
+```
+
 ## 架构概览
 
 这是一个**无 NgModule** 的纯 Standalone Component Angular 18 应用。

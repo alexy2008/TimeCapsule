@@ -39,12 +39,25 @@ go run main.go
 go build -o hellotime-gin && ./hellotime-gin
 ```
 
+Windows PowerShell:
+
+```powershell
+cd backends/gin
+.\run.ps1
+```
+
 应用默认将在 `http://localhost:18020` 启动。
 
 如需保持前端仍访问 `http://localhost:8080`，可在仓库根目录执行：
 
 ```bash
 ./scripts/switch-backend.sh gin
+```
+
+Windows PowerShell:
+
+```powershell
+.\scripts\switch-backend.ps1 gin
 ```
 
 ### 环境变量配置

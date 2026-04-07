@@ -28,15 +28,28 @@ Tauri 版本复用了 Web 前端（React）的组件体系和 Cyber-Glass 视觉
 
 ### 前置条件
 
-- Node.js 18+
+- Node.js 20.19+ 或 22.12+（Tauri 这条链路里的 Vite 7 需要这个版本）
 - Rust 工具链（`rustup`）
 - 系统依赖：参见 [Tauri 官方文档](https://v2.tauri.app/start/prerequisites/)
+
+如果你机器上还是旧版 Node，可以直接用 `winget install --id OpenJS.NodeJS.22 --exact` 升到兼容版本。
+
+如果 `cargo` 还在尝试走 `127.0.0.1:7890`，先直接用 `run.ps1` 启动；脚本会为本地开发清掉代理环境变量，避免 Rust 依赖下载继续被坏代理拦住。
+
+这个目录还额外带了 Cargo 本地配置，把 Rust 依赖下载的代理固定为空，因此即使全局 Git 配置里保留了 `127.0.0.1:7890`，Tauri 这条开发链路也不会再被它劫持。
 
 ### 运行
 
 ```bash
 cd desktop/tauri
 ./run
+```
+
+Windows PowerShell 下也可以直接运行：
+
+```powershell
+cd desktop/tauri
+.\run.ps1
 ```
 
 或手动执行：
@@ -71,7 +84,8 @@ desktop/tauri/
 │   ├── src/                # Rust 源码（插件注册、命令处理）
 │   ├── icons/              # 应用图标
 │   └── tauri.conf.json     # Tauri 配置（窗口、安全、打包）
-├── run                     # 一键启动脚本
+├── run                     # 一键启动脚本（Unix）
+├── run.ps1                 # 一键启动脚本（Windows）
 ├── package.json            # 前端依赖
 └── vite.config.ts          # Vite 配置（路径别名、开发服务器）
 ```

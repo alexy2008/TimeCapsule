@@ -32,12 +32,25 @@ npm install
 ./run
 ```
 
+Windows PowerShell:
+
+```powershell
+cd backends/nest
+.\run.ps1
+```
+
 默认启动地址：`http://localhost:18040`
 
 如需把前端固定入口切到 Nest：
 
 ```bash
 ./scripts/switch-backend.sh nest
+```
+
+Windows PowerShell:
+
+```powershell
+.\scripts\switch-backend.ps1 nest
 ```
 
 ## 环境变量
