@@ -54,6 +54,44 @@ cd "$ROOT_DIR/backends/nest"
 npm test
 echo "[NestJS 后端] 测试完成"
 
+# Vapor 后端测试
+if [[ "$(uname -s)" == "Darwin" ]] && command -v swift >/dev/null 2>&1; then
+  echo ""
+  echo "[后端] 运行 Vapor 测试..."
+  cd "$ROOT_DIR/backends/vapor/server"
+  swift test
+  echo "[Vapor 后端] 测试完成"
+else
+  echo ""
+  echo "[后端] 跳过 Vapor 测试（需要 macOS + Swift）"
+fi
+
+# Axum 后端测试
+if command -v cargo >/dev/null 2>&1; then
+  echo ""
+  echo "[后端] 运行 Axum 测试..."
+  cd "$ROOT_DIR/backends/axum"
+  cargo test
+  echo "[Axum 后端] 测试完成"
+else
+  echo ""
+  echo "[后端] 跳过 Axum 测试（需要 Rust 工具链）"
+fi
+
+# Drogon 后端测试
+if command -v cmake >/dev/null 2>&1 && command -v ninja >/dev/null 2>&1; then
+  echo ""
+  echo "[后端] 运行 Drogon 测试..."
+  cd "$ROOT_DIR/backends/drogon"
+  cmake -S . -B build -G Ninja
+  cmake --build build --target hellotime-drogon-tests
+  ctest --test-dir build --output-on-failure
+  echo "[Drogon 后端] 测试完成"
+else
+  echo ""
+  echo "[后端] 跳过 Drogon 测试（需要 CMake + Ninja）"
+fi
+
 # Vue 前端测试
 echo ""
 echo "[前端] 运行 Vue 3 Vitest 测试..."
@@ -74,6 +112,13 @@ echo "[前端] 运行 React Vitest 测试..."
 cd "$ROOT_DIR/frontends/react-ts"
 npm run test
 echo "[React 前端] 测试完成"
+
+# Solid 前端测试
+echo ""
+echo "[前端] 运行 Solid Vitest 测试..."
+cd "$ROOT_DIR/frontends/solid-ts"
+npm run test
+echo "[Solid 前端] 测试完成"
 
 # Svelte 前端检查
 echo ""

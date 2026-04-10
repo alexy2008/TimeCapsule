@@ -2,10 +2,18 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
 $scriptDir = $PSScriptRoot
-$pidFile = Join-Path $env:TEMP "hellotime-backend-proxy.pid"
-$metaFile = Join-Path $env:TEMP "hellotime-backend-proxy.meta"
-$logFile = Join-Path $env:TEMP "hellotime-backend-proxy.log"
-$errFile = Join-Path $env:TEMP "hellotime-backend-proxy.err"
+$python = Get-Command python -ErrorAction SilentlyContinue
+if ($null -eq $python) {
+    throw "Python 3 is required. Please make sure `python` is available."
+}
+
+$proxyPathsScript = Join-Path $scriptDir "proxy_paths.py"
+Invoke-Expression (& $python.Source $proxyPathsScript --powershell)
+
+$pidFile = $PID_FILE
+$metaFile = $META_FILE
+$logFile = $LOG_FILE
+$errFile = $ERR_FILE
 
 function Show-Usage {
     $lines = @(
@@ -16,6 +24,9 @@ function Show-Usage {
         "  .\scripts\switch-backend.ps1 elysia"
         "  .\scripts\switch-backend.ps1 nest"
         "  .\scripts\switch-backend.ps1 aspnet-core"
+        "  .\scripts\switch-backend.ps1 vapor"
+        "  .\scripts\switch-backend.ps1 axum"
+        "  .\scripts\switch-backend.ps1 drogon"
         "  .\scripts\switch-backend.ps1 18010"
         "  .\scripts\switch-backend.ps1 status"
         "  .\scripts\switch-backend.ps1 stop"
@@ -30,6 +41,9 @@ function Show-Usage {
         "  elysia      -> 18030"
         "  nest        -> 18040"
         "  aspnet-core -> 18050"
+        "  vapor       -> 18060"
+        "  axum        -> 18070"
+        "  drogon      -> 18080"
     )
 
     return ($lines -join [Environment]::NewLine)
@@ -45,6 +59,9 @@ function Resolve-Target([string]$Name) {
         "nest"        { return @{ Name = "nest"; Port = 18040 } }
         "aspnet"      { return @{ Name = "aspnet-core"; Port = 18050 } }
         "aspnet-core" { return @{ Name = "aspnet-core"; Port = 18050 } }
+        "vapor"       { return @{ Name = "vapor"; Port = 18060 } }
+        "axum"        { return @{ Name = "axum"; Port = 18070 } }
+        "drogon"      { return @{ Name = "drogon"; Port = 18080 } }
         ""            { Write-Output (Show-Usage); exit 0 }
         "help"        { Write-Output (Show-Usage); exit 0 }
         "-h"          { Write-Output (Show-Usage); exit 0 }
@@ -100,11 +117,6 @@ function Show-Status {
 
 function Start-Proxy([string]$TargetName, [int]$TargetPort) {
     Stop-Proxy
-
-    $python = Get-Command python -ErrorAction SilentlyContinue
-    if ($null -eq $python) {
-        throw "Python 3 is required. Please make sure `python` is available."
-    }
 
     $forwardScript = Join-Path $scriptDir "port_forward.py"
     $argumentList = @(

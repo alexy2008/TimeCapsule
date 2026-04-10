@@ -16,27 +16,32 @@ import os
 import signal
 import socket
 import subprocess
-import sys
-import termios
 import time
-import tty
+import webbrowser
 from dataclasses import dataclass
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from typing import Any, Callable, Iterable
+from typing import Any
 from urllib.error import HTTPError, URLError
 from urllib.parse import parse_qs, urlparse
 from urllib.request import Request, urlopen
 
+from proxy_paths import build_proxy_paths
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 RUNTIME_DIR = ROOT_DIR / ".runtime" / "dev-manager"
 PID_DIR = RUNTIME_DIR / "pids"
 LOG_DIR = RUNTIME_DIR / "logs"
 SWITCH_SCRIPT = ROOT_DIR / "scripts" / "switch-backend.sh"
+SWITCH_SCRIPT_WINDOWS = ROOT_DIR / "scripts" / "switch-backend.ps1"
 WEB_UI_FILE = ROOT_DIR / "scripts" / "dev-manager-web.html"
 ASSETS_DIR = ROOT_DIR / "scripts" / "dev-manager-assets"
-PROXY_META_FILE = Path("/tmp/hellotime-backend-proxy.meta")
+PROXY_PATHS = build_proxy_paths()
+PROXY_RUNTIME_DIR = Path(PROXY_PATHS["PROXY_RUNTIME_DIR"])
+PROXY_META_FILE = Path(PROXY_PATHS["META_FILE"])
+PROXY_LOG_FILE = Path(PROXY_PATHS["LOG_FILE"])
+PROXY_ERR_FILE = Path(PROXY_PATHS["ERR_FILE"])
+PROXY_ACTIVITY_LOG = LOG_DIR / "proxy-switch.log"
 
 
 @dataclass(frozen=True)
@@ -59,6 +64,14 @@ class Service:
     @property
     def url(self) -> str:
         return f"http://localhost:{self.port}"
+
+    @property
+    def posix_run_script(self) -> Path:
+        return self.workdir / "run"
+
+    @property
+    def windows_run_script(self) -> Path:
+        return self.workdir / "run.ps1"
 
 
 SERVICES: list[Service] = [
@@ -111,6 +124,30 @@ SERVICES: list[Service] = [
         port=18050,
     ),
     Service(
+        key="vapor",
+        label="Vapor",
+        kind="backend",
+        workdir=ROOT_DIR / "backends" / "vapor",
+        command=["bash", str(ROOT_DIR / "backends" / "vapor" / "run")],
+        port=18060,
+    ),
+    Service(
+        key="axum",
+        label="Axum",
+        kind="backend",
+        workdir=ROOT_DIR / "backends" / "axum",
+        command=["bash", str(ROOT_DIR / "backends" / "axum" / "run")],
+        port=18070,
+    ),
+    Service(
+        key="drogon",
+        label="Drogon",
+        kind="backend",
+        workdir=ROOT_DIR / "backends" / "drogon",
+        command=["bash", str(ROOT_DIR / "backends" / "drogon" / "run")],
+        port=18080,
+    ),
+    Service(
         key="vue3",
         label="Vue 3",
         kind="frontend",
@@ -141,6 +178,14 @@ SERVICES: list[Service] = [
         workdir=ROOT_DIR / "frontends" / "svelte-ts",
         command=["bash", str(ROOT_DIR / "frontends" / "svelte-ts" / "run")],
         port=5176,
+    ),
+    Service(
+        key="solid",
+        label="SolidJS",
+        kind="frontend",
+        workdir=ROOT_DIR / "frontends" / "solid-ts",
+        command=["bash", str(ROOT_DIR / "frontends" / "solid-ts" / "run")],
+        port=5180,
     ),
     Service(
         key="next",
@@ -184,91 +229,33 @@ SERVICES: list[Service] = [
     ),
 ]
 
-BACKEND_KEYS = {"spring-boot", "fastapi", "gin", "elysia", "nest", "aspnet-core"}
-
-
 def ensure_runtime_dirs() -> None:
     PID_DIR.mkdir(parents=True, exist_ok=True)
     LOG_DIR.mkdir(parents=True, exist_ok=True)
 
 
-def clear_screen() -> None:
-    if sys.stdout.isatty():
-        print("\033[2J\033[H", end="")
+def get_service_command(service: Service) -> list[str]:
+    if os.name == "nt":
+        if service.windows_run_script.exists():
+            return [
+                "powershell",
+                "-NoProfile",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                str(service.windows_run_script),
+            ]
+        if service.posix_run_script.exists():
+            return ["bash", str(service.posix_run_script)]
+        raise FileNotFoundError(f"Missing Windows start command for {service.label}: {service.windows_run_script}")
 
-
-def read_key() -> str:
-    fd = sys.stdin.fileno()
-    old_settings = termios.tcgetattr(fd)
-    try:
-        tty.setraw(fd)
-        first = sys.stdin.read(1)
-        if first != "\x1b":
-            return first
-
-        second = sys.stdin.read(1)
-        if second != "[":
-            return first
-
-        third = sys.stdin.read(1)
-        return f"\x1b[{third}"
-    finally:
-        termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-    return ""
-
-
-def interactive_select(
-    title: str,
-    options: list[tuple[str, str]],
-    *,
-    allow_back: bool = True,
-    allow_quit: bool = False,
-    header_lines: list[str] | None = None,
-) -> str | None:
-    if not sys.stdin.isatty() or not sys.stdout.isatty():
-        return None
-
-    selected: int = 0
-
-    while True:
-        clear_screen()
-        if header_lines is not None:
-            for line in header_lines:
-                print(line)
-            print()
-
-        print(title)
-        print()
-
-        for index, (_, label) in enumerate(options):
-            prefix = ">" if index == selected else " "
-            print(f" {prefix} {index + 1}. {label}")
-
-        print()
-        tips = ["上下箭头选择", "回车确认"]
-        if allow_back:
-            tips.append("b 返回")
-        if allow_quit:
-            tips.append("q 退出")
-        print(" / ".join(tips))
-
-        key = read_key()
-        num_options = len(options)
-        if key == "\x1b[A":
-            selected = (selected - 1) % num_options
-            continue
-        if key == "\x1b[B":
-            selected = (selected + 1) % num_options
-            continue
-        if key in {"\r", "\n"}:
-            return options[selected][0]
-        if allow_back and key.lower() == "b":
-            return None
-        if allow_quit and key.lower() == "q":
-            raise SystemExit(0)
+    return service.command
 
 
 def is_port_open(port: int) -> bool:
+    if port <= 0:
+        return False
+
     candidates = [
         ("127.0.0.1", socket.AF_INET),
         ("::1", socket.AF_INET6),
@@ -294,12 +281,46 @@ def is_port_open(port: int) -> bool:
 
 
 def get_listening_pids(port: int) -> list[int]:
-    result = subprocess.run(
-        ["lsof", f"-tiTCP:{port}", "-sTCP:LISTEN"],
-        text=True,
-        capture_output=True,
-        check=False,
-    )
+    if port <= 0:
+        return []
+
+    if os.name == "nt":
+        result = subprocess.run(
+            ["netstat", "-ano", "-p", "tcp"],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        if result.returncode != 0:
+            return []
+
+        pids: list[int] = []
+        suffixes = (f":{port}", f".{port}")
+        for raw_line in result.stdout.splitlines():
+            line = raw_line.strip()
+            if not line.startswith("TCP"):
+                continue
+            parts = line.split()
+            if len(parts) < 5:
+                continue
+            local_address, state, pid_str = parts[1], parts[3].upper(), parts[4]
+            if state != "LISTENING" or not local_address.endswith(suffixes):
+                continue
+            try:
+                pids.append(int(pid_str))
+            except ValueError:
+                continue
+        return sorted(set(pids))
+
+    try:
+        result = subprocess.run(
+            ["lsof", f"-tiTCP:{port}", "-sTCP:LISTEN"],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+    except FileNotFoundError:
+        return []
     if result.returncode not in {0, 1}:
         return []
 
@@ -329,6 +350,18 @@ def read_pid(pid_file: Path) -> int | None:
 def is_pid_alive(pid: int | None) -> bool:
     if pid is None:
         return False
+
+    if os.name == "nt":
+        result = subprocess.run(
+            ["tasklist", "/FI", f"PID eq {pid}", "/FO", "CSV", "/NH"],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        if result.returncode != 0:
+            return False
+        output = result.stdout.strip()
+        return bool(output) and not output.startswith("INFO:")
 
     try:
         os.kill(pid, 0)
@@ -373,14 +406,6 @@ def get_service_status(service: Service) -> dict[str, str]:
     }
 
 
-def is_service_running(service: Service) -> bool:
-    return get_service_status(service)["status"] == "运行中"
-
-
-def is_service_startable(service: Service) -> bool:
-    return get_service_status(service)["status"] in {"已停止", "端口占用"}
-
-
 def start_service(service: Service) -> str:
     ensure_runtime_dirs()
     status = get_service_status(service)
@@ -388,14 +413,31 @@ def start_service(service: Service) -> str:
         return f"{service.label} 已处于{status['status']}状态。"
 
     log_handle = service.log_file.open("ab")
-    process = subprocess.Popen(
-        service.command,
-        cwd=service.workdir,
-        stdout=log_handle,
-        stderr=subprocess.STDOUT,
-        stdin=subprocess.DEVNULL,
-        start_new_session=True,
-    )
+    try:
+        command = get_service_command(service)
+    except FileNotFoundError as exc:
+        log_handle.close()
+        return str(exc)
+
+    popen_kwargs: dict[str, Any] = {
+        "cwd": service.workdir,
+        "stdout": log_handle,
+        "stderr": subprocess.STDOUT,
+        "stdin": subprocess.DEVNULL,
+    }
+    if os.name == "nt":
+        creationflags = 0
+        creationflags |= getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0)
+        creationflags |= getattr(subprocess, "DETACHED_PROCESS", 0)
+        popen_kwargs["creationflags"] = creationflags
+    else:
+        popen_kwargs["start_new_session"] = True
+
+    try:
+        process = subprocess.Popen(command, **popen_kwargs)
+    except OSError as exc:
+        log_handle.close()
+        return f"{service.label} 启动失败: {exc}"
     service.pid_file.write_text(f"{process.pid}\n")
 
     for _ in range(20):
@@ -416,6 +458,12 @@ def start_service(service: Service) -> str:
 
 
 def terminate_pid(pid: int, *, use_group: bool) -> None:
+    if os.name == "nt":
+        command = ["taskkill", "/PID", str(pid)]
+        if use_group:
+            command.append("/T")
+        subprocess.run(command, text=True, capture_output=True, check=False)
+        return
     if use_group:
         try:
             os.killpg(pid, signal.SIGTERM)
@@ -426,6 +474,12 @@ def terminate_pid(pid: int, *, use_group: bool) -> None:
 
 
 def force_kill_pid(pid: int, *, use_group: bool) -> None:
+    if os.name == "nt":
+        command = ["taskkill", "/PID", str(pid), "/F"]
+        if use_group:
+            command.append("/T")
+        subprocess.run(command, text=True, capture_output=True, check=False)
+        return
     if use_group:
         try:
             os.killpg(pid, signal.SIGKILL)
@@ -508,15 +562,43 @@ def get_proxy_mapping() -> str:
     return "当前没有运行中的 8080 转发"
 
 
+def append_proxy_activity(message: str) -> None:
+    ensure_runtime_dirs()
+    timestamp = time.strftime("%Y-%m-%dT%H:%M:%S")
+    with PROXY_ACTIVITY_LOG.open("a", encoding="utf-8") as handle:
+        handle.write(f"{timestamp} INFO {message}\n")
+
+
 def switch_proxy(target: str) -> str:
-    result = subprocess.run(
-        ["bash", str(SWITCH_SCRIPT), target],
-        cwd=ROOT_DIR,
-        text=True,
-        capture_output=True,
-    )
+    if os.name == "nt":
+        command = [
+            "powershell",
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            str(SWITCH_SCRIPT_WINDOWS),
+            target,
+        ]
+    else:
+        command = ["bash", str(SWITCH_SCRIPT), target]
+
+    result = subprocess.run(command, cwd=ROOT_DIR, text=True, capture_output=True)
     output = (result.stdout or "") + (result.stderr or "")
+    action = "停止 8080 转发" if target == "stop" else f"切换 8080 转发到 {target}"
+    summary = output.strip() or f"{action}完成"
+    append_proxy_activity(f"{action} | {summary.replace(chr(10), ' | ')}")
     return output.strip() or f"切换完成，目标 {target}"
+
+
+def maybe_open_browser(host: str, port: int) -> None:
+    url = f"http://{host}:{port}"
+    try:
+        opened = webbrowser.open(url)
+    except Exception:
+        opened = False
+    if not opened:
+        print(f"请手动打开: {url}")
 
 
 def tail_log(service: Service, lines: int = 20) -> str:
@@ -531,37 +613,30 @@ def tail_log(service: Service, lines: int = 20) -> str:
     return "\n".join(last_lines)
 
 
-def format_table(services: Iterable[Service]) -> str:
-    rows: list[list[str]] = []
-    for index, service in enumerate(services, start=1):
-        info = get_service_status(service)
-        rows.append(
-            [
-                str(index),
-                service.label,
-                service.kind,
-                info["status"],
-                info["pid"],
-                str(service.port),
-                info["port_open"],
-            ]
-        )
+def tail_proxy_logs(lines: int = 20) -> str:
+    entries: list[str] = []
+    if PROXY_ACTIVITY_LOG.exists():
+        entries.extend(PROXY_ACTIVITY_LOG.read_text(errors="replace").splitlines())
 
-    headers = ["#", "服务", "类型", "状态", "PID", "端口", "监听"]
-    widths = [len(header) for header in headers]
-    for row in rows:
-        for idx, value in enumerate(row):
-            widths[idx] = max(widths[idx], len(value))
+    if os.name == "nt":
+        proxy_process_files = [PROXY_LOG_FILE, PROXY_ERR_FILE]
+    else:
+        proxy_process_files = [PROXY_LOG_FILE]
 
-    def render_row(row: list[str]) -> str:
-        parts = []
-        for i, val in enumerate(row):
-            parts.append(val.ljust(widths[i]))
-        return "  ".join(parts)
+    for path in proxy_process_files:
+        if not path.exists():
+            continue
+        file_lines = path.read_text(errors="replace").splitlines()
+        if not file_lines:
+            continue
+        entries.append(f"--- {path.name} ---")
+        entries.extend(file_lines)
 
-    lines = [render_row(headers), render_row(["-" * width for width in widths])]
-    lines.extend(render_row(row) for row in rows)
-    return "\n".join(lines)
+    if not entries:
+        return "8080 转发还没有日志。"
+
+    last_lines = entries[-lines:] if lines > 0 else []
+    return "\n".join(last_lines)
 
 
 def serialize_service(service: Service) -> dict[str, Any]:
@@ -783,6 +858,26 @@ class DevManagerWebHandler(BaseHTTPRequestHandler):
                 }
             )
             return
+        if path == "/api/proxy/logs":
+            query = parse_qs(parsed.query)
+            lines = 40
+            try:
+                if "lines" in query and query["lines"]:
+                    lines = max(10, min(500, int(query["lines"][0])))
+            except ValueError:
+                lines = 40
+            self._send_json(
+                {
+                    "success": True,
+                    "data": {
+                        "key": "__proxy__",
+                        "label": "8080 转发",
+                        "lines": lines,
+                        "content": tail_proxy_logs(lines=lines),
+                    },
+                }
+            )
+            return
 
         self._error("未找到资源", 404)
 
@@ -870,188 +965,82 @@ def run_web_server(host: str, port: int) -> None:
     finally:
         server.server_close()
 
-
-def print_dashboard(message: str | None = None) -> None:
-    clear_screen()
-    print("HelloTime 开发服务管理")
-    print()
-    print(format_table(SERVICES))
-    print()
-    print("当前 8080 映射:")
-    print(get_proxy_mapping())
-    print()
-    print("菜单:")
-    print("  1. 启动服务")
-    print("  2. 停止服务")
-    print("  3. 重启服务")
-    print("  4. 启动全部服务")
-    print("  5. 停止全部服务")
-    print("  6. 重启全部服务")
-    print("  7. 切换 8080 映射")
-    print("  8. 查看服务日志")
-    print("  r. 刷新")
-    print("  q. 退出")
-    if message:
-        print()
-        print(f"结果: {message}")
+def print_snapshot() -> None:
+    payload = build_snapshot()
+    print(json.dumps(payload, ensure_ascii=False, indent=2))
 
 
-def build_dashboard_lines(message: str | None = None) -> list[str]:
-    lines = [
-        "HelloTime 开发服务管理",
-        "",
-        format_table(SERVICES),
-        "",
-        "当前 8080 映射:",
-        get_proxy_mapping(),
-    ]
-    if message:
-        lines.extend(["", f"结果: {message}"])
-    return lines
-
-
-def choose_service(
-    prompt: str,
-    *,
-    backend_only: bool = False,
-    predicate: Callable[[Service], bool] | None = None,
-) -> Service | None:
-    filtered_services = [service for service in SERVICES if not backend_only or service.key in BACKEND_KEYS]
-    if predicate is not None:
-        filtered_services = [service for service in filtered_services if predicate(service)]
-
-    if not filtered_services:
-        print()
-        print("当前没有可选服务。")
-        if sys.stdin.isatty():
-            input("按回车返回...")
-        return None
-
-    interactive_choice = interactive_select(
-        prompt,
-        [(service.key, f"{service.label} ({service.port})") for service in filtered_services],
-    )
-    if interactive_choice is not None:
-        for service in filtered_services:
-            if service.key == interactive_choice:
-                return service
-        return None
-
-    while True:
-        print()
-        print(prompt)
-        for index, service in enumerate(filtered_services, start=1):
-            print(f"  {index}. {service.label} ({service.port})")
-        print("  b. 返回")
-        choice = input("> ").strip().lower()
-        if choice == "b":
-            return None
-        if not choice.isdigit():
-            print("请输入有效编号。")
-            continue
-
-        idx = int(choice) - 1
-        if 0 <= idx < len(filtered_services):
-            return filtered_services[idx]
-
-        print("请输入有效编号。")
-
-
-def show_logs_menu() -> str | None:
-    service = choose_service("选择要查看日志的服务:")
+def require_service(key: str) -> Service:
+    service = find_service(key)
     if service is None:
-        return None
-
-    print()
-    print(f"==== {service.label} 最近 20 行日志 ====")
-    print(tail_log(service))
-    print()
-    input("按回车返回...")
-    return None
+        raise SystemExit(f"服务不存在: {key}")
+    return service
 
 
-def switch_proxy_menu() -> str | None:
-    service = choose_service("选择要映射到 localhost:8080 的后端:", backend_only=True)
-    if service is None:
-        return None
-    return switch_proxy(service.key)
-
-
-def handle_choice(choice: str) -> str | None:
-    if choice == "1":
-        service = choose_service("选择要启动的服务:", predicate=is_service_startable)
-        return None if service is None else start_service(service)
-    if choice == "2":
-        service = choose_service("选择要停止的服务:", predicate=is_service_running)
-        return None if service is None else stop_service(service)
-    if choice == "3":
-        service = choose_service("选择要重启的服务:", predicate=is_service_running)
-        return None if service is None else restart_service(service)
-    if choice == "4":
-        return "\n".join(start_all())
-    if choice == "5":
-        return "\n".join(stop_all())
-    if choice == "6":
-        return "\n".join(restart_all())
-    if choice == "7":
-        return switch_proxy_menu()
-    if choice == "8":
-        return show_logs_menu()
-    if choice == "r":
-        return None
-    if choice == "q":
-        raise SystemExit(0)
-    return "未知操作，请重新输入。"
-
-
-def run_cli() -> None:
-    ensure_runtime_dirs()
-    message: str | None = None
-
-    while True:
-        menu_options = [
-            ("1", "启动服务"),
-            ("2", "停止服务"),
-            ("3", "重启服务"),
-            ("4", "启动全部服务"),
-            ("5", "停止全部服务"),
-            ("6", "重启全部服务"),
-            ("7", "切换 8080 映射"),
-            ("8", "查看服务日志"),
-            ("r", "刷新"),
-            ("q", "退出"),
-        ]
-        choice = interactive_select(
-            "请选择操作",
-            menu_options,
-            allow_back=False,
-            allow_quit=True,
-            header_lines=build_dashboard_lines(message),
-        )
-        if choice is None:
-            print_dashboard(message)
-            print()
-            choice = input("请选择操作 > ").strip().lower()
-        try:
-            message = handle_choice(choice)
-        except KeyboardInterrupt:
-            message = "已取消当前操作。"
-        except SystemExit:
-            print("退出管理工具。")
-            raise
+def run_single_action(args: argparse.Namespace) -> bool:
+    if args.status:
+        print_snapshot()
+        return True
+    if args.start:
+        print(start_service(require_service(args.start)))
+        return True
+    if args.stop:
+        print(stop_service(require_service(args.stop)))
+        return True
+    if args.restart:
+        print(restart_service(require_service(args.restart)))
+        return True
+    if args.start_all:
+        print("\n".join(start_all()))
+        return True
+    if args.stop_all:
+        print("\n".join(stop_all()))
+        return True
+    if args.restart_all:
+        print("\n".join(restart_all()))
+        return True
+    if args.logs:
+        service = require_service(args.logs)
+        print(tail_log(service, lines=args.lines))
+        return True
+    if args.health:
+        service = require_service(args.health)
+        print(json.dumps(check_service_health(service), ensure_ascii=False, indent=2))
+        return True
+    if args.switch_proxy:
+        print(switch_proxy(args.switch_proxy))
+        return True
+    if args.stop_proxy:
+        print(switch_proxy("stop"))
+        return True
+    return False
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="HelloTime 开发服务管理工具")
-    parser.add_argument("--web", action="store_true", help="启动 Web 管理模式")
+    parser = argparse.ArgumentParser(description="HelloTime 开发服务管理工具（Web 优先）")
+    parser.add_argument("--web", action="store_true", help="启动 Web 管理界面")
     parser.add_argument("--host", default="127.0.0.1", help="Web 模式监听地址，默认 127.0.0.1")
     parser.add_argument("--port", type=int, default=8090, help="Web 模式监听端口，默认 8090")
+    parser.add_argument("--no-browser", action="store_true", help="启动 Web 管理界面时不自动打开浏览器")
+    parser.add_argument("--status", action="store_true", help="打印当前服务快照 JSON")
+    parser.add_argument("--start", metavar="SERVICE", help="启动指定服务")
+    parser.add_argument("--stop", metavar="SERVICE", help="停止指定服务")
+    parser.add_argument("--restart", metavar="SERVICE", help="重启指定服务")
+    parser.add_argument("--start-all", action="store_true", help="启动全部服务")
+    parser.add_argument("--stop-all", action="store_true", help="停止全部服务")
+    parser.add_argument("--restart-all", action="store_true", help="重启全部服务")
+    parser.add_argument("--logs", metavar="SERVICE", help="查看指定服务日志")
+    parser.add_argument("--lines", type=int, default=40, help="查看日志时读取的行数，默认 40")
+    parser.add_argument("--health", metavar="SERVICE", help="检查指定后端健康状态")
+    parser.add_argument("--switch-proxy", metavar="TARGET", help="切换 8080 到指定后端")
+    parser.add_argument("--stop-proxy", action="store_true", help="停止 8080 代理")
     args = parser.parse_args()
 
     try:
-        if args.web:
+        action_executed = run_single_action(args)
+        if args.web or not action_executed:
+            if not args.no_browser:
+                maybe_open_browser(args.host, args.port)
             run_web_server(args.host, args.port)
-        else:
-            run_cli()
     except KeyboardInterrupt:
         print("\n退出管理工具。")

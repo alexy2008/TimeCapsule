@@ -2,9 +2,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
-PID_FILE="/tmp/hellotime-backend-proxy.pid"
-META_FILE="/tmp/hellotime-backend-proxy.meta"
-LOG_FILE="/tmp/hellotime-backend-proxy.log"
+eval "$(python3 "$SCRIPT_DIR/proxy_paths.py" --shell)"
 
 usage() {
   cat <<'EOF'
@@ -15,6 +13,9 @@ usage() {
   ./scripts/switch-backend.sh elysia
   ./scripts/switch-backend.sh nest
   ./scripts/switch-backend.sh aspnet-core
+  ./scripts/switch-backend.sh vapor
+  ./scripts/switch-backend.sh axum
+  ./scripts/switch-backend.sh drogon
   ./scripts/switch-backend.sh 18010
   ./scripts/switch-backend.sh status
   ./scripts/switch-backend.sh stop
@@ -29,6 +30,9 @@ usage() {
   elysia      -> 18030
   nest        -> 18040
   aspnet-core -> 18050
+  vapor       -> 18060
+  axum        -> 18070
+  drogon      -> 18080
 EOF
 }
 
@@ -40,6 +44,9 @@ resolve_target() {
     elysia) echo "elysia 18030" ;;
     nest) echo "nest 18040" ;;
     aspnet-core|aspnet) echo "aspnet-core 18050" ;;
+    vapor) echo "vapor 18060" ;;
+    axum) echo "axum 18070" ;;
+    drogon) echo "drogon 18080" ;;
     ''|help|-h|--help) usage; exit 0 ;;
     *)
       if [[ "$1" =~ ^[0-9]+$ ]]; then

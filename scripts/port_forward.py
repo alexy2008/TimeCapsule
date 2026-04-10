@@ -105,8 +105,9 @@ def main() -> None:
 
     def shutdown(signum: int, frame) -> None:
         print("收到关闭信号，正在停止服务...", flush=True)
-        server.shutdown()
-        server.server_close()
+        # `server.shutdown()` 不能在 `serve_forever()` 所在线程里直接调用，否则会卡死。
+        # 这里改为后台线程触发关闭，避免留下“占着 8080 但不再转发”的僵尸进程。
+        threading.Thread(target=server.shutdown, daemon=True).start()
 
     signal.signal(signal.SIGTERM, shutdown)
     signal.signal(signal.SIGINT, shutdown)

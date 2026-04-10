@@ -524,6 +524,9 @@
                 <option value="elysia">Elysia</option>
                 <option value="nest">NestJS</option>
                 <option value="aspnet-core">ASP.NET Core</option>
+                <option value="vapor">Vapor</option>
+                <option value="axum">Axum</option>
+                <option value="drogon">Drogon</option>
                 <option value="__stop__">停止转发</option>
               </select>
             </div>
@@ -611,6 +614,7 @@
       const logDialogLabel = document.getElementById('logDialogLabel');
       const closeLogDialog = document.getElementById('closeLogDialog');
       const refreshLogDialog = document.getElementById('refreshLogDialog');
+      const PROXY_LOG_KEY = '__proxy__';
 
       let currentLogKey = null;
 
@@ -748,10 +752,11 @@
 
       function syncLogServiceTabs(services) {
         const keys = services.map((s) => s.key);
-        if (state.selectedLogKey && !keys.includes(state.selectedLogKey)) {
+        if (state.selectedLogKey && state.selectedLogKey !== PROXY_LOG_KEY && !keys.includes(state.selectedLogKey)) {
           state.selectedLogKey = null;
         }
-        const tabs = services
+        const logItems = [{ key: PROXY_LOG_KEY, label: '8080 转发' }, ...services];
+        const tabs = logItems
           .map((service) => {
             const activeClass = state.selectedLogKey === service.key ? 'active' : '';
             return `<button class="log-tab ${activeClass}" data-log-tab="${escapeHtml(service.key)}">${escapeHtml(service.label)}</button>`;
@@ -796,7 +801,10 @@
           setLogContent('未选择日志服务。');
           return;
         }
-        const payload = await requestJson(`/api/services/${encodeURIComponent(state.selectedLogKey)}/logs?lines=80`);
+        const url = state.selectedLogKey === PROXY_LOG_KEY
+          ? '/api/proxy/logs?lines=80'
+          : `/api/services/${encodeURIComponent(state.selectedLogKey)}/logs?lines=80`;
+        const payload = await requestJson(url);
         setLogContent(payload.data.content || '(日志为空)');
         if (autoScrollLogs && autoScrollLogs.checked) {
           logContent.scrollTop = logContent.scrollHeight;
@@ -825,6 +833,9 @@
         if (target === '__stop__') {
           await requestJson('/api/proxy/stop', { method: 'POST' });
           await refreshSnapshot(false);
+          state.selectedLogKey = PROXY_LOG_KEY;
+          syncLogServiceTabs(state.snapshot?.services || []);
+          await loadSelectedLogs();
           showToast('已停止 8080 转发');
           return;
         }
@@ -833,6 +844,9 @@
           body: JSON.stringify({ target }),
         });
         await refreshSnapshot(false);
+        state.selectedLogKey = PROXY_LOG_KEY;
+        syncLogServiceTabs(state.snapshot?.services || []);
+        await loadSelectedLogs();
         showToast(`已切换 8080 到 ${target}`);
       }
 
@@ -964,7 +978,9 @@
       async function bootstrap() {
         try {
           await refreshSnapshot(false);
-          setLogContent('未选择日志服务。');
+          state.selectedLogKey = PROXY_LOG_KEY;
+          syncLogServiceTabs(state.snapshot?.services || []);
+          await loadSelectedLogs();
         } catch (error) {
           showToast(error instanceof Error ? error.message : String(error));
         }

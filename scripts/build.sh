@@ -19,6 +19,34 @@ cd "$ROOT_DIR/backends/aspnet-core"
 ./dotnetw build -c Release
 echo "[ASP.NET Core 后端] 构建完成: bin/Release/net8.0/"
 
+if [[ "$(uname -s)" == "Darwin" ]] && command -v swift >/dev/null 2>&1; then
+  echo "[后端] 构建 Vapor..."
+  cd "$ROOT_DIR/backends/vapor/server"
+  swift build
+  echo "[Vapor 后端] 构建完成: .build/"
+else
+  echo "[后端] 跳过 Vapor 构建（需要 macOS + Swift）"
+fi
+
+if command -v cargo >/dev/null 2>&1; then
+  echo "[后端] 构建 Axum..."
+  cd "$ROOT_DIR/backends/axum"
+  cargo build --release
+  echo "[Axum 后端] 构建完成: target/release/"
+else
+  echo "[后端] 跳过 Axum 构建（需要 Rust 工具链）"
+fi
+
+if command -v cmake >/dev/null 2>&1 && command -v ninja >/dev/null 2>&1; then
+  echo "[后端] 构建 Drogon..."
+  cd "$ROOT_DIR/backends/drogon"
+  cmake -S . -B build -G Ninja
+  cmake --build build --target hellotime-drogon
+  echo "[Drogon 后端] 构建完成: build/"
+else
+  echo "[后端] 跳过 Drogon 构建（需要 CMake + Ninja）"
+fi
+
 # 构建 Vue 前端
 echo "[前端] 构建 Vue 3..."
 cd "$ROOT_DIR/frontends/vue3-ts"
@@ -42,6 +70,12 @@ echo "[前端] 构建 React..."
 cd "$ROOT_DIR/frontends/react-ts"
 npm run build
 echo "[React 前端] 构建完成: dist/"
+
+# 构建 Solid 前端
+echo "[前端] 构建 Solid..."
+cd "$ROOT_DIR/frontends/solid-ts"
+npm run build
+echo "[Solid 前端] 构建完成: dist/"
 
 # 构建 Next 全栈
 echo "[全栈] 构建 Next.js..."
@@ -74,10 +108,14 @@ fi
 echo ""
 echo "=== 构建完成 ==="
 echo "  后端 JAR:       backends/spring-boot/target/hellotime-backend-1.0.0.jar"
+echo "  Vapor 构建产物: backends/vapor/server/.build/（仅 macOS）"
+echo "  Axum 构建产物:  backends/axum/target/release/"
+echo "  Drogon 构建产物: backends/drogon/build/"
 echo "  Vue 静态文件:   frontends/vue3-ts/dist/"
 echo "  Angular 静态:   frontends/angular-ts/dist/angular-ts/"
 echo "  Svelte 静态:    frontends/svelte-ts/dist/"
 echo "  React 静态:     frontends/react-ts/dist/"
+echo "  Solid 静态:     frontends/solid-ts/dist/"
 echo "  Next 构建产物:  fullstacks/next-ts/.next/"
 echo "  Nuxt 构建产物:  fullstacks/nuxt-ts/.output/"
 echo "  Spring MVC JAR: fullstacks/spring-boot-mvc/target/hellotime-backend-1.0.0.jar"

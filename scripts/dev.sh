@@ -47,6 +47,12 @@ cd "$ROOT_DIR/frontends/react-ts"
 npm run dev &
 REACT_PID=$!
 
+# 启动 Solid 前端
+echo "[前端] 启动 Solid 开发服务器..."
+cd "$ROOT_DIR/frontends/solid-ts"
+npm run dev &
+SOLID_PID=$!
+
 # 启动 Next 全栈
 echo "[全栈] 启动 Next.js 开发服务器..."
 cd "$ROOT_DIR/fullstacks/next-ts"
@@ -73,6 +79,7 @@ echo "  Vue 3:   http://localhost:5173"
 echo "  React:   http://localhost:5174"
 echo "  Angular: http://localhost:5175"
 echo "  Svelte:  http://localhost:5176"
+echo "  Solid:   http://localhost:5180"
 echo "  Next:    http://localhost:5177"
 echo "  Nuxt:    http://localhost:5178"
 echo "  Spring:  http://localhost:4179"
@@ -80,6 +87,6 @@ echo ""
 echo "按 Ctrl+C 停止所有服务"
 
 # 捕获退出信号
-trap "kill $BACKEND_PID $VUE_PID $ANGULAR_PID $SVELTE_PID $REACT_PID $NEXT_PID $NUXT_PID $SPRING_MVC_PID 2>/dev/null; \"$ROOT_DIR/scripts/switch-backend.sh\" stop >/dev/null 2>&1 || true; exit" SIGINT SIGTERM
+trap "kill $BACKEND_PID $VUE_PID $ANGULAR_PID $SVELTE_PID $REACT_PID $SOLID_PID $NEXT_PID $NUXT_PID $SPRING_MVC_PID 2>/dev/null; \"$ROOT_DIR/scripts/switch-backend.sh\" stop >/dev/null 2>&1 || true; exit" SIGINT SIGTERM
 
 wait
