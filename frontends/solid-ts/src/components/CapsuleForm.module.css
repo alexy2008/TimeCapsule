@@ -1,0 +1,59 @@
+.capsuleForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 1.25rem;
+  row-gap: 0;
+  align-items: start;
+}
+
+.fieldMeta {
+  margin-top: 0.5rem;
+  min-height: 2.75rem;
+}
+
+.metaSpacer {
+  display: block;
+  min-height: 1.25rem;
+}
+
+.formRow :global(.cyber-input) {
+  width: 100%;
+  min-height: 3.5rem;
+}
+
+.formRow :global(input[type='datetime-local']) {
+  min-height: 3.5rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+:global([data-theme='light']) .capsuleForm input[type='datetime-local'] {
+  color-scheme: light;
+}
+
+:global([data-theme='dark']) .capsuleForm input[type='datetime-local'] {
+  color-scheme: dark;
+}
+
+@media (max-width: 768px) {
+  .formRow {
+    grid-template-columns: 1fr;
+  }
+
+  .fieldMeta,
+  .metaSpacer {
+    min-height: 0;
+  }
+}
