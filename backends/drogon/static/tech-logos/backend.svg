@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title id="title">Drogon</title>
+  <desc id="desc">Drogon framework logo card</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1f0f10"/>
+      <stop offset="100%" stop-color="#6a1a1a"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="48" fill="url(#bg)"/>
+  <circle cx="128" cy="128" r="92" fill="#8b1e1e" opacity="0.35"/>
+  <image href="/tech-logos/drogon-dragon-white.png" x="36" y="36" width="184" height="184" preserveAspectRatio="xMidYMid meet"/>
+</svg>
