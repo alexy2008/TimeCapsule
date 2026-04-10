@@ -77,7 +77,7 @@ export default function CapsuleForm({ loading, onSubmit }: Props) {
           placeholder="给时间胶囊取个名字"
           maxLength={100}
         />
-        {errors.title && <p className="input-error-text" style={{color: 'var(--magenta)', marginTop: '0.5rem', fontSize: '0.85rem'}}>{errors.title}</p>}
+        {errors.title && <p className="input-error-text form-error">{errors.title}</p>}
       </div>
 
       <div className="form-group">
@@ -90,7 +90,7 @@ export default function CapsuleForm({ loading, onSubmit }: Props) {
           placeholder="写下你想对未来说的话..."
           rows={6}
         />
-        {errors.content && <p className="input-error-text" style={{color: 'var(--magenta)', marginTop: '0.5rem', fontSize: '0.85rem'}}>{errors.content}</p>}
+        {errors.content && <p className="input-error-text form-error">{errors.content}</p>}
       </div>
 
       <div className={styles.formRow}>
@@ -106,7 +106,7 @@ export default function CapsuleForm({ loading, onSubmit }: Props) {
           />
           <div className={styles.fieldMeta}>
             {errors.creator ? (
-              <p className="input-error-text" style={{color: 'var(--magenta)', marginTop: '0.5rem', fontSize: '0.85rem'}}>
+              <p className="input-error-text form-error">
                 {errors.creator}
               </p>
             ) : (
@@ -126,10 +126,10 @@ export default function CapsuleForm({ loading, onSubmit }: Props) {
             min={minDateTime}
           />
           <div className={styles.fieldMeta}>
-            {errors.openAt && (
-              <p className="input-error-text" style={{color: 'var(--magenta)', marginTop: '0.5rem', fontSize: '0.85rem'}}>
-                {errors.openAt}
-              </p>
+            {errors.openAt ? (
+              <p className="input-error-text form-error">{errors.openAt}</p>
+            ) : (
+              <span className={styles.metaSpacer} aria-hidden="true" />
             )}
           </div>
         </div>

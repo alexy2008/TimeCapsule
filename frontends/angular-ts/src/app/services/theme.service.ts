@@ -19,7 +19,11 @@ export class ThemeService {
       const t = this.theme();
       // 设计系统基于 [data-theme="dark"] 切换，因此 service 负责把响应式状态投射到 DOM。
       this.document.documentElement.setAttribute('data-theme', t);
-      localStorage.setItem('theme', t);
+      try {
+        localStorage.setItem('theme', t);
+      } catch {
+        // 隐私模式或存储限制下忽略
+      }
     });
   }
 

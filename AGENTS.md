@@ -55,6 +55,9 @@ cd desktop/winui3 && .\run.ps1
 
 # Windows 下切换 8080 后端映射
 .\scripts\switch-backend.ps1 aspnet-core
+
+# iOS SwiftUI 移动端
+cd mobile/ios-swiftui && ./run
 ```
 
 ### Testing
@@ -97,7 +100,9 @@ cd frontends/react-ts && npm run test
   - `desktop/tauri` — Tauri 2 + React 19 + Rust
   - `desktop/macos-swiftui` — SwiftUI + Swift 6.1
   - `desktop/winui3` — WinUI 3 + Windows App SDK + C# 12
-- 当任务涉及技术栈展示、启动命令、验证脚本、文档更新时，必须同时判断是否需要同步到全栈实现和桌面端。
+- 当前仓库还包含一套移动端实现：
+  - `mobile/ios-swiftui` — SwiftUI + Swift 6.1 iOS 原生移动端
+- 当任务涉及技术栈展示、启动命令、验证脚本、文档更新时，必须同时判断是否需要同步到全栈实现、桌面端以及移动端实现。
 - `.qoder/` 目录为工具自动生成，已加入 `.gitignore`，不要扫描也不要修改。
 
 ## Architecture
@@ -123,6 +128,8 @@ cd frontends/react-ts && npm run test
   - `tauri/` - Tauri 2 + React 19 + Rust 跨平台桌面
   - `macos-swiftui/` - SwiftUI + Swift 6.1 macOS 原生桌面
   - `winui3/` - WinUI 3 + Windows App SDK + C# 12 Windows 原生桌面
+- **mobile/** - Mobile implementations
+  - `ios-swiftui/` - SwiftUI + Swift 6.1 iOS 原生移动端
 - **spec/** - Shared specifications (OpenAPI, design tokens, styles)
 - **docs/** - Documentation (API spec, database schema, deployment, design tokens)
 

@@ -1,9 +1,7 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
   import type { CreateCapsuleForm } from '../types';
 
-  export let loading = false;
-  const dispatch = createEventDispatcher<{ submit: CreateCapsuleForm }>();
+  let { loading = false, onsubmit = () => {} }: { loading?: boolean; onsubmit?: (form: CreateCapsuleForm) => void } = $props();
 
   let form: CreateCapsuleForm = {
     title: '',
@@ -12,19 +10,18 @@
     openAt: '',
   };
 
-  let errors = {
+  let errors = $state({
     title: '',
     content: '',
     creator: '',
     openAt: '',
-  };
+  });
 
-  $: minDateTime = (() => {
+  const minDateTime = $derived.by(() => {
     const now = new Date();
-    // Offset standardizer for ISO string input matching local time input value format limits
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
     return now.toISOString().slice(0, 16);
-  })();
+  });
 
   function validate(): boolean {
     let valid = true;
@@ -45,21 +42,22 @@
     if (!form.openAt) {
       errors.openAt = '请选择开启时间';
       valid = false;
-    } else if (new Date(form.openAt) <= new Date()) {
+    } else if (new Date(form.openAt) < new Date()) {
       errors.openAt = '开启时间必须在未来';
       valid = false;
     }
     return valid;
   }
 
-  function handleSubmit() {
+  function handleSubmit(e: Event) {
+    e.preventDefault();
     if (validate()) {
-      dispatch('submit', { ...form });
+      onsubmit({ ...form });
     }
   }
 </script>
 
-<form class="cyber-form cyber-glass capsule-form" on:submit|preventDefault={handleSubmit}>
+<form class="cyber-form cyber-glass capsule-form" onsubmit={handleSubmit}>
   <div class="form-group">
     <label for="capsule-title">标题</label>
     <input

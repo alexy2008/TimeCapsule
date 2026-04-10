@@ -2,7 +2,7 @@ spring:
   application:
     name: hellotime-spring-boot-mvc
   datasource:
-    url: jdbc:sqlite:${DB_PATH:./hellotime-spring-mvc.db}
+    url: jdbc:sqlite:${DB_PATH:../../data/hellotime.db}
     driver-class-name: org.sqlite.JDBC
   jpa:
     database-platform: org.hibernate.community.dialect.SQLiteDialect

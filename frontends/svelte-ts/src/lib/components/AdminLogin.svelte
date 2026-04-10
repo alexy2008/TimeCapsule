@@ -1,21 +1,21 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
+  let { loading = false, error = null, onlogin = () => {} }: {
+    loading?: boolean;
+    error?: string | null;
+    onlogin?: (password: string) => void;
+  } = $props();
 
-  export let loading = false;
-  export let error: string | null = null;
+  let password = $state('');
 
-  const dispatch = createEventDispatcher<{ login: string }>();
-
-  let password = '';
-
-  function handleLogin() {
+  function handleLogin(e: Event) {
+    e.preventDefault();
     if (password) {
-      dispatch('login', password);
+      onlogin(password);
     }
   }
 </script>
 
-<form class="login-form cyber-glass" on:submit|preventDefault={handleLogin}>
+<form class="login-form cyber-glass" onsubmit={handleLogin}>
   <h2 class="text-center mb-4">管理员登录</h2>
   <div class="form-group">
     <label class="input-label" for="password">密码</label>

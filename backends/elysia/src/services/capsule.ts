@@ -98,10 +98,9 @@ function parseISOTime(isoString: string): Date {
  * 将 Capsule 实体转换为响应对象
  */
 function toResponse(capsule: CapsuleRow, includeContent: boolean = false): CapsuleDetailType {
-  const now = new Date();
   const openAt = parseISOTime(capsule.open_at);
   const createdAt = parseISOTime(capsule.created_at);
-  const opened = now > openAt;
+  const opened = Date.now() > openAt.getTime();
 
   return {
     code: capsule.code,
@@ -118,7 +117,7 @@ function toResponse(capsule: CapsuleRow, includeContent: boolean = false): Capsu
  * 创建时间胶囊
  */
 export function createCapsule(request: CreateCapsuleRequestType): CapsuleCreatedType {
-  const now = new Date();
+  const now = Date.now();
   const openAt = parseISOTime(request.openAt);
 
   if (Number.isNaN(openAt.getTime())) {
@@ -126,7 +125,7 @@ export function createCapsule(request: CreateCapsuleRequestType): CapsuleCreated
   }
 
   // openAt 必须在未来
-  if (openAt <= now) {
+  if (openAt.getTime() < now) {
     throw new InvalidOpenAtError();
   }
 
@@ -138,7 +137,7 @@ export function createCapsule(request: CreateCapsuleRequestType): CapsuleCreated
     content: request.content,
     creator: request.creator,
     open_at: formatTimeISO(openAt),
-    created_at: formatTimeISO(now),
+    created_at: formatTimeISO(new Date(now)),
   });
 
   // 返回创建响应，不包含 content 和 opened 字段

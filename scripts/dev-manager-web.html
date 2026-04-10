@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>HelloTime Web 服务管理</title>
+    <title>HelloTime Web 服务 management</title>
     <style>
       :root {
         --line: rgba(107, 173, 219, 0.3);
@@ -152,9 +152,28 @@
         cursor: not-allowed;
       }
 
-      .warn:hover:not(:disabled) {
+      .btn-start {
+        border-color: rgba(41, 227, 162, 0.45);
+        color: #a9f3d9;
+        background: rgba(41, 227, 162, 0.08);
+      }
+      .btn-start:hover:not(:disabled) {
+        border-color: var(--ok);
+        background: rgba(41, 227, 162, 0.22);
+        color: #fff;
+        box-shadow: 0 0 12px rgba(41, 227, 162, 0.25);
+      }
+
+      .warn, .btn-stop {
+        border-color: rgba(255, 116, 136, 0.45);
+        color: #ffb3bc;
+        background: rgba(255, 116, 136, 0.08);
+      }
+      .warn:hover:not(:disabled), .btn-stop:hover:not(:disabled) {
         border-color: var(--err);
-        background: rgba(255, 116, 136, 0.14);
+        background: rgba(255, 116, 136, 0.22);
+        color: #fff;
+        box-shadow: 0 0 12px rgba(255, 116, 136, 0.25);
       }
 
       .group-title {
@@ -375,7 +394,7 @@
         white-space: pre-wrap;
       }
 
-      #healthOverlay {
+      #healthOverlay, #logOverlay {
         position: fixed;
         inset: 0;
         display: none;
@@ -385,20 +404,42 @@
         background: rgba(3, 11, 19, 0.72);
       }
 
-      #healthDialog {
-        width: min(560px, calc(100vw - 24px));
+      #healthDialog, #logDialog {
+        width: min(800px, calc(100vw - 24px));
         border: 1px solid var(--line);
         border-radius: 12px;
         background: rgba(8, 22, 34, 0.96);
         box-shadow: 0 20px 46px rgba(0, 0, 0, 0.34);
-        padding: 12px;
+        padding: 16px;
         display: grid;
-        gap: 10px;
+        gap: 12px;
       }
 
-      #healthTitle {
+      #logDialog {
+        width: min(1000px, calc(100vw - 24px));
+      }
+
+      #healthTitle, #logTitle {
         margin: 0;
-        font-size: 16px;
+        font-size: 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      #logPre {
+        margin: 0;
+        max-height: 70vh;
+        overflow: auto;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: rgba(2, 8, 15, 0.85);
+        color: #a7d5ff;
+        font-size: 12px;
+        line-height: 1.5;
+        padding: 12px;
+        white-space: pre-wrap;
+        word-break: break-all;
       }
 
       #healthMessage {
@@ -457,7 +498,7 @@
         <div class="top">
           <div>
             <h1>HelloTime Web 服务管理</h1>
-            <div class="subtitle">服务控制台（核心） + 日志查看 + 端口映射</div>
+            <div class="subtitle">服务控制台 + 日志窗口 + 端口映射</div>
           </div>
           <div class="chips">
             <span class="chip" id="generatedAt">最近更新: -</span>
@@ -529,6 +570,17 @@
       </div>
     </div>
 
+    <div id="logOverlay">
+      <div id="logDialog">
+        <h3 id="logTitle">服务日志 <span id="logDialogLabel" class="small" style="margin-left:8px"></span></h3>
+        <pre id="logPre">加载中...</pre>
+        <div class="actions" style="justify-content:flex-end">
+          <button id="refreshLogDialog">刷新</button>
+          <button id="closeLogDialog">关闭</button>
+        </div>
+      </div>
+    </div>
+
     <script>
       const state = {
         snapshot: null,
@@ -539,6 +591,7 @@
       const backendGrid = document.getElementById('backendGrid');
       const frontendGrid = document.getElementById('frontendGrid');
       const fullstackGrid = document.getElementById('fullstackGrid');
+      const desktopGrid = document.getElementById('desktopGrid');
       const generatedAt = document.getElementById('generatedAt');
       const serviceCount = document.getElementById('serviceCount');
       const proxyCurrent = document.getElementById('proxyCurrent');
@@ -552,6 +605,14 @@
       const healthTitle = document.getElementById('healthTitle');
       const healthMessage = document.getElementById('healthMessage');
       const closeHealthDialog = document.getElementById('closeHealthDialog');
+
+      const logOverlay = document.getElementById('logOverlay');
+      const logPre = document.getElementById('logPre');
+      const logDialogLabel = document.getElementById('logDialogLabel');
+      const closeLogDialog = document.getElementById('closeLogDialog');
+      const refreshLogDialog = document.getElementById('refreshLogDialog');
+
+      let currentLogKey = null;
 
       function showToast(text) {
         toast.textContent = text;
@@ -641,12 +702,18 @@
         const kindClass = `kind-${service.kind}`;
         const stateClass = cardStatusClass(service.status);
         const iconUrl = `/assets/icons/${encodeURIComponent(service.key)}.svg`;
+        
         let openOrTest = '';
         if (service.kind === 'backend') {
           openOrTest = `<button data-health="${escapeHtml(service.key)}" ${service.status === '已停止' ? 'disabled' : ''}>测试</button>`;
         } else if (service.kind !== 'desktop') {
           openOrTest = `<a href="${escapeHtml(service.url)}" target="_blank" rel="noreferrer"><button>打开</button></a>`;
         }
+
+        const isRunning = service.status === '运行中' || service.status === '启动中';
+        const toggleAction = isRunning ? 'stop' : 'start';
+        const toggleLabel = isRunning ? '停止' : '启动';
+        const toggleClass = isRunning ? 'btn-stop' : 'btn-start';
 
         return `
           <article class="card ${escapeHtml(kindClass)} ${escapeHtml(stateClass)}">
@@ -658,16 +725,14 @@
             <div class="small">端口: ${escapeHtml(service.port)} ｜ PID: ${escapeHtml(service.pid)}</div>
             <div class="health-line">${healthInfo ? escapeHtml(healthInfo) : '&nbsp;'}</div>
             <div class="actions">
-              <button data-service-action="start" data-service-key="${escapeHtml(service.key)}" ${canStart(service.status) ? '' : 'disabled'}>启动</button>
-              <button data-service-action="stop" data-service-key="${escapeHtml(service.key)}" class="warn" ${canStop(service.status) ? '' : 'disabled'}>停止</button>
+              <button data-service-action="${toggleAction}" data-service-key="${escapeHtml(service.key)}" class="${toggleClass}">${toggleLabel}</button>
               <button data-service-action="restart" data-service-key="${escapeHtml(service.key)}" ${canRestart(service.status) ? '' : 'disabled'}>重启</button>
+              <button data-show-log="${escapeHtml(service.key)}">日志</button>
               ${openOrTest}
             </div>
           </article>
         `;
       }
-
-      const desktopGrid = document.getElementById('desktopGrid');
 
       function renderGroupedServices(services) {
         const backends = services.filter((s) => s.kind === 'backend');
@@ -738,6 +803,23 @@
         }
       }
 
+      async function showLogModal(serviceKey) {
+        currentLogKey = serviceKey;
+        const service = state.snapshot.services.find(s => s.key === serviceKey);
+        logDialogLabel.textContent = service ? `${service.label} (${service.port})` : serviceKey;
+        logPre.textContent = '加载中...';
+        logOverlay.style.display = 'flex';
+        await refreshModalLogs();
+      }
+
+      async function refreshModalLogs() {
+        if (!currentLogKey) return;
+        const payload = await requestJson(`/api/services/${encodeURIComponent(currentLogKey)}/logs?lines=200`);
+        const text = String(payload.data.content || '');
+        logPre.innerHTML = text.split('\n').map(line => highlightLogLine(line)).join('\n') || escapeHtml('(日志为空)');
+        logPre.scrollTop = logPre.scrollHeight;
+      }
+
       async function applyProxyMapping() {
         const target = proxyTarget.value;
         if (target === '__stop__') {
@@ -789,8 +871,13 @@
         const serviceKey = target.dataset.serviceKey;
         const healthKey = target.dataset.health;
         const logTabKey = target.dataset.logTab;
+        const showLogKey = target.dataset.showLog;
 
         try {
+          if (showLogKey) {
+            await showLogModal(showLogKey);
+            return;
+          }
           if (action === 'refresh') {
             await refreshSnapshot(true);
             await loadSelectedLogs();
@@ -852,9 +939,25 @@
         healthOverlay.style.display = 'none';
       });
 
+      closeLogDialog.addEventListener('click', () => {
+        logOverlay.style.display = 'none';
+        currentLogKey = null;
+      });
+
+      refreshLogDialog.addEventListener('click', () => {
+        refreshModalLogs().catch(e => showToast(e.message));
+      });
+
       healthOverlay.addEventListener('click', (event) => {
         if (event.target === healthOverlay) {
           healthOverlay.style.display = 'none';
+        }
+      });
+
+      logOverlay.addEventListener('click', (event) => {
+        if (event.target === logOverlay) {
+          logOverlay.style.display = 'none';
+          currentLogKey = null;
         }
       });
 

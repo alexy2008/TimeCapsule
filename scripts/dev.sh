@@ -41,6 +41,12 @@ cd "$ROOT_DIR/frontends/svelte-ts"
 npm run dev &
 SVELTE_PID=$!
 
+# 启动 React 前端
+echo "[前端] 启动 React 开发服务器..."
+cd "$ROOT_DIR/frontends/react-ts"
+npm run dev &
+REACT_PID=$!
+
 # 启动 Next 全栈
 echo "[全栈] 启动 Next.js 开发服务器..."
 cd "$ROOT_DIR/fullstacks/next-ts"
@@ -74,6 +80,6 @@ echo ""
 echo "按 Ctrl+C 停止所有服务"
 
 # 捕获退出信号
-trap "kill $BACKEND_PID $VUE_PID $ANGULAR_PID $SVELTE_PID $NEXT_PID $NUXT_PID $SPRING_MVC_PID 2>/dev/null; \"$ROOT_DIR/scripts/switch-backend.sh\" stop >/dev/null 2>&1 || true; exit" SIGINT SIGTERM
+trap "kill $BACKEND_PID $VUE_PID $ANGULAR_PID $SVELTE_PID $REACT_PID $NEXT_PID $NUXT_PID $SPRING_MVC_PID 2>/dev/null; \"$ROOT_DIR/scripts/switch-backend.sh\" stop >/dev/null 2>&1 || true; exit" SIGINT SIGTERM
 
 wait

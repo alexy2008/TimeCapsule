@@ -4,7 +4,7 @@
 
 <button
   class="btn btn-icon outline-glow"
-  on:click={toggleTheme}
+  onclick={toggleTheme}
   title={$theme === 'light' ? '切换暗色模式' : '切换亮色模式'}
   aria-label="Toggle Theme"
 >

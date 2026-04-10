@@ -8,9 +8,9 @@
   let showDeleteConfirm = false;
   let deleteTarget = '';
 
-  async function handleLogin(event: CustomEvent<string>) {
+  async function handleLogin(password: string) {
     try {
-      await loginAdmin(event.detail);
+      await loginAdmin(password);
     } catch {
       // error state handled in shared admin state
     }
@@ -20,8 +20,8 @@
     clearAdminSession();
   }
 
-  function handleDelete(event: CustomEvent<string>) {
-    deleteTarget = event.detail;
+  function handleDelete(code: string) {
+    deleteTarget = code;
     showDeleteConfirm = true;
   }
 
@@ -36,8 +36,8 @@
     }
   });
 
-  function handlePage(event: CustomEvent<number>) {
-    fetchAdminCapsules(event.detail);
+  function handlePage(page: number) {
+    fetchAdminCapsules(page);
   }
 </script>
 
@@ -51,29 +51,29 @@
       <AdminLogin
         loading={adminState.loading}
         error={adminState.error}
-        on:login={handleLogin}
+        onlogin={handleLogin}
       />
     {:else}
       <div class="admin-bar flex items-center justify-between mb-6">
         <p class="text-sm text-secondary">已登录为管理员</p>
-        <button class="btn btn-secondary btn-sm" on:click={logout}>退出登录</button>
+        <button class="btn btn-secondary btn-sm" onclick={logout}>退出登录</button>
       </div>
 
       <CapsuleTable
         capsules={adminState.capsules}
         pageInfo={adminState.pageInfo}
         loading={adminState.loading}
-        on:delete={handleDelete}
-        on:page={handlePage}
-        on:refresh={() => fetchAdminCapsules(adminState.pageInfo.number)}
+        ondelete={handleDelete}
+        onpage={handlePage}
+        onrefresh={() => fetchAdminCapsules(adminState.pageInfo.number)}
       />
 
       <ConfirmDialog
         visible={showDeleteConfirm}
         title="确认删除"
         message={`确定要删除胶囊 ${deleteTarget} 吗？此操作不可恢复。`}
-        on:confirm={confirmDelete}
-        on:cancel={() => showDeleteConfirm = false}
+        onconfirm={confirmDelete}
+        oncancel={() => showDeleteConfirm = false}
       />
     {/if}
   </div>

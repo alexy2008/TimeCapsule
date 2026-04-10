@@ -2,12 +2,11 @@
 # 后端共享契约验证脚本
 # 兼容 macOS 默认 Bash 3.x
 
-set -u
+set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT_DIR="$(dirname "$(dirname "$SCRIPT_DIR")")"
 ADMIN_PASSWORD="${ADMIN_PASSWORD:-timecapsule-admin}"
-RUBY_BIN="${RUBY_BIN:-/usr/bin/ruby}"
 SAFE_PATH="/usr/bin:/bin:/usr/sbin:/sbin"
 
 if [ "$#" -eq 0 ]; then
@@ -113,8 +112,8 @@ ensure_dependencies_ready() {
     exit 1
   fi
 
-  if [ ! -x "$RUBY_BIN" ]; then
-    echo "缺少 ruby，请先安装。"
+  if ! command -v python3 >/dev/null 2>&1; then
+    echo "缺少 python3，请先安装。"
     exit 1
   fi
 }
@@ -197,38 +196,37 @@ json_assert() {
   body="$1"
   code="$2"
 
-  printf "%s" "$body" | env PATH="$SAFE_PATH" "$RUBY_BIN" -rjson -e "
-    begin
-      j = JSON.parse(STDIN.read)
-      ok = begin
-        ${code}
-      rescue StandardError
-        false
-      end
-      exit(ok ? 0 : 1)
-    rescue JSON::ParserError
-      exit 1
-    end
-  " 2>/dev/null
+  printf "%s" "$body" | python3 -c "
+import json, sys
+try:
+    j = json.load(sys.stdin)
+    ok = ${code}
+    sys.exit(0 if ok else 1)
+except:
+    sys.exit(1)
+" 2>/dev/null
 }
 
 json_extract() {
   body="$1"
   code="$2"
 
-  printf "%s" "$body" | env PATH="$SAFE_PATH" "$RUBY_BIN" -rjson -e "
-    j = JSON.parse(STDIN.read)
+  printf "%s" "$body" | python3 -c "
+import json, sys
+try:
+    j = json.load(sys.stdin)
     value = (${code})
-    if value.nil?
-      exit 1
-    end
-    puts value
-  " 2>/dev/null
+    if value is None:
+        sys.exit(1)
+    print(value)
+except:
+    sys.exit(1)
+" 2>/dev/null
 }
 
 iso_time_after_seconds() {
   seconds="$1"
-  PATH="$SAFE_PATH" "$RUBY_BIN" -e "require 'time'; puts (Time.now.utc + ${seconds}).iso8601" 2>/dev/null
+  python3 -c "from datetime import datetime, timedelta, timezone; print((datetime.now(timezone.utc) + timedelta(seconds=${seconds})).isoformat().replace('+00:00','Z'))" 2>/dev/null
 }
 
 run_contract_checks() {

@@ -21,8 +21,8 @@
     resetCreateState();
   });
 
-  function handleSubmit(event: CustomEvent<CreateCapsuleForm>) {
-    submitCreateForm(event.detail);
+  function handleSubmit(form: CreateCapsuleForm) {
+    submitCreateForm(form);
   }
 
   async function confirmCreate() {
@@ -53,7 +53,7 @@
       <div class="capsule-key-box">
         <span class="label">胶囊码</span>
         <div class="code-display mono-font glow-text">{createState.created.code}</div>
-        <button class="btn btn-icon btn-copy" on:click={copyCode} aria-label="Copy code">
+        <button class="btn btn-icon btn-copy" onclick={copyCode} aria-label="Copy code">
           {#if createState.copied}
             ✓
           {:else}
@@ -68,13 +68,13 @@
         <div class="mono-font notice-label">SAVE THIS CODE</div>
         <div class="code-notice-text">请务必妥善保存胶囊码。它是开启此胶囊的唯一凭证，丢失后将无法找回或补发。</div>
       </div>
-      <button class="btn btn-outline mt-6" on:click={goHome}>返回首页</button>
+      <button class="btn btn-outline mt-6" onclick={goHome}>返回首页</button>
     </div>
   </section>
 {:else}
   <section id="view-create" class="view active">
     <div class="view-header">
-      <button class="btn-back" on:click={() => push('/')}>
+      <button class="btn-back" onclick={() => push('/')}>
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="19" y1="12" x2="5" y2="12"></line>
           <polyline points="12 19 5 12 12 5"></polyline>
@@ -87,13 +87,13 @@
     {#if createState.error}
       <div class="create-error">{createState.error}</div>
     {/if}
-    <CapsuleForm loading={createState.loading} on:submit={handleSubmit} />
+    <CapsuleForm loading={createState.loading} onsubmit={handleSubmit} />
     <ConfirmDialog
       visible={createState.showConfirm}
       title="确认创建"
       message={`确定要创建标题为「${createState.pendingForm?.title || ''}」的时间胶囊吗？\n\n胶囊一经创建，内容和开启时间将无法修改，也无法删除。`}
-      on:confirm={confirmCreate}
-      on:cancel={cancelCreateConfirmation}
+      onconfirm={confirmCreate}
+      oncancel={cancelCreateConfirmation}
     />
   </section>
 {/if}

@@ -1,14 +1,23 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
   import type { Capsule, PageData } from '../types';
 
-  export let capsules: Capsule[] = [];
-  export let pageInfo: Omit<PageData<Capsule>, 'content'> = { totalElements: 0, totalPages: 0, number: 0, size: 0 };
-  export let loading = false;
+  let {
+    capsules = [],
+    pageInfo = { totalElements: 0, totalPages: 0, number: 0, size: 0 },
+    loading = false,
+    ondelete = () => {},
+    onpage = () => {},
+    onrefresh = () => {},
+  }: {
+    capsules?: Capsule[];
+    pageInfo?: Omit<PageData<Capsule>, 'content'>;
+    loading?: boolean;
+    ondelete?: (code: string) => void;
+    onpage?: (page: number) => void;
+    onrefresh?: () => void;
+  } = $props();
 
-  const dispatch = createEventDispatcher<{ delete: string; page: number; refresh: void }>();
-
-  let expandedCode: string | null = null;
+  let expandedCode = $state<string | null>(null);
 
   function toggleExpand(code: string) {
     expandedCode = expandedCode === code ? null : code;
@@ -27,7 +36,7 @@
 <div class="capsule-table-wrapper">
   <div class="table-header flex items-center justify-between mb-4">
     <h3>胶囊列表 ({pageInfo.totalElements} 条)</h3>
-    <button class="btn btn-secondary btn-sm" on:click={() => dispatch('refresh')}>刷新</button>
+    <button class="btn btn-secondary btn-sm" onclick={onrefresh}>刷新</button>
   </div>
 
   {#if loading}
@@ -61,11 +70,11 @@
             <td class="actions-cell">
               <button
                 class="btn btn-secondary btn-sm"
-                on:click={() => toggleExpand(capsule.code)}
+                onclick={() => toggleExpand(capsule.code)}
               >
                 {expandedCode === capsule.code ? '收起' : '查看'}
               </button>
-              <button class="btn btn-danger btn-sm" on:click={() => dispatch('delete', capsule.code)}>删除</button>
+              <button class="btn btn-danger btn-sm" onclick={() => ondelete(capsule.code)}>删除</button>
             </td>
           </tr>
           {#if expandedCode === capsule.code}
@@ -88,7 +97,7 @@
       <button
         class="btn btn-secondary btn-sm"
         disabled={pageInfo.number === 0}
-        on:click={() => dispatch('page', pageInfo.number - 1)}
+        onclick={() => onpage(pageInfo.number - 1)}
       >上一页</button>
       <span class="text-sm text-secondary">
         {pageInfo.number + 1} / {pageInfo.totalPages}
@@ -96,7 +105,7 @@
       <button
         class="btn btn-secondary btn-sm"
         disabled={pageInfo.number >= pageInfo.totalPages - 1}
-        on:click={() => dispatch('page', pageInfo.number + 1)}
+        onclick={() => onpage(pageInfo.number + 1)}
       >下一页</button>
     </div>
   {/if}

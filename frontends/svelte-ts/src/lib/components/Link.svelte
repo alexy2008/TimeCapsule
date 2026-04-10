@@ -1,10 +1,9 @@
 <script lang="ts">
   import { link } from 'svelte-spa-router';
-  export let to: string;
-  let className: string = '';
-  export { className as class };
+
+  let { to, class: className = '', 'aria-label': ariaLabel }: { to: string; class?: string; 'aria-label'?: string } = $props();
 </script>
 
-<a href={to} class={className} use:link>
+<a href={to} class={className} use:link aria-label={ariaLabel}>
   <slot></slot>
 </a>

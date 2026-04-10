@@ -1,19 +1,18 @@
 <script lang="ts">
-  import { onMount, onDestroy, createEventDispatcher } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
 
-  export let targetIso: string;
-  const dispatch = createEventDispatcher<{ expired: void }>();
+  let { targetIso, onexpired = () => {} }: { targetIso: string; onexpired?: () => void } = $props();
 
-  let timeVar = { days: 0, hours: 0, minutes: 0, seconds: 0, expired: false };
-  let timer: ReturnType<typeof setInterval>;
-  let expiredTimer: ReturnType<typeof setTimeout>;
+  let timeVar = $state({ days: 0, hours: 0, minutes: 0, seconds: 0, expired: false });
+  let timer: ReturnType<typeof setInterval> | undefined;
+  let expiredTimer: ReturnType<typeof setTimeout> | undefined;
 
   function calc() {
     const diff = new Date(targetIso).getTime() - Date.now();
     if (diff <= 0) {
       if (!timeVar.expired) {
         timeVar = { days: 0, hours: 0, minutes: 0, seconds: 0, expired: true };
-        expiredTimer = setTimeout(() => dispatch('expired'), 3000);
+        expiredTimer = setTimeout(() => onexpired(), 3000);
       }
       return;
     }
@@ -43,12 +42,12 @@
     return String(n).padStart(2, '0');
   }
 
-  $: units = [
+  const units = $derived([
     { value: timeVar.days,    label: '天' },
     { value: timeVar.hours,   label: '时' },
     { value: timeVar.minutes, label: '分' },
     { value: timeVar.seconds, label: '秒' },
-  ];
+  ]);
 </script>
 
 {#if timeVar.expired}

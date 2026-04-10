@@ -65,7 +65,13 @@ stop_proxy() {
     local pid
     pid="$(cat "$PID_FILE")"
     kill "$pid" 2>/dev/null || true
-    wait "$pid" 2>/dev/null || true
+    # 轮询等待进程退出（最多5秒）
+    for i in $(seq 1 10); do
+      if ! kill -0 "$pid" 2>/dev/null; then
+        break
+      fi
+      sleep 0.5
+    done
     echo "已停止 8080 转发 (PID: $pid)"
   fi
 

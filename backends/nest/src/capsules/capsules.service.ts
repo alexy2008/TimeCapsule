@@ -35,12 +35,12 @@ export class CapsulesService {
 
   createCapsule(request: CreateCapsuleDto): CapsuleCreatedDto {
     const openAt = parseUtc(request.openAt);
-    const now = new Date();
+    const now = new Date(Date.now());
 
     if (Number.isNaN(openAt.getTime())) {
       throw new AppBadRequestException('开启时间必须是 ISO 8601 格式');
     }
-    if (openAt <= now) {
+    if (openAt.getTime() < now.getTime()) {
       throw new AppBadRequestException('开启时间必须在未来');
     }
 
@@ -125,7 +125,7 @@ export class CapsulesService {
 
   private toDetailResponse(capsule: CapsuleRow, includeContent: boolean): CapsuleDetailDto {
     const openAt = parseUtc(capsule.open_at);
-    const opened = new Date() > openAt;
+    const opened = Date.now() > openAt.getTime();
 
     return {
       code: capsule.code,

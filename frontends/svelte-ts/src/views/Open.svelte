@@ -11,13 +11,11 @@
     setOpenCode,
   } from '../lib/open-state.svelte';
 
-  // 路由参数：svelte-spa-router 会传入 params 对象
-  export let params: { code?: string } = {};
+  let { params = {} }: { params?: { code?: string } } = $props();
 
-  async function handleQuery(event?: CustomEvent<string> | string) {
-    const queryCode = typeof event === 'string' ? event : event?.detail;
-    if (!queryCode) return;
-    push(`/open/${queryCode}`);
+  async function handleQuery(code: string) {
+    if (!code) return;
+    push(`/open/${code}`);
   }
 
   async function handleExpired() {
@@ -27,15 +25,19 @@
     }
   }
 
-  $: if (params.code) {
-    setOpenCode(params.code);
-  } else {
-    resetOpenState();
-  }
+  $effect(() => {
+    if (params.code) {
+      setOpenCode(params.code);
+    } else {
+      resetOpenState();
+    }
+  });
 
-  $: if (params.code) {
-    void openCapsuleByCode(params.code);
-  }
+  $effect(() => {
+    if (params.code) {
+      void openCapsuleByCode(params.code);
+    }
+  });
 
   function handleBack() {
     if (openState.capsule) {
@@ -53,7 +55,7 @@
 
 <section id="view-search" class="view active">
   <div class="view-header">
-    <button class="btn-back" on:click={handleBack}>
+    <button class="btn-back" onclick={handleBack}>
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <line x1="19" y1="12" x2="5" y2="12"></line>
         <polyline points="12 19 5 12 12 5"></polyline>
@@ -68,10 +70,10 @@
       code={openState.code}
       loading={openState.loading}
       error={openState.error}
-      on:codeChange={(event) => setOpenCode(event.detail)}
-      on:submit={handleQuery}
+      oncodeChange={(value: string) => setOpenCode(value)}
+      onsubmit={handleQuery}
     />
   {:else}
-    <CapsuleCard capsule={openState.capsule} on:expired={handleExpired} />
+    <CapsuleCard capsule={openState.capsule} onexpired={handleExpired} />
   {/if}
 </section>

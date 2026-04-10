@@ -37,6 +37,12 @@ cd "$ROOT_DIR/frontends/svelte-ts"
 npm run build
 echo "[Svelte 前端] 构建完成: dist/"
 
+# 构建 React 前端
+echo "[前端] 构建 React..."
+cd "$ROOT_DIR/frontends/react-ts"
+npm run build
+echo "[React 前端] 构建完成: dist/"
+
 # 构建 Next 全栈
 echo "[全栈] 构建 Next.js..."
 cd "$ROOT_DIR/fullstacks/next-ts"
@@ -71,6 +77,7 @@ echo "  后端 JAR:       backends/spring-boot/target/hellotime-backend-1.0.0.ja
 echo "  Vue 静态文件:   frontends/vue3-ts/dist/"
 echo "  Angular 静态:   frontends/angular-ts/dist/angular-ts/"
 echo "  Svelte 静态:    frontends/svelte-ts/dist/"
+echo "  React 静态:     frontends/react-ts/dist/"
 echo "  Next 构建产物:  fullstacks/next-ts/.next/"
 echo "  Nuxt 构建产物:  fullstacks/nuxt-ts/.output/"
 echo "  Spring MVC JAR: fullstacks/spring-boot-mvc/target/hellotime-backend-1.0.0.jar"

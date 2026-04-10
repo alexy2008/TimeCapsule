@@ -8,12 +8,16 @@ from __future__ import annotations
 
 import argparse
 import selectors
+import signal
 import socket
 import socketserver
+import threading
 from typing import Tuple
 
-
 BUFFER_SIZE = 65536
+MAX_CONNECTIONS = 100
+active_connections = 0
+connections_lock = threading.Lock()
 
 
 def pump_bidirectional(left: socket.socket, right: socket.socket) -> None:
@@ -43,14 +47,30 @@ class ForwardHandler(socketserver.BaseRequestHandler):
     target_port: int
 
     def handle(self) -> None:
-        upstream = socket.create_connection((self.target_host, self.target_port))
+        global active_connections
+        with connections_lock:
+            if active_connections >= MAX_CONNECTIONS:
+                return
+            active_connections += 1
+
         try:
-            self.request.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-            upstream.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-            pump_bidirectional(self.request, upstream)
+            upstream = socket.create_connection((self.target_host, self.target_port))
+            try:
+                try:
+                    self.request.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+                except OSError:
+                    pass
+                try:
+                    upstream.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+                except OSError:
+                    pass
+                pump_bidirectional(self.request, upstream)
+            finally:
+                upstream.close()
+                self.request.close()
         finally:
-            upstream.close()
-            self.request.close()
+            with connections_lock:
+                active_connections -= 1
 
 
 class ThreadedTCPServer(socketserver.ThreadingTCPServer):
@@ -81,13 +101,25 @@ def main() -> None:
     server_address: Tuple[str, int] = (args.listen_host, args.listen_port)
     handler = create_handler(args.target_host, args.target_port)
 
-    with ThreadedTCPServer(server_address, handler) as server:
+    server = ThreadedTCPServer(server_address, handler)
+
+    def shutdown(signum: int, frame) -> None:
+        print("收到关闭信号，正在停止服务...", flush=True)
+        server.shutdown()
+        server.server_close()
+
+    signal.signal(signal.SIGTERM, shutdown)
+    signal.signal(signal.SIGINT, shutdown)
+
+    try:
         print(
             f"Forwarding tcp://{args.listen_host}:{args.listen_port} -> "
             f"tcp://{args.target_host}:{args.target_port}",
             flush=True,
         )
         server.serve_forever()
+    finally:
+        server.server_close()
 
 
 if __name__ == "__main__":

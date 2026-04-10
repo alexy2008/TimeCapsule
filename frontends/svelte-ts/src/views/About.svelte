@@ -3,9 +3,9 @@
   import { techStackState } from '../lib/tech-stack-state.svelte';
 
   let clickCount = 0;
-  $: backendLogo = techStackState.techStack ? `/tech-logos/backend.svg?v=${encodeURIComponent(techStackState.techStack.framework)}` : '/tech-logos/backend.svg';
-  $: languageLogo = techStackState.techStack ? `/tech-logos/language.svg?v=${encodeURIComponent(techStackState.techStack.language)}` : '/tech-logos/language.svg';
-  $: databaseLogo = techStackState.techStack ? `/tech-logos/database.svg?v=${encodeURIComponent(techStackState.techStack.database)}` : '/tech-logos/database.svg';
+  const backendLogo = $derived(techStackState.techStack ? `/tech-logos/backend.svg?v=${encodeURIComponent(techStackState.techStack.framework)}` : '/tech-logos/backend.svg');
+  const languageLogo = $derived(techStackState.techStack ? `/tech-logos/language.svg?v=${encodeURIComponent(techStackState.techStack.language)}` : '/tech-logos/language.svg');
+  const databaseLogo = $derived(techStackState.techStack ? `/tech-logos/database.svg?v=${encodeURIComponent(techStackState.techStack.database)}` : '/tech-logos/database.svg');
 
   function handleSecretClick() {
     clickCount++;
@@ -18,7 +18,7 @@
 
 <section id="view-about" class="view active">
   <div class="view-header">
-    <button class="btn-back" on:click={() => push('/')}>
+    <button class="btn-back" onclick={() => push('/')}>
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <line x1="19" y1="12" x2="5" y2="12"></line>
         <polyline points="12 19 5 12 12 5"></polyline>
@@ -42,7 +42,7 @@
           </p>
         </div>
         <div class="about-hero-deco">
-          <button type="button" class="tech-orb secret-trigger" aria-label="隐藏管理入口" on:click={handleSecretClick}>
+          <button type="button" class="tech-orb secret-trigger" aria-label="隐藏管理入口" onclick={handleSecretClick}>
             <div class="orb-core"></div>
             <div class="orb-ring ring-1"></div>
             <div class="orb-ring ring-2"></div>

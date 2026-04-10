@@ -4,11 +4,11 @@
   import { simplifyTechLabel } from '../lib/tech-stack-utils';
 
   const Link = ObjectLink;
-  $: backendLogo = techStackState.techStack ? `/tech-logos/backend.svg?v=${encodeURIComponent(techStackState.techStack.framework)}` : '/tech-logos/backend.svg';
-  $: languageLogo = techStackState.techStack ? `/tech-logos/language.svg?v=${encodeURIComponent(techStackState.techStack.language)}` : '/tech-logos/language.svg';
-  $: databaseLogo = techStackState.techStack ? `/tech-logos/database.svg?v=${encodeURIComponent(techStackState.techStack.database)}` : '/tech-logos/database.svg';
+  const backendLogo = $derived(techStackState.techStack ? `/tech-logos/backend.svg?v=${encodeURIComponent(techStackState.techStack.framework)}` : '/tech-logos/backend.svg');
+  const languageLogo = $derived(techStackState.techStack ? `/tech-logos/language.svg?v=${encodeURIComponent(techStackState.techStack.language)}` : '/tech-logos/language.svg');
+  const databaseLogo = $derived(techStackState.techStack ? `/tech-logos/database.svg?v=${encodeURIComponent(techStackState.techStack.database)}` : '/tech-logos/database.svg');
 
-  $: techItems = [
+  const techItems = $derived([
     { src: '/frontend.svg', alt: 'Svelte Logo', label: 'Svelte' },
     { src: '/frontend-language.svg', alt: 'TypeScript Logo', label: 'TypeScript' },
     {
@@ -26,7 +26,7 @@
       alt: '数据库 Logo',
       label: techStackState.loading ? '...' : techStackState.error || !techStackState.techStack ? '?' : simplifyTechLabel(techStackState.techStack.database),
     },
-  ];
+  ]);
 </script>
 
 <section id="view-home" class="view active">
@@ -36,7 +36,7 @@
     <p class="hero-subtitle">将您的寄语、秘密或愿景封装于时间胶囊中，直到指定的未来时刻才能被访问。</p>
 
     <div class="action-cards">
-      <Link to="/create" class="action-card cyber-glass action-card-link">
+      <Link to="/create" class="action-card cyber-glass action-card-link" aria-label="创建胶囊">
         <div class="card-icon cyan-glow">
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M12 5v14M5 12h14"></path>
@@ -46,7 +46,7 @@
         <p>封存此刻寄语，投递给未来的自己</p>
       </Link>
 
-      <Link to="/open" class="action-card cyber-glass action-card-link">
+      <Link to="/open" class="action-card cyber-glass action-card-link" aria-label="开启胶囊">
         <div class="card-icon magenta-glow">
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="11" cy="11" r="8"></circle>

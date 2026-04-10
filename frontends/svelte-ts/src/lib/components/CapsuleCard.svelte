@@ -2,11 +2,9 @@
   import { onDestroy } from 'svelte';
   import type { Capsule } from '../types';
   import CountdownClock from './CountdownClock.svelte';
-  import { createEventDispatcher } from 'svelte';
 
-  export let capsule: Capsule;
-  const dispatch = createEventDispatcher<{ expired: void }>();
-  let animating = false;
+  let { capsule, onexpired = () => {} }: { capsule: Capsule; onexpired?: () => void } = $props();
+  let animating = $state(false);
   let animationTimer: ReturnType<typeof setTimeout> | null = null;
 
   function formatTime(iso: string): string {
@@ -19,11 +17,7 @@
     });
   }
 
-  function handleExpired() {
-    dispatch('expired');
-  }
-
-  $: {
+  $effect(() => {
     if (animationTimer) {
       clearTimeout(animationTimer);
       animationTimer = null;
@@ -37,7 +31,7 @@
     } else {
       animating = false;
     }
-  }
+  });
 
   onDestroy(() => {
     if (animationTimer) {
@@ -45,12 +39,12 @@
     }
   });
 
-  $: progress = (() => {
+  const progress = $derived.by(() => {
     const created = new Date(capsule.createdAt).getTime();
     const open = new Date(capsule.openAt).getTime();
     const now = Date.now();
     return Math.max(0, Math.min(100, ((now - created) / (open - created)) * 100));
-  })();
+  });
 </script>
 
 {#if capsule.opened && capsule.content}
@@ -77,7 +71,7 @@
           <div class="binary-rain mono-font">01001010...</div>
         </div>
       {/if}
-      <div class="content-text" style:opacity={animating ? 0 : 1} style:transition="opacity 0.5s ease" style:white-space="pre-wrap">
+      <div class="content-text" style="opacity: {animating ? 0 : 1}; transition: opacity 0.5s ease; white-space: pre-wrap">
         {capsule.content}
       </div>
     </div>
@@ -95,14 +89,14 @@
       <span class="created-at">创建时间: <span class="mono-font">{formatTime(capsule.createdAt)}</span></span>
     </div>
 
-    <CountdownClock targetIso={capsule.openAt} on:expired={handleExpired} />
+    <CountdownClock targetIso={capsule.openAt} onexpired={onexpired} />
 
     <div class="data-encryption-visual mt-8">
       <div class="scramble-text mono-font" style="opacity: 0.7; margin-bottom: 0.5rem; font-size: 0.85rem">
         0x8F9A... 内容已被锁定 ...3B2C1
       </div>
       <div class="progress-bar-container">
-        <div class="progress-bar" style:width={`${progress}%`}></div>
+        <div class="progress-bar" style="width: {progress}%"></div>
       </div>
       <div class="target-time mt-2" style="font-size: 0.85rem; color: var(--text-secondary)">
         开启时间: <span class="mono-font text-glow">{formatTime(capsule.openAt)}</span>
