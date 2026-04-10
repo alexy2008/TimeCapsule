@@ -10,7 +10,7 @@ ADMIN_PASSWORD="${ADMIN_PASSWORD:-timecapsule-admin}"
 SAFE_PATH="/usr/bin:/bin:/usr/sbin:/sbin"
 
 if [ "$#" -eq 0 ]; then
-  SELECTED_BACKENDS="spring-boot fastapi gin elysia nest aspnet-core"
+  SELECTED_BACKENDS="spring-boot fastapi gin elysia nest aspnet-core vapor axum drogon"
 else
   SELECTED_BACKENDS="$*"
 fi
@@ -30,6 +30,9 @@ label_for() {
     elysia) echo "Elysia" ;;
     nest) echo "NestJS" ;;
     aspnet-core) echo "ASP.NET Core" ;;
+    vapor) echo "Vapor" ;;
+    axum) echo "Axum" ;;
+    drogon) echo "Drogon" ;;
     *) echo "Unknown" ;;
   esac
 }
@@ -42,6 +45,9 @@ dir_for() {
     elysia) echo "$ROOT_DIR/backends/elysia" ;;
     nest) echo "$ROOT_DIR/backends/nest" ;;
     aspnet-core) echo "$ROOT_DIR/backends/aspnet-core" ;;
+    vapor) echo "$ROOT_DIR/backends/vapor" ;;
+    axum) echo "$ROOT_DIR/backends/axum" ;;
+    drogon) echo "$ROOT_DIR/backends/drogon" ;;
     *) return 1 ;;
   esac
 }
@@ -54,6 +60,9 @@ base_url_for() {
     elysia) echo "http://127.0.0.1:18030" ;;
     nest) echo "http://127.0.0.1:18040" ;;
     aspnet-core) echo "http://127.0.0.1:18050" ;;
+    vapor) echo "http://127.0.0.1:18060" ;;
+    axum) echo "http://127.0.0.1:18070" ;;
+    drogon) echo "http://127.0.0.1:18080" ;;
     *) return 1 ;;
   esac
 }
@@ -66,6 +75,9 @@ port_for() {
     elysia) echo "18030" ;;
     nest) echo "18040" ;;
     aspnet-core) echo "18050" ;;
+    vapor) echo "18060" ;;
+    axum) echo "18070" ;;
+    drogon) echo "18080" ;;
     *) return 1 ;;
   esac
 }
@@ -78,6 +90,9 @@ run_command_for() {
     elysia) echo "./run" ;;
     nest) echo "./run" ;;
     aspnet-core) echo "./run" ;;
+    vapor) echo "./run" ;;
+    axum) echo "./run" ;;
+    drogon) echo "./run" ;;
     *) return 1 ;;
   esac
 }
@@ -202,9 +217,10 @@ try:
     j = json.load(sys.stdin)
     ok = ${code}
     sys.exit(0 if ok else 1)
-except:
+except Exception as exc:
+    print(exc, file=sys.stderr)
     sys.exit(1)
-" 2>/dev/null
+"
 }
 
 json_extract() {
@@ -236,7 +252,7 @@ run_contract_checks() {
   echo "[$(label_for "$backend")] 健康检查"
   api_request "GET" "$base_url/api/v1/health"
   [ "$RESPONSE_STATUS" = "200" ] || { echo "  健康检查状态码错误: $RESPONSE_STATUS"; return 1; }
-  json_assert "$RESPONSE_BODY" 'j["success"] == true && j["data"]["status"] == "UP" && j["data"]["techStack"].is_a?(Hash)' || {
+  json_assert "$RESPONSE_BODY" 'j.get("success") == True and j.get("data", {}).get("status") == "UP" and "techStack" in j.get("data", {})' || {
     echo "  健康检查响应结构错误"
     return 1
   }
@@ -249,7 +265,7 @@ run_contract_checks() {
   create_future_body="{\"title\":\"${future_title}\",\"content\":\"${future_content}\",\"creator\":\"Verifier\",\"openAt\":\"${future_open_at}\"}"
   api_request "POST" "$base_url/api/v1/capsules" "$create_future_body"
   [ "$RESPONSE_STATUS" = "201" ] || { echo "  创建未来胶囊失败: $RESPONSE_STATUS"; return 1; }
-  json_assert "$RESPONSE_BODY" 'j["success"] == true && j["data"]["code"].to_s.length == 8 && j["data"]["title"] == "'"${future_title}"'"' || {
+  json_assert "$RESPONSE_BODY" 'j.get("success") == True and len(str(j.get("data", {}).get("code", ""))) == 8 and j.get("data", {}).get("title") == "'"${future_title}"'"' || {
     echo "  创建未来胶囊响应结构错误"
     return 1
   }
@@ -260,7 +276,7 @@ run_contract_checks() {
 
   api_request "GET" "$base_url/api/v1/capsules/$future_code"
   [ "$RESPONSE_STATUS" = "200" ] || { echo "  查询未来胶囊失败: $RESPONSE_STATUS"; return 1; }
-  json_assert "$RESPONSE_BODY" 'j["success"] == true && j["data"]["opened"] == false && (!j["data"].key?("content") || j["data"]["content"].nil?)' || {
+  json_assert "$RESPONSE_BODY" 'j.get("success") == True and j.get("data", {}).get("opened") == False and ("content" not in j.get("data", {}) or j.get("data", {}).get("content") is None)' || {
     echo "  未来胶囊未正确隐藏内容"
     return 1
   }
@@ -269,7 +285,7 @@ run_contract_checks() {
   echo "[$(label_for "$backend")] 查询不存在的胶囊"
   api_request "GET" "$base_url/api/v1/capsules/NONEXIST"
   [ "$RESPONSE_STATUS" = "404" ] || { echo "  不存在胶囊状态码错误: $RESPONSE_STATUS"; return 1; }
-  json_assert "$RESPONSE_BODY" 'j["success"] == false && j["errorCode"] == "CAPSULE_NOT_FOUND"' || {
+  json_assert "$RESPONSE_BODY" 'j.get("success") == False and j.get("errorCode") == "CAPSULE_NOT_FOUND"' || {
     echo "  不存在胶囊错误码错误"
     return 1
   }
@@ -280,7 +296,7 @@ run_contract_checks() {
   past_body="{\"title\":\"Past-${backend}\",\"content\":\"past-content\",\"creator\":\"Verifier\",\"openAt\":\"${past_open_at}\"}"
   api_request "POST" "$base_url/api/v1/capsules" "$past_body"
   [ "$RESPONSE_STATUS" = "400" ] || { echo "  过去时间状态码错误: $RESPONSE_STATUS"; return 1; }
-  json_assert "$RESPONSE_BODY" 'j["success"] == false' || {
+  json_assert "$RESPONSE_BODY" 'j.get("success") == False' || {
     echo "  过去时间未返回统一错误结构"
     return 1
   }
@@ -300,7 +316,7 @@ run_contract_checks() {
   sleep 3
   api_request "GET" "$base_url/api/v1/capsules/$opened_code"
   [ "$RESPONSE_STATUS" = "200" ] || { echo "  查询已开启胶囊失败: $RESPONSE_STATUS"; return 1; }
-  json_assert "$RESPONSE_BODY" 'j["success"] == true && j["data"]["opened"] == true && j["data"]["content"] == "'"${opened_content}"'"' || {
+  json_assert "$RESPONSE_BODY" 'j.get("success") == True and j.get("data", {}).get("opened") == True and j.get("data", {}).get("content") == "'"${opened_content}"'"' || {
     echo "  已开启胶囊未公开内容"
     return 1
   }
@@ -318,7 +334,7 @@ run_contract_checks() {
   wrong_login_body='{"password":"wrong-password"}'
   api_request "POST" "$base_url/api/v1/admin/login" "$wrong_login_body"
   [ "$RESPONSE_STATUS" = "401" ] || { echo "  错误密码状态码错误: $RESPONSE_STATUS"; return 1; }
-  json_assert "$RESPONSE_BODY" 'j["success"] == false && j["errorCode"] == "UNAUTHORIZED"' || {
+  json_assert "$RESPONSE_BODY" 'j.get("success") == False and j.get("errorCode") == "UNAUTHORIZED"' || {
     echo "  错误密码错误码错误"
     return 1
   }
@@ -336,14 +352,11 @@ run_contract_checks() {
   echo "[$(label_for "$backend")] 管理员列表与删除"
   api_request "GET" "$base_url/api/v1/admin/capsules?page=0&size=20" "" "$token"
   [ "$RESPONSE_STATUS" = "200" ] || { echo "  管理员列表失败: $RESPONSE_STATUS"; return 1; }
-  json_assert "$RESPONSE_BODY" 'j["success"] == true && j["data"]["content"].is_a?(Array) && !j["data"]["totalElements"].nil? && !j["data"]["totalPages"].nil?' || {
+  json_assert "$RESPONSE_BODY" 'j.get("success") == True and type(j.get("data", {}).get("content")) is list and j.get("data", {}).get("totalElements") is not None and j.get("data", {}).get("totalPages") is not None' || {
     echo "  管理员列表分页结构错误"
     return 1
   }
-  json_assert "$RESPONSE_BODY" '
-    item = j["data"]["content"].find { |capsule| capsule["code"] == "'"${future_code}"'" }
-    !item.nil? && item["content"] == "'"${future_content}"'"
-  ' || {
+  json_assert "$RESPONSE_BODY" 'next((capsule for capsule in j["data"]["content"] if capsule["code"] == "'"${future_code}"'" and capsule["content"] == "'"${future_content}"'"), None) is not None' || {
     echo "  管理员列表未返回完整内容"
     return 1
   }
@@ -353,7 +366,7 @@ run_contract_checks() {
 
   api_request "DELETE" "$base_url/api/v1/admin/capsules/$opened_code" "" "$token"
   [ "$RESPONSE_STATUS" = "200" ] || { echo "  管理员删除失败: $RESPONSE_STATUS"; return 1; }
-  json_assert "$RESPONSE_BODY" 'j["success"] == true' || {
+  json_assert "$RESPONSE_BODY" 'j.get("success") == True' || {
     echo "  管理员删除未返回 success=true"
     return 1
   }
@@ -363,7 +376,7 @@ run_contract_checks() {
 
   api_request "DELETE" "$base_url/api/v1/admin/capsules/NOTEXIST" "" "$token"
   [ "$RESPONSE_STATUS" = "404" ] || { echo "  删除不存在胶囊状态码错误: $RESPONSE_STATUS"; return 1; }
-  json_assert "$RESPONSE_BODY" 'j["success"] == false && j["errorCode"] == "CAPSULE_NOT_FOUND"' || {
+  json_assert "$RESPONSE_BODY" 'j.get("success") == False and j.get("errorCode") == "CAPSULE_NOT_FOUND"' || {
     echo "  删除不存在胶囊错误码错误"
     return 1
   }

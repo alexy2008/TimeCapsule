@@ -10,7 +10,7 @@ HelloTime 是一个技术展示型 demo，不是生产模板。
 
 - 每个实现都保持独立
 - 每个实现都呈现相同的产品语义
-- 仓库能够清楚地验证这些实现的相同点与差异点
+- 仓库能够清楚地验证这些实现的“等价性”与技术差异点
 
 ## 核心原则
 
@@ -68,8 +68,10 @@ HelloTime 是一个技术展示型 demo，不是生产模板。
 
 例如：
 
-- 同一组后端契约检查同时跑在 Spring Boot、FastAPI、Gin、Elysia 上
-- 同一组前端用户流程检查同时跑在 React、Vue、Angular、Svelte 上
+- 同一组后端契约检查同时跑在 Spring Boot、FastAPI、Gin、Elysia、NestJS、ASP.NET Core、Vapor、Axum、Drogon 上
+- 同一组前端用户流程检查同时跑在 React、Vue、Angular、Svelte、SolidJS 上
+- 同一组 API 集成测试同时验证分离式架构与全栈式（Next/Nuxt/Spring MVC）架构的行为一致性
+- [规划中] 桌面端与移动端的业务逻辑核心自动化验证（使用 Appium 或 Playwright Native）
 
 ### 5. 根目录工具只负责编排，不替代本地实现的所有权
 
@@ -95,6 +97,15 @@ HelloTime 是一个技术展示型 demo，不是生产模板。
 
 当读者把两个实现并排看时，不应该猜测某个差异究竟是设计选择，还是意外漂移。
 
+### 7. 跨媒介的语义“绝对一致”
+
+对于桌面端（Tauri/SwiftUI/WinUI）和移动端（iOS）分支，虽然交互媒介、输入方式和屏幕尺寸发生了剧变，但“时间胶囊”的核心逻辑（锁定逻辑、加密状态、解锁时间计算、管理员权限边界）必须保持与 Web 原型语义的 100% 对齐。
+
+这意味着：
+- 不得因为移动端开发方便而简化 API 安全校验。
+- 不得因为桌面端存储方便而改变数据的本地同步逻辑。
+- 设计语言（如 Cyber-Glass 风格）应在不同平台上通过本地技术栈进行等效实现，而非简单的妥协。
+
 ## 建议的仓库职责划分
 
 ### `spec/`
@@ -115,10 +126,15 @@ HelloTime 是一个技术展示型 demo，不是生产模板。
 
 当前后端实现包括：
 
-- `spring-boot`
-- `fastapi`
-- `gin`
-- `elysia`
+- `spring-boot` (Java)
+- `fastapi` (Python)
+- `gin` (Go)
+- `elysia` (Bun/TS)
+- `nest` (Node.js/TS)
+- `aspnet-core` (C#/.NET)
+- `vapor` (Swift)
+- `axum` (Rust)
+- `drogon` (C++)
 
 每个后端都应该能独立启动和演示。
 
@@ -128,12 +144,34 @@ HelloTime 是一个技术展示型 demo，不是生产模板。
 
 当前前端实现包括：
 
-- `react-ts`
 - `vue3-ts`
+- `react-ts`
 - `angular-ts`
 - `svelte-ts`
+- `solid-ts`
 
 每个前端都应该能独立启动和演示。
+
+### `fullstacks/`
+
+负责自包含的全栈实现方案。
+
+当前全栈实现包括：
+- `next-ts` (Next.js 15)
+- `nuxt-ts` (Nuxt 3)
+- `spring-boot-mvc` (Spring Boot + Thymeleaf + HTMX)
+
+全栈实现应展示“如何在一个统一的代码库中闭环产品语义”，它们通常不依赖外部 API 映射脚本。
+
+### `desktop/` & `mobile/`
+
+负责原生或跨平台客户端实现。
+
+目标是展示如何将“赛博玻璃”设计系统和 OpenAPI 契约迁移到非浏览器环境：
+- `desktop/tauri` (Tauri 2 + React)
+- `desktop/macos-swiftui` (macOS 原生)
+- `desktop/winui3` (Windows 原生)
+- `mobile/ios-swiftui` (iOS 原生)
 
 ### `verification/`
 
@@ -152,9 +190,9 @@ HelloTime 是一个技术展示型 demo，不是生产模板。
 
 ## 当前最值得优先重构的方向
 
-### 1. 让验证覆盖范围与实现矩阵一致
+### 1. 深度覆盖多端验证矩阵
 
-如果仓库声称有六个后端、四个前端和三套全栈实现，那么根级验证必须明确覆盖这些目标。
+目前仓库虽然拥有庞大的实现矩阵，但自动化验证主要集中在 Web 端。后续应致力于将桌面端（Tauri/Native）和移动端的关键用户路径纳入根级验证体系，确保“跨平台语义一致性”不因手动测试的疏漏而失效。
 
 ### 2. 把共享行为规则从“口头约定”变成规范
 

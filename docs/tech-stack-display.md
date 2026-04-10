@@ -40,13 +40,23 @@
      - 后端语言
      - 数据库
 
-桌面端和前后端分离实现一样，需要通过 `GET /api/v1/health` 读取后端三项名称；不同点在于桌面端自己的前两项由实现自身固定声明，不走浏览器图标资源方案。
+4. **移动端实现**
+   - 目录：`mobile/*`
+   - 使用原生移动技术栈构建
+   - 当前统一展示 5 项：
+     - 移动端框架
+     - 移动端语言
+     - 后端框架
+     - 后端语言
+     - 数据库
 
-当前桌面端参考实现包括：
+桌面端和移动端实现一样，都需要通过 `GET /api/v1/health` 读取后端三项名称；不同点在于它们自己的前两项由实现自身固定声明，不走浏览器的静态资源（.svg）映射。
 
+当前参考实现包括：
 - `desktop/tauri`
 - `desktop/macos-swiftui`
 - `desktop/winui3`
+- `mobile/ios-swiftui`
 
 后续新增实现时，必须先明确自己属于哪一类，再决定采用哪套展示规则。
 
@@ -359,6 +369,10 @@ bash verification/scripts/verify-frontend-browser-flows.sh next-ts nuxt-ts sprin
 - Vue：`frontends/vue3-ts`
 - Angular：`frontends/angular-ts`
 - Svelte：`frontends/svelte-ts`
+- SolidJS：`frontends/solid-ts`
+- macOS SwiftUI：`desktop/macos-swiftui`
+- Windows WinUI 3：`desktop/winui3`
+- iOS SwiftUI：`mobile/ios-swiftui`
 - Next 全栈：`fullstacks/next-ts`
 - Nuxt 全栈：`fullstacks/nuxt-ts`
 - Spring MVC 全栈：`fullstacks/spring-boot-mvc`

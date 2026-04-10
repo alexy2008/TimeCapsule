@@ -23,6 +23,12 @@ cd backends/spring-boot && ./mvnw spring-boot:run
 # Gin backend (port 8080)
 cd backends/gin && go run main.go
 
+# Axum backend (port 18070)
+cd backends/axum && cargo run
+
+# Drogon backend (port 18080)
+cd backends/drogon && ./run
+
 # Vue 3 frontend (port 5173)
 cd frontends/vue3-ts && npm run dev
 
@@ -31,6 +37,9 @@ cd frontends/angular-ts && npm run dev
 
 # Svelte frontend (port 5176)
 cd frontends/svelte-ts && npm run dev
+
+# Solid frontend (port 5180)
+cd frontends/solid-ts && npm run dev -- --host localhost --port 5180
 
 # React frontend (port 5174)
 cd frontends/react-ts && npm run dev
@@ -71,6 +80,12 @@ cd backends/spring-boot && ./mvnw test
 # Gin backend tests
 cd backends/gin && go test ./tests/ -v
 
+# Axum backend tests
+cd backends/axum && cargo test
+
+# Drogon backend tests
+cd backends/drogon && cmake -S . -B build -G Ninja && cmake --build build --target hellotime-drogon-tests && ctest --test-dir build --output-on-failure
+
 # Vue 3 tests only
 cd frontends/vue3-ts && npm run test
 
@@ -82,6 +97,9 @@ cd frontends/svelte-ts && npm run check
 
 # React tests only
 cd frontends/react-ts && npm run test
+
+# Solid tests only
+cd frontends/solid-ts && npm run test
 ```
 
 ### Build
@@ -115,11 +133,15 @@ cd frontends/react-ts && npm run test
   - `elysia/` - Elysia + Bun + TypeScript + SQLite
   - `nest/` - NestJS + Node.js + TypeScript + SQLite
   - `aspnet-core/` - ASP.NET Core 8 + C# 12 + SQLite
+  - `vapor/` - Vapor 4 + Swift 6.2 + SQLite
+  - `axum/` - Axum 0.8 + Rust 1.94 + SQLite
+  - `drogon/` - Drogon 1.9 + C++20 + SQLite
 - **frontends/** - Frontend implementations
   - `vue3-ts/` - Vue 3 + TypeScript + Vite (port 5173)
   - `react-ts/` - React 19 + TypeScript + Vite (port 5174)
   - `angular-ts/` - Angular 18 + TypeScript + Angular CLI (port 5175)
   - `svelte-ts/` - Svelte 5 + TypeScript + Vite (port 5176)
+  - `solid-ts/` - SolidJS + TypeScript + Vite (port 5180)
 - **fullstacks/** - Full-stack implementations
   - `next-ts/` - Next.js 15 + TypeScript 全栈实现 (port 5177)
   - `nuxt-ts/` - Nuxt 3 + TypeScript 全栈实现 (port 5178)
@@ -168,6 +190,30 @@ Key configuration in `config.py`:
 
 Key configuration in `config/config.go`:
 - SQLite database (`hellotime.db`)
+- Admin password via `ADMIN_PASSWORD` env var (default: `timecapsule-admin`)
+- JWT secret via `JWT_SECRET` env var
+
+### Backend (Axum)
+- **Router / Handlers** (`src/lib.rs`) - Axum `Router`、extractor 与路由处理
+- **State** (`AppState`) - 共享 SQLite 连接池与运行配置
+- **Auth Extractor** (`AdminAuth`) - Bearer Token 鉴权
+- **Persistence** - SQLx + SQLite，启动时自动建表
+- **Static** (`static/tech-logos/`) - 技术栈展示图标
+
+Key configuration via environment variables:
+- SQLite database (`DATABASE_URL`, default `../../data/hellotime.db`)
+- Admin password via `ADMIN_PASSWORD` env var (default: `timecapsule-admin`)
+- JWT secret via `JWT_SECRET` env var
+
+### Backend (Drogon)
+- **Routes / Handlers** (`src/server.cc`) - Drogon 原生路由注册与请求处理
+- **State** (`AppState`) - 共享 SQLite 连接与互斥锁
+- **Auth** - 手写 Bearer Token 解析与 HMAC SHA-256 JWT 校验
+- **Persistence** - SQLite3 C API，启动时自动建表
+- **Static** (`static/tech-logos/`) - 技术栈展示图标
+
+Key configuration via environment variables:
+- SQLite database (`DATABASE_URL`, default `../../data/hellotime.db`)
 - Admin password via `ADMIN_PASSWORD` env var (default: `timecapsule-admin`)
 - JWT secret via `JWT_SECRET` env var
 

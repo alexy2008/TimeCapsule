@@ -8,7 +8,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT_DIR="$(dirname "$(dirname "$SCRIPT_DIR")")"
 
 if [ "$#" -eq 0 ]; then
-  SELECTED_FRONTENDS="react-ts vue3-ts angular-ts svelte-ts next-ts nuxt-ts spring-boot-mvc"
+  SELECTED_FRONTENDS="react-ts vue3-ts angular-ts svelte-ts solid-ts next-ts nuxt-ts spring-boot-mvc"
 else
   SELECTED_FRONTENDS="$*"
 fi
@@ -26,6 +26,7 @@ label_for() {
     vue3-ts) echo "Vue" ;;
     angular-ts) echo "Angular" ;;
     svelte-ts) echo "Svelte" ;;
+    solid-ts) echo "Solid" ;;
     next-ts) echo "Next" ;;
     nuxt-ts) echo "Nuxt" ;;
     spring-boot-mvc) echo "Spring MVC" ;;
@@ -39,6 +40,7 @@ dir_for() {
     vue3-ts) echo "$ROOT_DIR/frontends/vue3-ts" ;;
     angular-ts) echo "$ROOT_DIR/frontends/angular-ts" ;;
     svelte-ts) echo "$ROOT_DIR/frontends/svelte-ts" ;;
+    solid-ts) echo "$ROOT_DIR/frontends/solid-ts" ;;
     next-ts) echo "$ROOT_DIR/fullstacks/next-ts" ;;
     nuxt-ts) echo "$ROOT_DIR/fullstacks/nuxt-ts" ;;
     spring-boot-mvc) echo "$ROOT_DIR/fullstacks/spring-boot-mvc" ;;
@@ -52,6 +54,7 @@ home_file_for() {
     vue3-ts) echo "$ROOT_DIR/frontends/vue3-ts/src/views/HomeView.vue" ;;
     angular-ts) echo "$ROOT_DIR/frontends/angular-ts/src/app/views/home/home.component.html" ;;
     svelte-ts) echo "$ROOT_DIR/frontends/svelte-ts/src/views/Home.svelte" ;;
+    solid-ts) echo "$ROOT_DIR/frontends/solid-ts/src/routes/HomeRoute.tsx" ;;
     next-ts) echo "$ROOT_DIR/fullstacks/next-ts/src/app/page.tsx" ;;
     nuxt-ts) echo "$ROOT_DIR/fullstacks/nuxt-ts/pages/index.vue" ;;
     spring-boot-mvc) echo "$ROOT_DIR/fullstacks/spring-boot-mvc/src/main/resources/templates/index.html" ;;
@@ -62,6 +65,7 @@ home_file_for() {
 home_data_file_for() {
   case "$1" in
     angular-ts) echo "$ROOT_DIR/frontends/angular-ts/src/app/views/home/home.component.ts" ;;
+    solid-ts) echo "$ROOT_DIR/frontends/solid-ts/src/routes/HomeRoute.tsx" ;;
     next-ts) echo "$ROOT_DIR/fullstacks/next-ts/src/app/page.tsx" ;;
     nuxt-ts) echo "$ROOT_DIR/fullstacks/nuxt-ts/pages/index.vue" ;;
     spring-boot-mvc) echo "$ROOT_DIR/fullstacks/spring-boot-mvc/src/main/resources/templates/index.html $ROOT_DIR/fullstacks/spring-boot-mvc/src/main/java/com/hellotime/view/ViewModelAdvice.java" ;;
@@ -75,6 +79,7 @@ frontend_logo_for() {
     vue3-ts) echo "$ROOT_DIR/frontends/vue3-ts/public/frontend.svg" ;;
     angular-ts) echo "$ROOT_DIR/frontends/angular-ts/src/assets/frontend.svg" ;;
     svelte-ts) echo "$ROOT_DIR/frontends/svelte-ts/public/frontend.svg" ;;
+    solid-ts) echo "$ROOT_DIR/frontends/solid-ts/public/frontend.svg" ;;
     next-ts) echo "$ROOT_DIR/fullstacks/next-ts/public/frontend.svg" ;;
     nuxt-ts) echo "$ROOT_DIR/fullstacks/nuxt-ts/public/frontend.svg" ;;
     spring-boot-mvc) echo "$ROOT_DIR/fullstacks/spring-boot-mvc/src/main/resources/static/stack-logos/spring-boot.svg" ;;
@@ -88,6 +93,7 @@ language_logo_for() {
     vue3-ts) echo "$ROOT_DIR/frontends/vue3-ts/public/frontend-language.svg" ;;
     angular-ts) echo "$ROOT_DIR/frontends/angular-ts/src/assets/frontend-language.svg" ;;
     svelte-ts) echo "$ROOT_DIR/frontends/svelte-ts/public/frontend-language.svg" ;;
+    solid-ts) echo "$ROOT_DIR/frontends/solid-ts/public/frontend-language.svg" ;;
     next-ts) echo "$ROOT_DIR/fullstacks/next-ts/public/frontend-language.svg" ;;
     nuxt-ts) echo "$ROOT_DIR/fullstacks/nuxt-ts/public/frontend-language.svg" ;;
     spring-boot-mvc) echo "$ROOT_DIR/fullstacks/spring-boot-mvc/src/main/resources/static/stack-logos/java.svg" ;;
@@ -97,7 +103,7 @@ language_logo_for() {
 
 framework_logo_pattern_for() {
   case "$1" in
-    react-ts|vue3-ts|angular-ts|svelte-ts|next-ts|nuxt-ts) echo '/frontend\.svg' ;;
+    react-ts|vue3-ts|angular-ts|svelte-ts|solid-ts|next-ts|nuxt-ts) echo '/frontend\.svg' ;;
     spring-boot-mvc) echo '/stack-logos/spring-boot\.svg' ;;
     *) return 1 ;;
   esac
@@ -109,6 +115,7 @@ verify_command_for() {
     vue3-ts) echo "npm run build" ;;
     angular-ts) echo "CI=1 npx ng build --no-progress" ;;
     svelte-ts) echo "npm run check" ;;
+    solid-ts) echo "npm run build" ;;
     next-ts) echo "npm run build" ;;
     nuxt-ts) echo "npm run build" ;;
     spring-boot-mvc) echo "./mvnw test" ;;

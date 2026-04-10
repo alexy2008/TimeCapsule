@@ -8,11 +8,11 @@
 
 | 类别 | 当前数量 | 规划数量 | 说明 |
 | :--- | ---: | ---: | :--- |
-| 后端实现 | 6 | 10 | 在现有后端矩阵基础上继续扩充语言和框架覆盖 |
-| 浏览器前端 | 4 | 4 | 不再新增，保持稳定对照组 |
-| 全栈实现 | 3 | 5 | 继续补足经典全栈路线 |
-| 桌面端 | 0 | 5 | 新增桌面端平台矩阵 |
-| 移动端 | 0 | 5 | 新增移动端平台矩阵 |
+| 后端实现 | 9 | 10 | 已补齐 Java, Go, Python, Bun, Node, .NET、Swift、Rust、C++。后续规划 Kotlin |
+| 浏览器前端 | 5 | 5 | 已补齐 React, Vue, Angular, Svelte, SolidJS，形成完整对照组 |
+| 全栈实现 | 3 | 5 | 已有 Next, Nuxt, Spring MVC。后续规划 Laravel, Rails |
+| 桌面端 | 3 | 5 | 已补齐 Tauri, macOS SwiftUI, WinUI 3。后续规划 Flutter, Electron |
+| 移动端 | 1 | 5 | 已补齐 iOS SwiftUI。后续规划 Android, React Native, Flutter |
 
 最终目标不是简单增加项目数量，而是让仓库形成一套可以并排阅读、并排运行、并排验证的技术路线图。
 
@@ -60,32 +60,39 @@
 
 ### 3.1 目标
 
-后端从 5 个扩展到 10 个，继续补足语言与框架覆盖面。
+后端从 9 个扩展到 10 个，继续补足语言与框架覆盖面。
 
-### 3.2 建议新增的 4 套后端
+### 3.2 已完成与待新增后端
+
+已完成接入：
+
+| 方向 | 实现 | 状态 |
+| :--- | :--- | :--- |
+| Swift | Vapor | [DONE] |
+| Rust | Axum | [DONE] |
+| C++ | Drogon | [DONE] |
+
+待新增：
 
 | 新增方向 | 推荐框架 | 价值 |
 | :--- | :--- | :--- |
-| Swift | Vapor | 展示 Swift 服务端路线 |
 | Kotlin | Ktor | 展示 Kotlin 轻量后端 |
-| Rust | Axum | 展示 Rust 的类型与性能路线 |
-| C++ | Drogon | 展示 C++ Web 后端能力 |
 
 ### 3.3 推荐接入顺序
 
 优先建议：
 
-1. ASP.NET Core
-2. Ktor
-3. Vapor
-4. Axum
-5. Drogon
+1. ASP.NET Core [DONE]
+2. NestJS [DONE]
+3. Swift (Vapor) [DONE]
+4. Rust (Axum) [DONE]
+5. C++ (Drogon) [DONE]
+6. Kotlin (Ktor)
 
 原因是：
 
-- ASP.NET Core 已经作为新增后端接入完成，可作为后续新增后端的模板
-- Ktor 和 Vapor 更容易快速对齐现有 REST 语义
-- Axum 和 Drogon 更能补足语言路线差异
+- ASP.NET Core、NestJS、Vapor、Axum、Drogon 已经提供了较完整的新增后端模板
+- Ktor 适合继续补足 JVM 轻量后端路线
 
 ### 3.4 后端统一要求
 
@@ -152,9 +159,9 @@
 
 | 类型 | 建议实现 | 价值 |
 | :--- | :--- | :--- |
-| macOS 原生 | SwiftUI | 展示 Apple 生态原生体验 |
-| Windows 原生 | WinUI 3 + C# | 展示 Windows 原生界面与系统集成 |
-| 跨平台桌面 | Tauri | 展示轻量桌面壳和 Web 技术结合 |
+| 跨平台桌面 | Tauri [DONE] | 展示轻量桌面壳和 Web 技术结合 |
+| macOS 原生 | SwiftUI [DONE] | 展示 Apple 生态原生体验 |
+| Windows 原生 | WinUI 3 + C# [DONE] | 展示 Windows 原生界面与系统集成 |
 | 跨平台桌面 | Electron | 展示成熟桌面壳和 JS 生态 |
 | 跨平台桌面 | Flutter Desktop | 展示跨平台 UI 和单套渲染体系 |
 
@@ -191,8 +198,8 @@
 
 | 类型 | 建议实现 | 价值 |
 | :--- | :--- | :--- |
+| iOS 原生 | SwiftUI [DONE] | 展示 Apple 移动端原生体验 |
 | Android 原生 | Kotlin + Jetpack Compose | 展示 Android 原生体验 |
-| iOS 原生 | SwiftUI | 展示 Apple 移动端原生体验 |
 | 跨平台移动 | React Native | 展示 JS/TS 跨平台移动路线 |
 | 跨平台移动 | Flutter | 展示单套 UI 渲染的跨平台路线 |
 | 跨平台移动 | .NET MAUI | 展示 C# 跨平台移动路线 |
@@ -265,21 +272,23 @@ mobile/
 
 如果按风险和收益排序，建议分三阶段推进：
 
-### 第一阶段
+### 第一阶段 [DONE]
 
-- 后端：`.NET`、`Ktor`、`Vapor`
-- 全栈：`Rails`、`Laravel`
+- 后端：`.NET`、`NestJS`
+- 前端：`SolidJS`
+- 桌面：`Tauri` (已跑通全链路)
 
-### 第二阶段
+### 第二阶段 [IN PROGRESS]
 
-- 后端：`Axum`、`Drogon`
-- 桌面：`Tauri`、`Electron`、`Flutter Desktop`
+- 桌面原生：`macOS SwiftUI`、`WinUI 3`
+- 移动原生：`iOS SwiftUI`
+- 后端扩展：`Ktor`
 
 ### 第三阶段
 
-- 后端剩余项补齐
-- 桌面原生补齐
-- 移动端五套实现补齐
+- 后端剩余项补齐 (Kotlin, C++)
+- 全栈补齐 (Rails, Laravel)
+- 跨平台客户端补齐 (Flutter, RN)
 
 这样可以先建立模板，再扩展到更分散的平台。
 

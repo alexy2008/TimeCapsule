@@ -14,6 +14,8 @@ function frameworkLogoSelector() {
       return 'Angular Logo'
     case 'svelte-ts':
       return 'Svelte Logo'
+    case 'solid-ts':
+      return 'Solid Logo'
     case 'next-ts':
       return 'Next.js Logo'
     case 'nuxt-ts':
@@ -35,6 +37,8 @@ function frameworkLabel() {
       return 'Angular'
     case 'svelte-ts':
       return 'Svelte'
+    case 'solid-ts':
+      return 'SolidJS'
     case 'next-ts':
       return 'Next.js'
     case 'nuxt-ts':

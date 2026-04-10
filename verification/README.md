@@ -71,6 +71,9 @@ verification/
 - `elysia`
 - `nest`
 - `aspnet-core`
+- `vapor`
+- `axum`
+- `drogon`
 
 ### 前端
 
@@ -180,6 +183,8 @@ verification/
 - Gin: `go test ./tests/...`
 - Elysia: `bun test`
 - ASP.NET Core: `./dotnetw test tests/tests.csproj`
+- Axum: `cargo test`
+- Drogon: `cmake -S . -B build -G Ninja && cmake --build build --target hellotime-drogon-tests && ctest --test-dir build --output-on-failure`
 - React: `npm run test`
 - Vue: `npm run test`
 - Angular: `npm run test`

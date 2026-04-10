@@ -5,6 +5,10 @@
 ### 后端
 - Java 21+
 - Maven 3.8+（或使用内置的 Maven Wrapper）
+- Rust 1.94+（Axum 后端）
+- Cargo（Axum / Tauri 构建）
+- CMake 3.24+ 与 Ninja（Drogon 后端）
+- 支持 C++20 的编译器、OpenSSL、SQLite3（Drogon 后端）
 
 ### 前端
 - Node.js 20+
@@ -21,6 +25,20 @@ cd backends/spring-boot
 
 Spring Boot 默认运行在 http://localhost:18000
 
+如需启动 Axum：
+
+```bash
+cd backends/axum
+./run
+```
+
+如需启动 Drogon：
+
+```bash
+cd backends/drogon
+./run
+```
+
 如果前端仍固定访问 `http://localhost:8080`，请在仓库根目录执行：
 
 ```bash
@@ -35,6 +53,9 @@ Spring Boot 默认运行在 http://localhost:18000
 - `elysia`: `18030`
 - `nest`: `18040`
 - `aspnet-core`: `18050`
+- `vapor`: `18060`
+- `axum`: `18070`
+- `drogon`: `18080`
 
 ### 启动前端
 
@@ -53,7 +74,7 @@ npm run dev
 # 同时启动前后端
 ./scripts/dev.sh
 
-# 进入交互式服务管理工具
+# 启动 Web 服务管理
 ./scripts/dev-manager.py
 
 # 切换前端当前连接的后端
@@ -63,12 +84,24 @@ npm run dev
 ./scripts/switch-backend.sh elysia
 ./scripts/switch-backend.sh nest
 ./scripts/switch-backend.sh aspnet-core
+./scripts/switch-backend.sh vapor
+./scripts/switch-backend.sh axum
+./scripts/switch-backend.sh drogon
 
 # 构建生产版本
 ./scripts/build.sh
 ```
 
-`./scripts/dev-manager.py` 会显示所有前后端服务的运行状态、监听端口、PID，以及当前 `8080` 到真实后端端口的映射关系，并提供启动、停止、重启、查看日志和切换映射的交互菜单。
+`./scripts/dev-manager.py` 现在默认启动 Web 服务管理页，并在本机打开浏览器。页面会展示所有前后端服务的运行状态、监听端口、PID，以及当前 `8080` 到真实后端端口的映射关系，并提供启动、停止、重启、查看日志和切换映射的操作。
+
+如果只想做单次命令行操作，也可以使用非交互参数，例如：
+
+```bash
+./scripts/dev-manager.py --status
+./scripts/dev-manager.py --start fastapi
+./scripts/dev-manager.py --stop react
+./scripts/dev-manager.py --switch-proxy aspnet-core
+```
 
 ## 生产部署
 
@@ -104,7 +137,7 @@ java -jar backends/spring-boot/target/hellotime-backend-1.0.0.jar
 | `ADMIN_PASSWORD` | timecapsule-admin | 管理员密码 |
 | `JWT_SECRET` | (内置默认值) | JWT 签名密钥，生产环境必须修改 |
 | `SERVER_PORT` | 18000 | Spring Boot 端口 |
-| `PORT` | 各后端不同 | FastAPI/Gin/Elysia/Nest/ASP.NET Core 端口，默认分别为 18010/18020/18030/18040/18050 |
+| `PORT` | 各后端不同 | FastAPI/Gin/Elysia/Nest/ASP.NET Core/Vapor/Axum/Drogon 端口，默认分别为 18010/18020/18030/18040/18050/18060/18070/18080 |
 
 ### 生产环境示例
 

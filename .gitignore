@@ -57,6 +57,8 @@ verification/test-results/
 
 # Rust / Cargo
 **/src-tauri/target/
+backends/axum/target/
+backends/drogon/build/
 
 # .NET
 **/bin/

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HelloTime Pro - 时间胶囊广场</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- 宇宙背景层 -->
+    <div class="cosmos-bg">
+        <div class="stars"></div>
+        <div class="nebula nebula-1"></div>
+        <div class="nebula nebula-2"></div>
+    </div>
+
+    <!-- 顶部导航 -->
+    <nav class="glass-nav">
+        <div class="nav-brand">
+            <i class="fa-solid fa-hourglass-half glow-icon"></i>
+            <span>HelloTime<span class="pro-badge">PRO</span></span>
+        </div>
+        <div class="nav-links">
+            <a href="#" class="active">广场 (Square)</a>
+            <a href="#">我的胶囊 (Mine)</a>
+        </div>
+        <div class="nav-actions">
+            <button class="btn btn-outline" onclick="toggleModal('login-modal')">登录 / 注册</button>
+            <button class="btn btn-secondary" onclick="checkLoginAndOpen()">
+                <i class="fa-solid fa-key"></i> 开启胶囊
+            </button>
+            <button class="btn btn-primary" onclick="checkLoginAndPublish()">
+                <i class="fa-solid fa-pen-nib"></i> 封存新胶囊
+            </button>
+        </div>
+    </nav>
+
+    <main class="container">
+        <!-- 头部标题区 -->
+        <header class="hero">
+            <h1 class="hero-title">探索时间的<span class="text-gradient">碎片</span></h1>
+            <p class="hero-subtitle">在这里，浏览过去寄往未来的信件，收藏那些触动灵魂的瞬间。</p>
+        </header>
+
+        <!-- 过滤器和搜索 -->
+        <div class="controls-bar glass-panel">
+            <div class="control-group">
+                <div class="sort-tabs">
+                    <button class="sort-tab active" data-sort="latest"><i class="fa-solid fa-clock"></i> 最新</button>
+                    <button class="sort-tab" data-sort="hot"><i class="fa-solid fa-fire"></i> 最热</button>
+                </div>
+                <div class="divider"></div>
+                <div class="filter-tabs">
+                    <button class="filter-tab active" data-filter="all">全部</button>
+                    <button class="filter-tab" data-filter="opened">已开启</button>
+                    <button class="filter-tab" data-filter="sealed">未开启</button>
+                </div>
+            </div>
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" placeholder="搜索标题或胶囊码..." id="searchInput">
+            </div>
+        </div>
+
+        <!-- 胶囊网格 -->
+        <div class="capsule-grid" id="capsuleGrid">
+            <!-- 卡片由 JS 渲染 -->
+        </div>
+    </main>
+
+    <!-- 登录/注册模态框 -->
+    <div class="modal-overlay" id="login-modal">
+        <div class="modal glass-panel">
+            <button class="close-btn" onclick="toggleModal('login-modal')"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-header">
+                <h2>欢迎来到 HelloTime</h2>
+                <p>登录以解锁发布与收藏功能</p>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <i class="fa-regular fa-envelope"></i>
+                    <input type="email" placeholder="邮箱地址">
+                </div>
+                <div class="input-group">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" placeholder="密码">
+                </div>
+                <button class="btn btn-primary w-100 modal-btn" onclick="simulateLogin()">
+                    <span>登录 / 注册</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 提示消息容器 -->
+    <div id="toast-container"></div>
+
+    <script src="main.js"></script>
+</body>
+</html>

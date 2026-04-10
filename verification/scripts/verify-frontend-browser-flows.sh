@@ -12,7 +12,7 @@ CHROME_EXECUTABLE_PATH="${CHROME_EXECUTABLE_PATH:-/Applications/Google Chrome.ap
 FORCE_RESTART_FRONTENDS="${FORCE_RESTART_FRONTENDS:-0}"
 
 if [ "$#" -eq 0 ]; then
-  SELECTED_FRONTENDS="react-ts vue3-ts angular-ts svelte-ts next-ts nuxt-ts spring-boot-mvc"
+  SELECTED_FRONTENDS="react-ts vue3-ts angular-ts svelte-ts solid-ts next-ts nuxt-ts spring-boot-mvc"
 else
   SELECTED_FRONTENDS="$*"
 fi
@@ -30,6 +30,7 @@ label_for() {
     vue3-ts) echo "Vue" ;;
     angular-ts) echo "Angular" ;;
     svelte-ts) echo "Svelte" ;;
+    solid-ts) echo "Solid" ;;
     next-ts) echo "Next" ;;
     nuxt-ts) echo "Nuxt" ;;
     spring-boot-mvc) echo "Spring MVC" ;;
@@ -43,6 +44,7 @@ dir_for() {
     vue3-ts) echo "$ROOT_DIR/frontends/vue3-ts" ;;
     angular-ts) echo "$ROOT_DIR/frontends/angular-ts" ;;
     svelte-ts) echo "$ROOT_DIR/frontends/svelte-ts" ;;
+    solid-ts) echo "$ROOT_DIR/frontends/solid-ts" ;;
     next-ts) echo "$ROOT_DIR/fullstacks/next-ts" ;;
     nuxt-ts) echo "$ROOT_DIR/fullstacks/nuxt-ts" ;;
     spring-boot-mvc) echo "$ROOT_DIR/fullstacks/spring-boot-mvc" ;;
@@ -56,6 +58,7 @@ base_url_for() {
     vue3-ts) echo "http://localhost:4173" ;;
     angular-ts) echo "http://localhost:4175" ;;
     svelte-ts) echo "http://localhost:4176" ;;
+    solid-ts) echo "http://localhost:4180" ;;
     next-ts) echo "http://localhost:4177" ;;
     nuxt-ts) echo "http://localhost:4178" ;;
     spring-boot-mvc) echo "http://localhost:4179" ;;
@@ -69,6 +72,7 @@ port_for() {
     vue3-ts) echo "4173" ;;
     angular-ts) echo "4175" ;;
     svelte-ts) echo "4176" ;;
+    solid-ts) echo "4180" ;;
     next-ts) echo "4177" ;;
     nuxt-ts) echo "4178" ;;
     spring-boot-mvc) echo "4179" ;;
@@ -82,6 +86,7 @@ dev_command_for() {
     vue3-ts) echo "npm run dev -- --host localhost --port 4173 --strictPort" ;;
     angular-ts) echo "./node_modules/.bin/ng serve --host localhost --port 4175 --proxy-config proxy.conf.json" ;;
     svelte-ts) echo "npm run dev -- --host localhost --port 4176 --strictPort" ;;
+    solid-ts) echo "npm run dev -- --host localhost --port 4180 --strictPort" ;;
     next-ts) echo "rm -rf .next && npm run build && npm run start -- --hostname localhost --port 4177" ;;
     nuxt-ts) echo "npm run dev -- --host localhost --port 4178" ;;
     spring-boot-mvc) echo "./run" ;;
