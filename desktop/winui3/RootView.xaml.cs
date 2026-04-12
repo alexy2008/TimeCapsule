@@ -1,12 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using HelloTimeWinUI.Models;
 using HelloTimeWinUI.Services;
 using HelloTimeWinUI.Views;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
 
 namespace HelloTimeWinUI;
 
@@ -40,13 +38,25 @@ public sealed partial class RootView : UserControl
     {
         try
         {
-            var techStack = await _apiClient.GetBackendTechStackAsync();
+            var (techStack, error) = await _apiClient.GetBackendTechStackWithDetailsAsync();
+            if (!string.IsNullOrEmpty(error))
+            {
+                System.Diagnostics.Debug.WriteLine($"[HealthError] {error}");
+                _appState.ApplyBackendTechStack(null);
+                _appState.SetStatus($"连接后端失败: {error} | WinUI 3 · C#");
+                return;
+            }
+
             _appState.ApplyBackendTechStack(techStack);
+            _appState.SetStatus("HelloTime · 时间胶囊 · WinUI 3 · C# · " +
+                (techStack?.Framework ?? "Backend") + " · " +
+                (techStack?.Language ?? "Language") + " · SQLite");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"[RefreshCrash] {ex}");
             _appState.ApplyBackendTechStack(null);
-            _appState.SetStatus("暂未连通 8080 后端，页面骨架仍可继续开发。");
+            _appState.SetStatus($"刷新异常: {ex.Message}");
         }
     }
 
@@ -83,28 +93,6 @@ public sealed partial class RootView : UserControl
         if (ContentFrame.CurrentSourcePageType != pageType)
         {
             ContentFrame.Navigate(pageType);
-        }
-
-        UpdateNavigationState(page);
-    }
-
-    private void UpdateNavigationState(AppPage currentPage)
-    {
-        var activeBrush = new SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(0x44, 0x56, 0xCC, 0xF2));
-        var inactiveBrush = new SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(0x22, 0x1B, 0x33, 0x54));
-
-        var navButtons = new Dictionary<AppPage, Button>
-        {
-            [AppPage.Home] = HomeNavButton,
-            [AppPage.Create] = CreateNavButton,
-            [AppPage.Open] = OpenNavButton,
-            [AppPage.About] = AboutNavButton,
-            [AppPage.Admin] = AdminNavButton,
-        };
-
-        foreach (var pair in navButtons)
-        {
-            pair.Value.Background = pair.Key == currentPage ? activeBrush : inactiveBrush;
         }
     }
 }

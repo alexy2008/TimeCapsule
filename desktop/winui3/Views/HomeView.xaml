@@ -7,187 +7,215 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <Grid>
-            <Ellipse
-                Width="420"
-                Height="420"
-                Margin="-40,-60,0,0"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Top"
-                Opacity="0.6">
-                <Ellipse.Fill>
-                    <RadialGradientBrush>
-                        <GradientStop Color="#4444E3FF" Offset="0" />
-                        <GradientStop Color="#0044E3FF" Offset="1" />
-                    </RadialGradientBrush>
-                </Ellipse.Fill>
-            </Ellipse>
+    <ScrollViewer VerticalScrollBarVisibility="Disabled">
+        <StackPanel HorizontalAlignment="Center" Spacing="28" MaxWidth="900">
 
-            <Ellipse
-                Width="360"
-                Height="360"
-                Margin="0,80,-100,0"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Top"
-                Opacity="0.45">
-                <Ellipse.Fill>
-                    <RadialGradientBrush>
-                        <GradientStop Color="#4434D399" Offset="0" />
-                        <GradientStop Color="#0034D399" Offset="1" />
-                    </RadialGradientBrush>
-                </Ellipse.Fill>
-            </Ellipse>
-
-            <StackPanel Padding="0,0,0,8" Spacing="24">
-                <Border Padding="32" Style="{StaticResource CyberPanelStyle}">
-                    <StackPanel Spacing="28">
-                        <StackPanel Spacing="10">
-                            <TextBlock
-                                Foreground="{StaticResource CyberAccentStrongBrush}"
-                                CharacterSpacing="180"
-                                FontSize="14"
-                                Text="TIMECAPSULE SYSTEM" />
-                            <StackPanel Orientation="Horizontal" Spacing="12">
-                                <TextBlock
-                                    Foreground="{StaticResource CyberTextBrush}"
-                                    FontSize="44"
-                                    FontWeight="SemiBold"
-                                    Text="封存此刻" />
-                                <TextBlock
-                                    Foreground="{StaticResource CyberAccentBrush}"
-                                    FontSize="44"
-                                    FontWeight="SemiBold"
-                                    Text="开启未来" />
-                            </StackPanel>
-                            <TextBlock
-                                MaxWidth="760"
-                                Foreground="{StaticResource CyberMutedTextBrush}"
-                                FontSize="18"
-                                Text="将寄语、秘密或愿景封装于时间胶囊中，直到指定的未来时刻才能被访问。Windows 版会继续沿着 macOS SwiftUI 的赛博玻璃语言前进，同时保留 WinUI 3 的原生窗口层次与交互手感。"
-                                TextWrapping="WrapWholeWords" />
-                        </StackPanel>
-
-                        <Grid ColumnSpacing="24">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-
-                            <Button
-                                Grid.Column="0"
-                                Click="OnGoCreateClicked"
-                                HorizontalContentAlignment="Stretch"
-                                Padding="0"
-                                Style="{StaticResource CyberNavButtonStyle}">
-                                <Border Padding="22" Background="Transparent">
-                                    <StackPanel Spacing="16">
-                                        <Border
-                                            Width="58"
-                                            Height="58"
-                                            Background="#1825B8FF"
-                                            CornerRadius="16">
-                                            <FontIcon
-                                                HorizontalAlignment="Center"
-                                                VerticalAlignment="Center"
-                                                FontSize="26"
-                                                Glyph="&#xE710;" />
-                                        </Border>
-                                        <StackPanel Spacing="6">
-                                            <TextBlock
-                                                Foreground="{StaticResource CyberTextBrush}"
-                                                FontSize="24"
-                                                FontWeight="SemiBold"
-                                                Text="创建胶囊" />
-                                            <TextBlock
-                                                Foreground="{StaticResource CyberMutedTextBrush}"
-                                                Text="封存当下寄语，投递给未来的自己。"
-                                                TextWrapping="WrapWholeWords" />
-                                        </StackPanel>
-                                    </StackPanel>
-                                </Border>
-                            </Button>
-
-                            <Button
-                                Grid.Column="1"
-                                Click="OnGoOpenClicked"
-                                HorizontalContentAlignment="Stretch"
-                                Padding="0"
-                                Style="{StaticResource CyberNavButtonStyle}">
-                                <Border Padding="22" Background="Transparent">
-                                    <StackPanel Spacing="16">
-                                        <Border
-                                            Width="58"
-                                            Height="58"
-                                            Background="#18D946EF"
-                                            CornerRadius="16">
-                                            <FontIcon
-                                                HorizontalAlignment="Center"
-                                                VerticalAlignment="Center"
-                                                FontSize="26"
-                                                Glyph="&#xE721;" />
-                                        </Border>
-                                        <StackPanel Spacing="6">
-                                            <TextBlock
-                                                Foreground="{StaticResource CyberTextBrush}"
-                                                FontSize="24"
-                                                FontWeight="SemiBold"
-                                                Text="开启胶囊" />
-                                            <TextBlock
-                                                Foreground="{StaticResource CyberMutedTextBrush}"
-                                                Text="输入 8 位提取码，唤醒沉睡的时间印记。"
-                                                TextWrapping="WrapWholeWords" />
-                                        </StackPanel>
-                                    </StackPanel>
-                                </Border>
-                            </Button>
-                        </Grid>
-                    </StackPanel>
+            <!-- Hero Section -->
+            <StackPanel Spacing="20" HorizontalAlignment="Center" Margin="0,40,0,40">
+                <!-- Badge: TIMECAPSULE SYSTEM -->
+                <Border
+                    Padding="12,4"
+                    Background="#0D00F0FF"
+                    BorderBrush="#3300F0FF"
+                    BorderThickness="1"
+                    CornerRadius="100"
+                    HorizontalAlignment="Center">
+                    <TextBlock
+                        Foreground="{StaticResource CyberAccentBrush}"
+                        CharacterSpacing="120"
+                        FontFamily="Consolas"
+                        FontSize="11"
+                        FontWeight="Bold"
+                        Text="TIMECAPSULE PROTOCOL v1.0" />
                 </Border>
 
-                <Border Padding="24" Style="{StaticResource CyberPanelStyle}">
-                    <Grid ColumnSpacing="20">
+                <!-- Title -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <TextBlock
+                        Foreground="{StaticResource CyberTextBrush}"
+                        FontSize="56"
+                        FontWeight="Bold"
+                        Text="封存此刻 " />
+                    <TextBlock
+                        Foreground="{StaticResource CyberAccentBrush}"
+                        FontSize="56"
+                        FontWeight="Bold"
+                        Text="开启未来" />
+                </StackPanel>
+
+                <!-- Subtitle -->
+                <TextBlock
+                    MaxWidth="640"
+                    Foreground="{StaticResource CyberMutedTextBrush}"
+                    FontSize="18"
+                    LineHeight="28"
+                    Text="将您的寄语、秘密或愿景封装于数字时间胶囊中，直到指定的未来时刻才能被再次唤醒。"
+                    TextAlignment="Center"
+                    TextWrapping="WrapWholeWords" />
+            </StackPanel>
+
+            <!-- Action Cards -->
+            <Grid ColumnSpacing="32">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Create Capsule Card (Cyan) -->
+                <Button
+                    Grid.Column="0"
+                    Click="OnGoCreateClicked"
+                    HorizontalContentAlignment="Stretch"
+                    VerticalContentAlignment="Stretch"
+                    Padding="40,32"
+                    Background="{StaticResource CyberPanelBrush}"
+                    BorderBrush="{StaticResource CyberPanelBorderBrush}"
+                    BorderThickness="1,2,1,1"
+                    CornerRadius="12">
+                    <StackPanel Spacing="20" HorizontalAlignment="Left">
+                        <Border
+                            Width="64"
+                            Height="64"
+                            Background="#1A00F0FF"
+                            CornerRadius="8">
+                            <FontIcon
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                FontSize="32"
+                                Foreground="{StaticResource CyberAccentBrush}"
+                                Glyph="&#xE710;" />
+                        </Border>
+                        <TextBlock
+                            Foreground="{StaticResource CyberTextBrush}"
+                            FontSize="26"
+                            FontWeight="Bold"
+                            Text="创建胶囊" />
+                        <TextBlock
+                            Foreground="{StaticResource CyberMutedTextBrush}"
+                            FontSize="15"
+                            Text="封存此刻寄语，投递给未来的自己"
+                            TextWrapping="WrapWholeWords" />
+                    </StackPanel>
+                </Button>
+
+                <!-- Open Capsule Card (Magenta) -->
+                <Button
+                    Grid.Column="1"
+                    Click="OnGoOpenClicked"
+                    HorizontalContentAlignment="Stretch"
+                    VerticalContentAlignment="Stretch"
+                    Padding="40,32"
+                    Background="{StaticResource CyberPanelBrush}"
+                    BorderBrush="{StaticResource CyberPanelBorderBrush}"
+                    BorderThickness="1,2,1,1"
+                    CornerRadius="12">
+                    <StackPanel Spacing="20" HorizontalAlignment="Left">
+                        <Border
+                            Width="64"
+                            Height="64"
+                            Background="#1AFF003C"
+                            CornerRadius="8">
+                            <FontIcon
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                FontSize="32"
+                                Foreground="{StaticResource CyberMagentaBrush}"
+                                Glyph="&#xE721;" />
+                        </Border>
+                        <TextBlock
+                            Foreground="{StaticResource CyberTextBrush}"
+                            FontSize="26"
+                            FontWeight="Bold"
+                            Text="开启胶囊" />
+                        <TextBlock
+                            Foreground="{StaticResource CyberMutedTextBrush}"
+                            FontSize="15"
+                            Text="输入提取凭据，唤醒沉睡的时间印记"
+                            TextWrapping="WrapWholeWords" />
+                    </StackPanel>
+                </Button>
+            </Grid>
+
+            <!-- Tech Stack Section -->
+            <Border 
+                Margin="0,40,0,0"
+                Padding="32,24" 
+                Background="Transparent"
+                BorderBrush="{StaticResource CyberPanelBorderBrush}"
+                BorderThickness="0,1,0,0">
+                <StackPanel Spacing="20">
+                    <TextBlock
+                        Foreground="{StaticResource CyberMutedTextBrush}"
+                        CharacterSpacing="200"
+                        FontFamily="Consolas"
+                        FontSize="11"
+                        Opacity="0.6"
+                        Text="TECHNOLOGY STACK" />
+
+                    <Grid ColumnSpacing="24">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1.3*" />
-                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
-                        <StackPanel Spacing="12">
+                        <!-- 1. WinUI 3 -->
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10">
+                            <Image x:Name="TechLogo0" Width="24" Height="24" />
                             <TextBlock
-                                Foreground="{StaticResource CyberTextBrush}"
-                                FontSize="24"
-                                FontWeight="SemiBold"
-                                Text="桌面端设计约定" />
-                            <TextBlock Foreground="{StaticResource CyberMutedTextBrush}" Text="顶部导航 + 单页切换，避免平台默认分栏打断主视觉。" TextWrapping="WrapWholeWords" />
-                            <TextBlock Foreground="{StaticResource CyberMutedTextBrush}" Text="固定展示 5 项技术栈：WinUI 3、C#、后端框架、后端语言、数据库。" TextWrapping="WrapWholeWords" />
-                            <TextBlock Foreground="{StaticResource CyberMutedTextBrush}" Text="未到开启时间前，服务端不会返回胶囊内容，客户端只负责表达锁定状态与倒计时。" TextWrapping="WrapWholeWords" />
+                                Foreground="{StaticResource CyberMutedTextBrush}"
+                                FontSize="14"
+                                VerticalAlignment="Center"
+                                Text="WinUI 3" />
                         </StackPanel>
 
-                        <Border
-                            Grid.Column="1"
-                            Padding="20"
-                            Background="#18243855"
-                            BorderBrush="{StaticResource CyberPanelBorderBrush}"
-                            BorderThickness="1"
-                            CornerRadius="20">
-                            <StackPanel Spacing="12">
-                                <TextBlock Foreground="{StaticResource CyberMutedTextBrush}" Text="COUNTDOWN PREVIEW" />
-                                <TextBlock
-                                    Foreground="{StaticResource CyberAccentStrongBrush}"
-                                    FontFamily="Consolas"
-                                    FontSize="30"
-                                    FontWeight="SemiBold"
-                                    Text="29:14:08:17" />
-                                <Rectangle Height="1" Fill="{StaticResource CyberGlassLineBrush}" />
-                                <TextBlock
-                                    Foreground="{StaticResource CyberMutedTextBrush}"
-                                    Text="当开启时间到来时，锁定提示会切换为解密展示，并露出真正内容。"
-                                    TextWrapping="WrapWholeWords" />
-                            </StackPanel>
-                        </Border>
+                        <!-- 2. C# -->
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10">
+                            <Image x:Name="TechLogo1" Width="24" Height="24" />
+                            <TextBlock
+                                Foreground="{StaticResource CyberMutedTextBrush}"
+                                FontSize="14"
+                                VerticalAlignment="Center"
+                                Text="C#" />
+                        </StackPanel>
+
+                        <!-- 3. Backend Framework -->
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="10">
+                            <Image x:Name="TechLogo2" Width="24" Height="24" />
+                            <TextBlock
+                                x:Name="TechLabel2"
+                                Foreground="{StaticResource CyberMutedTextBrush}"
+                                FontSize="14"
+                                VerticalAlignment="Center"
+                                Text="..." />
+                        </StackPanel>
+
+                        <!-- 4. Backend Language -->
+                        <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="10">
+                            <Image x:Name="TechLogo3" Width="24" Height="24" />
+                            <TextBlock
+                                x:Name="TechLabel3"
+                                Foreground="{StaticResource CyberMutedTextBrush}"
+                                FontSize="14"
+                                VerticalAlignment="Center"
+                                Text="..." />
+                        </StackPanel>
+
+                        <!-- 5. Database -->
+                        <StackPanel Grid.Column="4" Orientation="Horizontal" Spacing="10">
+                            <Image x:Name="TechLogo4" Width="24" Height="24" />
+                            <TextBlock
+                                x:Name="TechLabel4"
+                                Foreground="{StaticResource CyberMutedTextBrush}"
+                                FontSize="14"
+                                VerticalAlignment="Center"
+                                Text="..." />
+                        </StackPanel>
                     </Grid>
-                </Border>
-            </StackPanel>
-        </Grid>
+                </StackPanel>
+            </Border>
+        </StackPanel>
     </ScrollViewer>
 </Page>

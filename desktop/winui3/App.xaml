@@ -11,45 +11,93 @@
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
             </ResourceDictionary.MergedDictionaries>
 
-            <Color x:Key="CyberBaseColor">#0B1120</Color>
-            <Color x:Key="CyberPanelColor">#B3122138</Color>
-            <Color x:Key="CyberPanelBorderColor">#4D7DD3FC</Color>
-            <Color x:Key="CyberAccentColor">#56CCF2</Color>
-            <Color x:Key="CyberAccentStrongColor">#7DD3FC</Color>
-            <Color x:Key="CyberTextColor">#E5F3FF</Color>
-            <Color x:Key="CyberMutedTextColor">#9FB3C8</Color>
-            <Color x:Key="CyberSuccessColor">#34D399</Color>
-            <Color x:Key="CyberWarningColor">#FBBF24</Color>
+            <Color x:Key="CyberBaseColor">#030712</Color>
+            <Color x:Key="CyberPanelColor">#660F172A</Color>
+            <Color x:Key="CyberPanelBorderColor">#2638BDF8</Color>
+            <Color x:Key="CyberAccentColor">#00F0FF</Color>
+            <Color x:Key="CyberAccentStrongColor">#00F0FF</Color>
+            <Color x:Key="CyberMagentaColor">#FF003C</Color>
+            <Color x:Key="CyberGreenNeonColor">#39FF14</Color>
+            <Color x:Key="CyberTextColor">#F8FAFC</Color>
+            <Color x:Key="CyberMutedTextColor">#94A3B8</Color>
+            <Color x:Key="CyberSuccessColor">#39FF14</Color>
+            <Color x:Key="CyberWarningColor">#FFCC00</Color>
 
             <SolidColorBrush x:Key="CyberBaseBrush" Color="{StaticResource CyberBaseColor}" />
             <SolidColorBrush x:Key="CyberPanelBrush" Color="{StaticResource CyberPanelColor}" />
             <SolidColorBrush x:Key="CyberPanelBorderBrush" Color="{StaticResource CyberPanelBorderColor}" />
             <SolidColorBrush x:Key="CyberAccentBrush" Color="{StaticResource CyberAccentColor}" />
             <SolidColorBrush x:Key="CyberAccentStrongBrush" Color="{StaticResource CyberAccentStrongColor}" />
+            <SolidColorBrush x:Key="CyberMagentaBrush" Color="{StaticResource CyberMagentaColor}" />
+            <SolidColorBrush x:Key="CyberGreenNeonBrush" Color="{StaticResource CyberGreenNeonColor}" />
             <SolidColorBrush x:Key="CyberTextBrush" Color="{StaticResource CyberTextColor}" />
             <SolidColorBrush x:Key="CyberMutedTextBrush" Color="{StaticResource CyberMutedTextColor}" />
             <SolidColorBrush x:Key="CyberSuccessBrush" Color="{StaticResource CyberSuccessColor}" />
             <SolidColorBrush x:Key="CyberWarningBrush" Color="{StaticResource CyberWarningColor}" />
 
+            <!-- Button Hover/Pressed State Overrides (replaces default Windows grey) -->
+            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#0D00F0FF" />
+            <SolidColorBrush x:Key="ButtonForegroundPointerOver" Color="{StaticResource CyberAccentColor}" />
+            <SolidColorBrush x:Key="ButtonBorderBrushPointerOver" Color="#3300F0FF" />
+            
+            <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="#1A00F0FF" />
+            <SolidColorBrush x:Key="ButtonForegroundPressed" Color="{StaticResource CyberAccentStrongColor}" />
+            <SolidColorBrush x:Key="ButtonBorderBrushPressed" Color="{StaticResource CyberAccentColor}" />
+
+            <!-- ListView Item Hover Overrides -->
+            <SolidColorBrush x:Key="ListViewItemBackgroundPointerOver" Color="#0D00F0FF" />
+            <SolidColorBrush x:Key="ListViewItemForegroundPointerOver" Color="{StaticResource CyberAccentColor}" />
+
+            <!-- TextControl State Overrides -->
+            <SolidColorBrush x:Key="TextControlBackgroundPointerOver" Color="#160C1728" />
+            <SolidColorBrush x:Key="TextControlBorderBrushPointerOver" Color="{StaticResource CyberAccentStrongColor}" />
+            <SolidColorBrush x:Key="TextControlForegroundPointerOver" Color="{StaticResource CyberTextColor}" />
+            <SolidColorBrush x:Key="TextControlBackgroundFocused" Color="#0D00F0FF" />
+            <SolidColorBrush x:Key="TextControlBorderBrushFocused" Color="{StaticResource CyberAccentStrongColor}" />
+            <SolidColorBrush x:Key="TextControlForegroundFocused" Color="{StaticResource CyberTextColor}" />
+            <SolidColorBrush x:Key="TextControlHeaderForeground" Color="{StaticResource CyberMutedTextColor}" />
+            
+            <!-- Date/Time Picker State Overrides -->
+            <SolidColorBrush x:Key="DatePickerButtonBackground" Color="#160C1728" />
+            <SolidColorBrush x:Key="DatePickerButtonBorderBrush" Color="{StaticResource CyberPanelBorderColor}" />
+            <SolidColorBrush x:Key="TimePickerButtonBackground" Color="#160C1728" />
+            <SolidColorBrush x:Key="TimePickerButtonBorderBrush" Color="{StaticResource CyberPanelBorderColor}" />
+
+            <SolidColorBrush x:Key="DatePickerButtonBackgroundPointerOver" Color="#0D00F0FF" />
+            <SolidColorBrush x:Key="DatePickerButtonBorderBrushPointerOver" Color="{StaticResource CyberAccentStrongColor}" />
+            <SolidColorBrush x:Key="DatePickerButtonForegroundPointerOver" Color="{StaticResource CyberTextColor}" />
+            <SolidColorBrush x:Key="DatePickerButtonBackgroundPressed" Color="#1A00F0FF" />
+            <SolidColorBrush x:Key="DatePickerButtonBorderBrushPressed" Color="{StaticResource CyberAccentStrongColor}" />
+            <SolidColorBrush x:Key="DatePickerButtonForegroundPressed" Color="{StaticResource CyberTextColor}" />
+            
+            <SolidColorBrush x:Key="TimePickerButtonBackgroundPointerOver" Color="#0D00F0FF" />
+            <SolidColorBrush x:Key="TimePickerButtonBorderBrushPointerOver" Color="{StaticResource CyberAccentStrongColor}" />
+            <SolidColorBrush x:Key="TimePickerButtonForegroundPointerOver" Color="{StaticResource CyberTextColor}" />
+            <SolidColorBrush x:Key="TimePickerButtonBackgroundPressed" Color="#1A00F0FF" />
+            <SolidColorBrush x:Key="TimePickerButtonBorderBrushPressed" Color="{StaticResource CyberAccentStrongColor}" />
+            <SolidColorBrush x:Key="TimePickerButtonForegroundPressed" Color="{StaticResource CyberTextColor}" />
+
             <LinearGradientBrush x:Key="CyberWindowBackgroundBrush" StartPoint="0,0" EndPoint="1,1">
-                <GradientStop Color="#08101C" Offset="0" />
-                <GradientStop Color="#0F1E32" Offset="0.45" />
-                <GradientStop Color="#071422" Offset="1" />
+                <GradientStop Color="#030712" Offset="0" />
+                <GradientStop Color="#0F172A" Offset="0.45" />
+                <GradientStop Color="#020617" Offset="1" />
             </LinearGradientBrush>
 
             <LinearGradientBrush x:Key="CyberGlassLineBrush" StartPoint="0,0" EndPoint="1,0">
-                <GradientStop Color="#00FFFFFF" Offset="0" />
-                <GradientStop Color="#997DD3FC" Offset="0.5" />
-                <GradientStop Color="#00FFFFFF" Offset="1" />
+                <GradientStop Color="Transparent" Offset="0" />
+                <GradientStop Color="#8000F0FF" Offset="0.5" />
+                <GradientStop Color="Transparent" Offset="1" />
             </LinearGradientBrush>
 
             <Style x:Key="CyberNavButtonStyle" TargetType="Button">
-                <Setter Property="Background" Value="#221B3354" />
-                <Setter Property="BorderBrush" Value="{StaticResource CyberPanelBorderBrush}" />
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="BorderBrush" Value="Transparent" />
                 <Setter Property="BorderThickness" Value="1" />
-                <Setter Property="CornerRadius" Value="14" />
-                <Setter Property="Padding" Value="16,10" />
-                <Setter Property="Foreground" Value="{StaticResource CyberTextBrush}" />
+                <Setter Property="CornerRadius" Value="4" />
+                <Setter Property="Padding" Value="12,8" />
+                <Setter Property="Foreground" Value="{StaticResource CyberMutedTextBrush}" />
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="FontWeight" Value="Medium" />
             </Style>
 
             <Style TargetType="TextBox">
@@ -71,6 +119,15 @@
                 <Setter Property="Background" Value="#160C1728" />
                 <Setter Property="BorderBrush" Value="{StaticResource CyberPanelBorderBrush}" />
                 <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+            </Style>
+
+            <Style TargetType="TimePicker">
+                <Setter Property="Foreground" Value="{StaticResource CyberTextBrush}" />
+                <Setter Property="Background" Value="#160C1728" />
+                <Setter Property="BorderBrush" Value="{StaticResource CyberPanelBorderBrush}" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
             </Style>
 
             <Style x:Key="CyberPanelStyle" TargetType="Border">

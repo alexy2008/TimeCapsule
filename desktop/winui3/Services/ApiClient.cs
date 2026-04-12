@@ -33,6 +33,26 @@ public sealed class ApiClient
         return payload?.Data?.TechStack;
     }
 
+    public async Task<(BackendTechStack? TechStack, string? Error)> GetBackendTechStackWithDetailsAsync()
+    {
+        try
+        {
+            using var response = await _httpClient.GetAsync("health");
+            if (!response.IsSuccessStatusCode)
+            {
+                return (null, $"HTTP {(int)response.StatusCode}");
+            }
+
+            await using var stream = await response.Content.ReadAsStreamAsync();
+            var payload = await JsonSerializer.DeserializeAsync<HealthEnvelope>(stream, JsonOptions);
+            return (payload?.Data?.TechStack, null);
+        }
+        catch (Exception ex)
+        {
+            return (null, ex.Message);
+        }
+    }
+
     public async Task<Capsule> CreateCapsuleAsync(CreateCapsuleRequest request)
     {
         using var response = await _httpClient.PostAsync(

@@ -10,32 +10,32 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <Grid>
             <Ellipse
-                Width="360"
-                Height="360"
-                Margin="0,-40,-120,0"
+                Width="400"
+                Height="400"
+                Margin="0,-80,-160,0"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Top"
-                Opacity="0.55">
+                Opacity="0.4">
                 <Ellipse.Fill>
                     <RadialGradientBrush>
-                        <GradientStop Color="#3334D399" Offset="0" />
-                        <GradientStop Color="#0034D399" Offset="1" />
+                        <GradientStop Color="#3300F0FF" Offset="0" />
+                        <GradientStop Color="Transparent" Offset="1" />
                     </RadialGradientBrush>
                 </Ellipse.Fill>
             </Ellipse>
 
-            <StackPanel Spacing="24">
-                <Border Padding="32" Style="{StaticResource CyberPanelStyle}">
-                    <Grid ColumnSpacing="28">
+            <StackPanel Spacing="32">
+                <Border Padding="40,32" Style="{StaticResource CyberPanelStyle}" CornerRadius="16">
+                    <Grid ColumnSpacing="32">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="260" />
+                            <ColumnDefinition Width="280" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
 
                         <Button
                             Click="OnOrbClicked"
-                            Width="240"
-                            Height="240"
+                            Width="260"
+                            Height="260"
                             HorizontalAlignment="Left"
                             VerticalAlignment="Top"
                             Background="Transparent"
@@ -44,109 +44,120 @@
                                 <Grid.RenderTransform>
                                     <RotateTransform x:Name="OrbRotateTransform" />
                                 </Grid.RenderTransform>
-                                <Ellipse Fill="#2034D399" />
+                                <Ellipse Fill="#0D00F0FF" />
                                 <Ellipse
                                     Width="180"
                                     Height="180"
                                     Stroke="{StaticResource CyberAccentStrongBrush}"
                                     StrokeThickness="2" />
                                 <Ellipse
-                                    Width="210"
-                                    Height="210"
-                                    Stroke="#6689F7FF"
-                                    StrokeThickness="1.5"
-                                    StrokeDashArray="4 6" />
+                                    Width="220"
+                                    Height="220"
+                                    Stroke="{StaticResource CyberAccentStrongBrush}"
+                                    StrokeThickness="1"
+                                    Opacity="0.3"
+                                    StrokeDashArray="4 8" />
                                 <TextBlock
                                     HorizontalAlignment="Center"
                                     VerticalAlignment="Center"
                                     Foreground="{StaticResource CyberTextBrush}"
-                                    FontSize="22"
-                                    FontWeight="SemiBold"
-                                    Text="HELLOTIME" />
+                                    FontSize="24"
+                                    FontWeight="Bold"
+                                    Text="PROTOCOL" />
                             </Grid>
                         </Button>
 
-                        <StackPanel Grid.Column="1" Spacing="14">
+                        <StackPanel Grid.Column="1" Spacing="20" VerticalAlignment="Center">
                             <TextBlock
                                 Foreground="{StaticResource CyberTextBrush}"
-                                FontSize="32"
-                                FontWeight="SemiBold"
-                                Text="关于 HelloTime Cyber" />
+                                FontSize="36"
+                                FontWeight="Bold"
+                                Text="HelloTime Cyber Edition" />
                             <TextBlock
                                 MaxWidth="720"
                                 Foreground="{StaticResource CyberMutedTextBrush}"
-                                Text="HelloTime 不仅是一个时间胶囊应用，也是一个遵循统一 API 契约的实验性多实现项目。Windows 版延续顶部导航、单页切换与桌面端技术栈展示规则，同时把 WinUI 3 的窗口层次、Mica 背景和 C# 异步交互融入赛博玻璃体验。"
+                                FontSize="16"
+                                LineHeight="26"
+                                Text="HelloTime 不仅是一个时间胶囊应用，也是一个遵循统一 API 契约的实验性多实现项目。Windows 版延续了 Web 端的设计精髓，将赛博玻璃质感、霓虹光效与 WinUI 3 的原生性能完美融合。"
                                 TextWrapping="WrapWholeWords" />
                             <TextBlock
                                 x:Name="HiddenHintText"
                                 Foreground="{StaticResource CyberAccentBrush}"
-                                Text="连续点击科技球 5 次，可快速进入管理员界面。" />
+                                FontSize="14"
+                                FontWeight="Medium"
+                                Text="连续点击科技球 5 次，可呼出系统管理后台。" />
                         </StackPanel>
                     </Grid>
                 </Border>
 
-                <Grid ColumnSpacing="18">
+                <Grid ColumnSpacing="24">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0" Padding="22" Style="{StaticResource CyberPanelStyle}">
-                        <StackPanel Spacing="10">
-                            <TextBlock FontSize="24" Text="🛸" />
+                    <Border Grid.Column="0" Padding="28" Style="{StaticResource CyberPanelStyle}" CornerRadius="12">
+                        <StackPanel Spacing="16">
+                            <TextBlock FontSize="32" Text="🛸" />
                             <TextBlock
                                 Foreground="{StaticResource CyberTextBrush}"
-                                FontSize="18"
-                                FontWeight="SemiBold"
-                                Text="统一 API 交互" />
+                                FontSize="20"
+                                FontWeight="Bold"
+                                Text="统一 API 契约" />
                             <TextBlock
                                 Foreground="{StaticResource CyberMutedTextBrush}"
-                                Text="无论底层后端使用 Java、Go 还是 Python，客户端只对接同一套 REST 契约。"
+                                FontSize="14"
+                                LineHeight="22"
+                                Text="无论底层后端使用 Java、Go 还是 Rust，桌面端均对接同一套 REST API，确保跨技术栈的数据一致性。"
                                 TextWrapping="WrapWholeWords" />
                         </StackPanel>
                     </Border>
 
-                    <Border Grid.Column="1" Padding="22" Style="{StaticResource CyberPanelStyle}">
-                        <StackPanel Spacing="10">
-                            <TextBlock FontSize="24" Text="🌗" />
+                    <Border Grid.Column="1" Padding="28" Style="{StaticResource CyberPanelStyle}" CornerRadius="12">
+                        <StackPanel Spacing="16">
+                            <TextBlock FontSize="32" Text="🌗" />
                             <TextBlock
                                 Foreground="{StaticResource CyberTextBrush}"
-                                FontSize="18"
-                                FontWeight="SemiBold"
-                                Text="设计系统同步" />
+                                FontSize="20"
+                                FontWeight="Bold"
+                                Text="跨端设计同步" />
                             <TextBlock
                                 Foreground="{StaticResource CyberMutedTextBrush}"
-                                Text="赛博玻璃、光晕、网格背景与锁定表达保持跨端一致，但会为 WinUI 3 保留原生窗口手感。"
+                                FontSize="14"
+                                LineHeight="22"
+                                Text="设计系统令牌（Tokens）跨端共享。我们在 WinUI 3 中复刻了 Web 端的玻璃模糊、动态网格与状态表达。"
                                 TextWrapping="WrapWholeWords" />
                         </StackPanel>
                     </Border>
 
-                    <Border Grid.Column="2" Padding="22" Style="{StaticResource CyberPanelStyle}">
-                        <StackPanel Spacing="10">
-                            <TextBlock FontSize="24" Text="⛓️" />
+                    <Border Grid.Column="2" Padding="28" Style="{StaticResource CyberPanelStyle}" CornerRadius="12">
+                        <StackPanel Spacing="16">
+                            <TextBlock FontSize="32" Text="⛓️" />
                             <TextBlock
                                 Foreground="{StaticResource CyberTextBrush}"
-                                FontSize="18"
-                                FontWeight="SemiBold"
-                                Text="时间锁定安全" />
+                                FontSize="20"
+                                FontWeight="Bold"
+                                Text="安全存取协议" />
                             <TextBlock
                                 Foreground="{StaticResource CyberMutedTextBrush}"
-                                Text="未到开启时间时，服务端不会返回内容；客户端只展示锁定态、倒计时与状态提示。"
+                                FontSize="14"
+                                LineHeight="22"
+                                Text="基于时间锁定逻辑，未到期胶囊的内容在服务器端保持加密且不可见，确保您的寄语安全送达未来。"
                                 TextWrapping="WrapWholeWords" />
                         </StackPanel>
                     </Border>
                 </Grid>
 
-                <Border Padding="28" Style="{StaticResource CyberPanelStyle}">
-                    <StackPanel Spacing="24">
+                <Border Padding="32" Style="{StaticResource CyberPanelStyle}" CornerRadius="16">
+                    <StackPanel Spacing="28">
                         <TextBlock
                             Foreground="{StaticResource CyberAccentBrush}"
                             FontSize="24"
-                            FontWeight="SemiBold"
-                            Text="核心驱动 (Core Technologies)" />
+                            FontWeight="Bold"
+                            Text="核心技术驱动 (Core Engine)" />
 
-                        <Grid ColumnSpacing="12">
+                        <Grid ColumnSpacing="16">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="*" />
@@ -155,42 +166,42 @@
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
 
-                            <Border Grid.Column="0" Padding="18" Background="#140D1E2F" CornerRadius="18">
-                                <StackPanel HorizontalAlignment="Center" Spacing="10">
-                                    <TextBlock FontSize="28" Text="🪟" />
-                                    <TextBlock Foreground="{StaticResource CyberTextBrush}" FontWeight="SemiBold" Text="WinUI 3" />
-                                    <TextBlock Foreground="{StaticResource CyberMutedTextBrush}" FontSize="12" Text="Desktop Core" />
+                            <Border Grid.Column="0" Padding="24,20" Background="#0800F0FF" BorderBrush="#1A00F0FF" BorderThickness="1" CornerRadius="12">
+                                <StackPanel HorizontalAlignment="Center" Spacing="12">
+                                    <TextBlock FontSize="32" Text="🪟" />
+                                    <TextBlock Foreground="{StaticResource CyberTextBrush}" FontWeight="Bold" Text="WinUI 3" />
+                                    <TextBlock Foreground="{StaticResource CyberMutedTextBrush}" FontSize="12" Text="Desktop UI" />
                                 </StackPanel>
                             </Border>
 
-                            <Border Grid.Column="1" Padding="18" Background="#140D1E2F" CornerRadius="18">
-                                <StackPanel HorizontalAlignment="Center" Spacing="10">
-                                    <TextBlock FontSize="28" Text="C#" />
-                                    <TextBlock Foreground="{StaticResource CyberTextBrush}" FontWeight="SemiBold" Text="C#" />
-                                    <TextBlock Foreground="{StaticResource CyberMutedTextBrush}" FontSize="12" Text="UI Layer" />
+                            <Border Grid.Column="1" Padding="24,20" Background="#0800F0FF" BorderBrush="#1A00F0FF" BorderThickness="1" CornerRadius="12">
+                                <StackPanel HorizontalAlignment="Center" Spacing="12">
+                                    <TextBlock FontSize="32" Text="C#" FontWeight="Bold" Foreground="{StaticResource CyberAccentBrush}" />
+                                    <TextBlock Foreground="{StaticResource CyberTextBrush}" FontWeight="Bold" Text="C# 10" />
+                                    <TextBlock Foreground="{StaticResource CyberMutedTextBrush}" FontSize="12" Text="App Logic" />
                                 </StackPanel>
                             </Border>
 
-                            <Border Grid.Column="2" Padding="18" Background="#140D1E2F" CornerRadius="18">
-                                <StackPanel HorizontalAlignment="Center" Spacing="10">
-                                    <TextBlock FontSize="28" Text="⚙" />
-                                    <TextBlock x:Name="BackendFrameworkText" Foreground="{StaticResource CyberTextBrush}" FontWeight="SemiBold" Text="Backend" />
+                            <Border Grid.Column="2" Padding="24,20" Background="#08FF003C" BorderBrush="#1AFF003C" BorderThickness="1" CornerRadius="12">
+                                <StackPanel HorizontalAlignment="Center" Spacing="12">
+                                    <Image x:Name="BackendFrameworkLogo" Width="36" Height="36" HorizontalAlignment="Center" />
+                                    <TextBlock x:Name="BackendFrameworkText" Foreground="{StaticResource CyberTextBrush}" FontWeight="Bold" Text="Backend" />
                                     <TextBlock x:Name="BackendFrameworkSubText" Foreground="{StaticResource CyberMutedTextBrush}" FontSize="12" Text="服务框架" />
                                 </StackPanel>
                             </Border>
 
-                            <Border Grid.Column="3" Padding="18" Background="#140D1E2F" CornerRadius="18">
-                                <StackPanel HorizontalAlignment="Center" Spacing="10">
-                                    <TextBlock FontSize="28" Text="&lt;/&gt;" />
-                                    <TextBlock x:Name="BackendLanguageText" Foreground="{StaticResource CyberTextBrush}" FontWeight="SemiBold" Text="Language" />
+                            <Border Grid.Column="3" Padding="24,20" Background="#08FF003C" BorderBrush="#1AFF003C" BorderThickness="1" CornerRadius="12">
+                                <StackPanel HorizontalAlignment="Center" Spacing="12">
+                                    <Image x:Name="BackendLanguageLogo" Width="36" Height="36" HorizontalAlignment="Center" />
+                                    <TextBlock x:Name="BackendLanguageText" Foreground="{StaticResource CyberTextBrush}" FontWeight="Bold" Text="Language" />
                                     <TextBlock x:Name="BackendLanguageSubText" Foreground="{StaticResource CyberMutedTextBrush}" FontSize="12" Text="服务语言" />
                                 </StackPanel>
                             </Border>
 
-                            <Border Grid.Column="4" Padding="18" Background="#140D1E2F" CornerRadius="18">
-                                <StackPanel HorizontalAlignment="Center" Spacing="10">
-                                    <TextBlock FontSize="28" Text="🗄" />
-                                    <TextBlock x:Name="DatabaseText" Foreground="{StaticResource CyberTextBrush}" FontWeight="SemiBold" Text="SQLite" />
+                            <Border Grid.Column="4" Padding="24,20" Background="#0839FF14" BorderBrush="#1A39FF14" BorderThickness="1" CornerRadius="12">
+                                <StackPanel HorizontalAlignment="Center" Spacing="12">
+                                    <Image x:Name="DatabaseLogo" Width="36" Height="36" HorizontalAlignment="Center" />
+                                    <TextBlock x:Name="DatabaseText" Foreground="{StaticResource CyberTextBrush}" FontWeight="Bold" Text="Database" />
                                     <TextBlock x:Name="DatabaseSubText" Foreground="{StaticResource CyberMutedTextBrush}" FontSize="12" Text="存储层" />
                                 </StackPanel>
                             </Border>

@@ -18,110 +18,89 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
+            <!-- Header: Tauri-style simple bar with logo + nav + theme toggle -->
             <Border
                 Grid.Row="0"
-                Margin="24,20,24,16"
-                Padding="20"
-                Style="{StaticResource CyberPanelStyle}">
-                <Grid ColumnSpacing="16">
+                Padding="60,24">
+                <Grid ColumnSpacing="12">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <StackPanel Spacing="4">
-                        <TextBlock
-                            Foreground="{StaticResource CyberTextBrush}"
-                            FontSize="28"
-                            FontWeight="SemiBold"
-                            Text="HelloTime Cyber" />
-                        <TextBlock
-                            Foreground="{StaticResource CyberMutedTextBrush}"
-                            Text="WinUI 3 原生桌面实现，目标贴近 macOS SwiftUI 的赛博玻璃体验。" />
-                    </StackPanel>
+                    <!-- Logo -->
+                    <Button
+                        Grid.Column="0"
+                        Click="OnNavigateHome"
+                        Background="Transparent"
+                        BorderBrush="{x:Null}"
+                        HorizontalContentAlignment="Left"
+                        Padding="0"
+                        ToolTipService.ToolTip="返回首页">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <Image
+                                Source="ms-appx:///Assets/logo.svg"
+                                Width="28"
+                                Height="28" />
+                            <TextBlock
+                                Foreground="{StaticResource CyberTextBrush}"
+                                FontSize="22"
+                                FontWeight="Bold"
+                                Text="HelloTime"
+                                VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
 
-                    <StackPanel
-                        Grid.Column="1"
-                        HorizontalAlignment="Center"
-                        Orientation="Horizontal"
-                        Spacing="10">
-                        <Button x:Name="HomeNavButton" Click="OnNavigateHome" Content="首页" Style="{StaticResource CyberNavButtonStyle}" />
-                        <Button x:Name="CreateNavButton" Click="OnNavigateCreate" Content="创建" Style="{StaticResource CyberNavButtonStyle}" />
-                        <Button x:Name="OpenNavButton" Click="OnNavigateOpen" Content="开启" Style="{StaticResource CyberNavButtonStyle}" />
-                        <Button x:Name="AboutNavButton" Click="OnNavigateAbout" Content="关于" Style="{StaticResource CyberNavButtonStyle}" />
-                        <Button x:Name="AdminNavButton" Click="OnNavigateAdmin" Content="管理" Style="{StaticResource CyberNavButtonStyle}" />
-                    </StackPanel>
+                    <!-- Spacer -->
+                    <Grid Grid.Column="1" />
 
+                    <!-- Right side: About link + Theme Toggle -->
                     <StackPanel
                         Grid.Column="2"
-                        HorizontalAlignment="Right"
-                        Spacing="10">
+                        Orientation="Horizontal"
+                        Spacing="20"
+                        VerticalAlignment="Center">
+                        <Button Click="OnNavigateAbout" Content="关于项目" Style="{StaticResource CyberNavButtonStyle}" />
                         <Button
                             Click="OnToggleTheme"
-                            Content="切换主题"
-                            Style="{StaticResource CyberNavButtonStyle}" />
-                        <TextBlock
-                            MaxWidth="220"
+                            FontSize="18"
+                            Padding="10"
+                            Background="Transparent"
+                            BorderBrush="Transparent"
                             Foreground="{StaticResource CyberMutedTextBrush}"
-                            Text="{Binding StatusMessage}"
-                            TextAlignment="Right"
-                            TextWrapping="WrapWholeWords" />
+                            ToolTipService.ToolTip="切换主题">
+                            <FontIcon Glyph="&#xE703;" />
+                        </Button>
                     </StackPanel>
                 </Grid>
             </Border>
 
+            <!-- Content Frame -->
             <Frame
                 x:Name="ContentFrame"
                 Grid.Row="1"
-                Margin="24,0,24,20" />
+                Margin="60,0,60,40" />
 
+            <!-- Footer: status dot + tech stack summary -->
             <Border
                 Grid.Row="2"
-                Margin="24,0,24,24"
-                Padding="16,12"
-                Style="{StaticResource CyberPanelStyle}">
-                <Grid RowSpacing="10">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-
-                    <Rectangle
-                        Height="1"
-                        HorizontalAlignment="Stretch"
-                        Fill="{StaticResource CyberGlassLineBrush}" />
-
-                    <ItemsControl Grid.Row="1" ItemsSource="{Binding TechStackItems}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <ItemsWrapGrid Orientation="Horizontal" />
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Border
-                                    Margin="0,0,10,10"
-                                    Padding="12,8"
-                                    Background="#1A56CCF2"
-                                    BorderBrush="{StaticResource CyberPanelBorderBrush}"
-                                    BorderThickness="1"
-                                    CornerRadius="999">
-                                    <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <TextBlock
-                                            Foreground="{StaticResource CyberMutedTextBrush}"
-                                            FontSize="12"
-                                            Text="{Binding Category}" />
-                                        <TextBlock
-                                            Foreground="{StaticResource CyberTextBrush}"
-                                            FontWeight="SemiBold"
-                                            Text="{Binding Name}" />
-                                    </StackPanel>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </Grid>
+                Margin="60,0,60,32"
+                Padding="20,12"
+                Background="{StaticResource CyberPanelBrush}"
+                BorderBrush="{StaticResource CyberPanelBorderBrush}"
+                BorderThickness="1"
+                CornerRadius="8">
+                <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                    <Ellipse
+                        Width="8"
+                        Height="8"
+                        Fill="{StaticResource CyberGreenNeonBrush}" />
+                    <TextBlock
+                        Foreground="{StaticResource CyberMutedTextBrush}"
+                        FontSize="12"
+                        Text="{Binding StatusMessage}" />
+                </StackPanel>
             </Border>
         </Grid>
     </Grid>
