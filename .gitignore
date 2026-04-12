@@ -72,3 +72,4 @@ backends/drogon/build/
 build_log.txt
 build_output.txt
 xaml_build_log.txt
+desktop/winui3/build.txt
