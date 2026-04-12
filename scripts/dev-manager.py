@@ -11,13 +11,17 @@ HelloTime 本地开发服务管理工具。
 from __future__ import annotations
 
 import argparse
+import ctypes
 import json
 import os
+import re
 import signal
 import socket
 import subprocess
+import sys
 import time
 import webbrowser
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -32,12 +36,12 @@ ROOT_DIR = Path(__file__).resolve().parent.parent
 RUNTIME_DIR = ROOT_DIR / ".runtime" / "dev-manager"
 PID_DIR = RUNTIME_DIR / "pids"
 LOG_DIR = RUNTIME_DIR / "logs"
-SWITCH_SCRIPT = ROOT_DIR / "scripts" / "switch-backend.sh"
-SWITCH_SCRIPT_WINDOWS = ROOT_DIR / "scripts" / "switch-backend.ps1"
+
 WEB_UI_FILE = ROOT_DIR / "scripts" / "dev-manager-web.html"
 ASSETS_DIR = ROOT_DIR / "scripts" / "dev-manager-assets"
 PROXY_PATHS = build_proxy_paths()
 PROXY_RUNTIME_DIR = Path(PROXY_PATHS["PROXY_RUNTIME_DIR"])
+PROXY_PID_FILE = Path(PROXY_PATHS["PID_FILE"])
 PROXY_META_FILE = Path(PROXY_PATHS["META_FILE"])
 PROXY_LOG_FILE = Path(PROXY_PATHS["LOG_FILE"])
 PROXY_ERR_FILE = Path(PROXY_PATHS["ERR_FILE"])
@@ -52,6 +56,19 @@ class Service:
     workdir: Path
     command: list[str]
     port: int
+    os: str = "all"  # "all" | "windows" | "macos" | "linux"
+
+    @property
+    def available(self) -> bool:
+        if self.os == "all":
+            return True
+        if self.os == "windows":
+            return os.name == "nt"
+        if self.os == "macos":
+            return sys.platform == "darwin"
+        if self.os == "linux":
+            return sys.platform.startswith("linux")
+        return False
 
     @property
     def pid_file(self) -> Path:
@@ -226,12 +243,24 @@ SERVICES: list[Service] = [
         workdir=ROOT_DIR / "desktop" / "macos-swiftui",
         command=["bash", str(ROOT_DIR / "desktop" / "macos-swiftui" / "run")],
         port=0,
+        os="macos",
+    ),
+    Service(
+        key="winui3",
+        label="WinUI 3 桌面",
+        kind="desktop",
+        workdir=ROOT_DIR / "desktop" / "winui3",
+        command=["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(ROOT_DIR / "desktop" / "winui3" / "run.ps1")],
+        port=0,
+        os="windows",
     ),
 ]
+
 
 def ensure_runtime_dirs() -> None:
     PID_DIR.mkdir(parents=True, exist_ok=True)
     LOG_DIR.mkdir(parents=True, exist_ok=True)
+    PROXY_RUNTIME_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def get_service_command(service: Service) -> list[str]:
@@ -280,23 +309,26 @@ def is_port_open(port: int) -> bool:
     return False
 
 
-def get_listening_pids(port: int) -> list[int]:
+def get_listening_pids(port: int, netstat_output: str | None = None) -> list[int]:
     if port <= 0:
         return []
 
     if os.name == "nt":
-        result = subprocess.run(
-            ["netstat", "-ano", "-p", "tcp"],
-            text=True,
-            capture_output=True,
-            check=False,
-        )
-        if result.returncode != 0:
-            return []
-
-        pids: list[int] = []
+        if netstat_output is not None:
+            stdout = netstat_output
+        else:
+            result = subprocess.run(
+                ["netstat", "-ano", "-p", "tcp"],
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+            if result.returncode != 0:
+                return []
+            stdout = result.stdout
+        found_pids: list[int] = []
         suffixes = (f":{port}", f".{port}")
-        for raw_line in result.stdout.splitlines():
+        for raw_line in stdout.splitlines():
             line = raw_line.strip()
             if not line.startswith("TCP"):
                 continue
@@ -307,10 +339,10 @@ def get_listening_pids(port: int) -> list[int]:
             if state != "LISTENING" or not local_address.endswith(suffixes):
                 continue
             try:
-                pids.append(int(pid_str))
+                found_pids.append(int(pid_str))
             except ValueError:
                 continue
-        return sorted(set(pids))
+        return sorted(set(found_pids))
 
     try:
         result = subprocess.run(
@@ -324,16 +356,16 @@ def get_listening_pids(port: int) -> list[int]:
     if result.returncode not in {0, 1}:
         return []
 
-    pids: list[int] = []
+    found_pids: list[int] = []
     for line in result.stdout.splitlines():
         line = line.strip()
         if not line:
             continue
         try:
-            pids.append(int(line))
+            found_pids.append(int(line))
         except ValueError:
             continue
-    return sorted(set(pids))
+    return sorted(set(found_pids))
 
 
 def read_pid(pid_file: Path) -> int | None:
@@ -341,10 +373,20 @@ def read_pid(pid_file: Path) -> int | None:
         return None
 
     try:
-        return int(pid_file.read_text().strip())
+        return int(pid_file.read_text(encoding="utf-8", errors="replace").strip())
     except ValueError:
         pid_file.unlink(missing_ok=True)
         return None
+
+
+def _is_pid_alive_windows(pid: int) -> bool:
+    """Windows: 用 OpenProcess 检查进程存活，比 tasklist 快 50 倍。"""
+    SYNCHRONIZE = 0x100000
+    process = ctypes.windll.kernel32.OpenProcess(SYNCHRONIZE, False, pid)  # type: ignore[attr-defined]
+    if process:
+        ctypes.windll.kernel32.CloseHandle(process)  # type: ignore[attr-defined]
+        return True
+    return False
 
 
 def is_pid_alive(pid: int | None) -> bool:
@@ -352,16 +394,7 @@ def is_pid_alive(pid: int | None) -> bool:
         return False
 
     if os.name == "nt":
-        result = subprocess.run(
-            ["tasklist", "/FI", f"PID eq {pid}", "/FO", "CSV", "/NH"],
-            text=True,
-            capture_output=True,
-            check=False,
-        )
-        if result.returncode != 0:
-            return False
-        output = result.stdout.strip()
-        return bool(output) and not output.startswith("INFO:")
+        return _is_pid_alive_windows(pid)
 
     try:
         os.kill(pid, 0)
@@ -376,12 +409,17 @@ def cleanup_stale_pid(service: Service) -> None:
         service.pid_file.unlink(missing_ok=True)
 
 
-def get_service_status(service: Service) -> dict[str, str]:
+def get_service_status(service: Service, *, netstat_output: str | None = None) -> dict[str, str]:
     cleanup_stale_pid(service)
     pid = read_pid(service.pid_file)
     alive = is_pid_alive(pid)
-    listener_pids = get_listening_pids(service.port)
-    port_open = is_port_open(service.port) or bool(listener_pids)
+    listener_pids = get_listening_pids(service.port, netstat_output=netstat_output)
+    # 当 netstat_output 可用时，直接使用 netstat 结果判断端口状态，
+    # 避免对未开放端口调用 is_port_open（每次 TCP 连接超时约 1 秒）
+    if netstat_output is not None:
+        port_open = bool(listener_pids)
+    else:
+        port_open = is_port_open(service.port) or bool(listener_pids)
 
     display_pid = "-"
     if alive and pid is not None:
@@ -411,6 +449,11 @@ def start_service(service: Service) -> str:
     status = get_service_status(service)
     if status["status"] in {"运行中", "启动中"}:
         return f"{service.label} 已处于{status['status']}状态。"
+    if not service.available:
+        return f"{service.label} 不支持当前操作系统（需要 {service.os}）。"
+
+    is_windows = os.name == "nt"
+    has_ps1 = is_windows and service.windows_run_script.exists()
 
     log_handle = service.log_file.open("ab")
     try:
@@ -425,10 +468,16 @@ def start_service(service: Service) -> str:
         "stderr": subprocess.STDOUT,
         "stdin": subprocess.DEVNULL,
     }
-    if os.name == "nt":
+    if is_windows:
         creationflags = 0
-        creationflags |= getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0)
-        creationflags |= getattr(subprocess, "DETACHED_PROCESS", 0)
+        if has_ps1:
+            # PowerShell + DETACHED_PROCESS 会导致 PowerShell 立即退出，
+            # 改用 CREATE_NO_WINDOW：不创建控制台窗口，但不脱离控制台。
+            creationflags |= getattr(subprocess, "CREATE_NO_WINDOW", 0)
+            creationflags |= getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0)
+        else:
+            creationflags |= getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0)
+            creationflags |= getattr(subprocess, "DETACHED_PROCESS", 0)
         popen_kwargs["creationflags"] = creationflags
     else:
         popen_kwargs["start_new_session"] = True
@@ -438,15 +487,20 @@ def start_service(service: Service) -> str:
     except OSError as exc:
         log_handle.close()
         return f"{service.label} 启动失败: {exc}"
+    finally:
+        # 父进程不再需要写日志文件，关闭句柄避免泄漏
+        log_handle.close()
+
     service.pid_file.write_text(f"{process.pid}\n")
 
+    # 轮询端口开放：用 netstat 缓存优化 Windows 性能
     for _ in range(20):
         if not is_pid_alive(process.pid):
             break
-        if is_port_open(service.port):
-            listener_pids = get_listening_pids(service.port)
-            if listener_pids:
-                service.pid_file.write_text(f"{listener_pids[0]}\n")
+        netstat = _get_netstat_output()
+        listener_pids = get_listening_pids(service.port, netstat_output=netstat)
+        if listener_pids:
+            service.pid_file.write_text(f"{listener_pids[0]}\n")
             return f"{service.label} 已启动，监听 {service.port}。"
         time.sleep(0.5)
 
@@ -507,7 +561,7 @@ def stop_service(service: Service) -> str:
 
     for listener_pid in listener_pids:
         if listener_pid not in seen:
-            targets.append((listener_pid, False))
+            targets.append((listener_pid, True))
             seen.add(listener_pid)
 
     for target_pid, use_group in targets:
@@ -516,9 +570,11 @@ def stop_service(service: Service) -> str:
         except OSError:
             continue
 
+    # 轮询进程退出：用 netstat 缓存优化 Windows 性能
     for _ in range(20):
         managed_alive_now = is_pid_alive(pid) if pid is not None else False
-        if not managed_alive_now and not get_listening_pids(service.port):
+        netstat = _get_netstat_output()
+        if not managed_alive_now and not get_listening_pids(service.port, netstat_output=netstat):
             service.pid_file.unlink(missing_ok=True)
             return f"{service.label} 已停止。"
         time.sleep(0.25)
@@ -539,17 +595,15 @@ def restart_service(service: Service) -> str:
 
 
 def start_all() -> list[str]:
-    messages: list[str] = []
-    for service in SERVICES:
-        messages.append(start_service(service))
-    return messages
+    """并行启动所有服务。"""
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        return list(pool.map(start_service, SERVICES))
 
 
 def stop_all() -> list[str]:
-    messages: list[str] = []
-    for service in reversed(SERVICES):
-        messages.append(stop_service(service))
-    return messages
+    """并行停止所有服务。"""
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        return list(pool.map(stop_service, reversed(SERVICES)))
 
 
 def restart_all() -> list[str]:
@@ -557,8 +611,15 @@ def restart_all() -> list[str]:
 
 
 def get_proxy_mapping() -> str:
+    """获取当前 8080 转发映射。若进程已退出则清理过期 meta。"""
     if PROXY_META_FILE.exists():
-        return PROXY_META_FILE.read_text().strip()
+        # 检查 PID 文件中的进程是否存活
+        pid = read_pid(PROXY_PID_FILE)
+        if pid is not None and is_pid_alive(pid):
+            return PROXY_META_FILE.read_text(encoding="utf-8", errors="replace").strip()
+        # 进程已死，清理残留文件
+        PROXY_META_FILE.unlink(missing_ok=True)
+        PROXY_PID_FILE.unlink(missing_ok=True)
     return "当前没有运行中的 8080 转发"
 
 
@@ -569,26 +630,176 @@ def append_proxy_activity(message: str) -> None:
         handle.write(f"{timestamp} INFO {message}\n")
 
 
-def switch_proxy(target: str) -> str:
-    if os.name == "nt":
-        command = [
-            "powershell",
-            "-NoProfile",
-            "-ExecutionPolicy",
-            "Bypass",
-            "-File",
-            str(SWITCH_SCRIPT_WINDOWS),
-            target,
-        ]
-    else:
-        command = ["bash", str(SWITCH_SCRIPT), target]
+def _build_proxy_target_map() -> dict[str, tuple[str, int]]:
+    """从 SERVICES 列表自动派生后端名→端口映射，无需硬编码。"""
+    mapping: dict[str, tuple[str, int]] = {}
+    for svc in SERVICES:
+        if svc.kind == "backend":
+            # 添加 key 本身
+            mapping[svc.key] = (svc.key, svc.port)
+    # 常用别名
+    mapping["spring"] = ("spring-boot", 18000)
+    mapping["aspnet"] = ("aspnet-core", 18050)
+    return mapping
 
-    result = subprocess.run(command, cwd=ROOT_DIR, text=True, capture_output=True)
-    output = (result.stdout or "") + (result.stderr or "")
+
+_PROXY_TARGET_MAP: dict[str, tuple[str, int]] = _build_proxy_target_map()
+
+
+def _resolve_proxy_target(name: str) -> tuple[str, int]:
+    """将后端名称解析为 (名称, 端口) 元组。"""
+    key = name.lower().strip()
+    if key in _PROXY_TARGET_MAP:
+        return _PROXY_TARGET_MAP[key]
+    if key.isdigit():
+        return ("custom", int(key))
+    raise ValueError(f"未知后端: {name}")
+
+
+def _stop_proxy_process(*, keep_meta: bool = False) -> str:
+    """停止当前运行中的 8080 转发进程。
+
+    除了杀 PID 文件记录的进程，还会杀所有在 8080 端口上监听的进程，
+    防止残留进程占用端口导致新转发无法生效。
+
+    Args:
+        keep_meta: 为 True 时保留 meta 文件（用于切换场景，避免中间状态显示"未转发"）。
+    """
+    # 收集需要停止的进程
+    targets: set[int] = set()
+
+    # 1. PID 文件记录的进程
+    pid: int | None = None
+    if PROXY_PID_FILE.exists():
+        try:
+            pid = int(PROXY_PID_FILE.read_text(encoding="utf-8", errors="replace").strip())
+        except ValueError:
+            pid = None
+        PROXY_PID_FILE.unlink(missing_ok=True)
+
+    if pid is not None and is_pid_alive(pid):
+        targets.add(pid)
+
+    # 2. 所有在 8080 端口上监听的进程（捕获残留的旧进程）
+    for listener_pid in get_listening_pids(8080):
+        if is_pid_alive(listener_pid):
+            targets.add(listener_pid)
+
+    if not keep_meta:
+        PROXY_META_FILE.unlink(missing_ok=True)
+
+    if not targets:
+        return "No active 8080 forwarding to stop"
+
+    # 发送终止信号
+    for target_pid in targets:
+        terminate_pid(target_pid, use_group=True)
+
+    # 等待进程退出
+    for _ in range(12):
+        if not any(is_pid_alive(p) for p in targets):
+            break
+        time.sleep(0.25)
+
+    # 强制杀死未退出的进程
+    for target_pid in targets:
+        if is_pid_alive(target_pid):
+            force_kill_pid(target_pid, use_group=True)
+
+    return f"Stopped 8080 forwarding (PIDs: {sorted(targets)})"
+
+
+def _start_proxy_process(target_name: str, target_port: int) -> str:
+    """启动 8080 端口转发后台进程。"""
+    ensure_runtime_dirs()
+    forward_script = ROOT_DIR / "scripts" / "port_forward.py"
+    python_exe = "python" if os.name == "nt" else "python3"
+
+    # 先写过渡 meta，避免 UI 在切换期间显示"未转发"
+    PROXY_META_FILE.write_text(f"切换中 -> {target_name} ({target_port})\nPID: ...\n日志: {PROXY_LOG_FILE}")
+
+    command = [
+        python_exe,
+        str(forward_script),
+        "--listen-host", "127.0.0.1",
+        "--listen-port", "8080",
+        "--target-host", "127.0.0.1",
+        "--target-port", str(target_port),
+    ]
+
+    popen_kwargs: dict[str, Any] = {
+        "cwd": str(ROOT_DIR / "scripts"),
+        "stdin": subprocess.DEVNULL,
+    }
+
+    if os.name == "nt":
+        # Windows: 用 CREATE_NO_WINDOW 避免弹黑窗口
+        creationflags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+        creationflags |= getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0)
+        popen_kwargs["creationflags"] = creationflags
+        # 打开日志文件后立即传给 Popen，父进程关闭自己的句柄
+        stdout_handle = PROXY_LOG_FILE.open("ab")
+        stderr_handle = PROXY_ERR_FILE.open("ab")
+        popen_kwargs["stdout"] = stdout_handle
+        popen_kwargs["stderr"] = stderr_handle
+    else:
+        popen_kwargs["start_new_session"] = True
+        stdout_handle = PROXY_LOG_FILE.open("ab")
+        popen_kwargs["stdout"] = stdout_handle
+        popen_kwargs["stderr"] = subprocess.STDOUT
+
+    process = subprocess.Popen(command, **popen_kwargs)
+
+    # 父进程关闭日志文件句柄，避免泄漏
+    if os.name == "nt":
+        stdout_handle.close()
+        stderr_handle.close()
+    else:
+        stdout_handle.close()
+
+    PROXY_PID_FILE.write_text(f"{process.pid}\n")
+
+    # 等待 0.5 秒确认进程未立即退出
+    time.sleep(0.5)
+    if process.poll() is not None:
+        PROXY_PID_FILE.unlink(missing_ok=True)
+        PROXY_META_FILE.unlink(missing_ok=True)
+        raise RuntimeError(f"端口转发启动失败，请查看日志: {PROXY_LOG_FILE}")
+
+    meta_lines = [
+        f"当前 8080 -> {target_name} ({target_port})",
+        f"PID: {process.pid}",
+        f"日志: {PROXY_LOG_FILE}",
+    ]
+    PROXY_META_FILE.write_text("\n".join(meta_lines))
+
+    return "\n".join(meta_lines)
+
+
+def switch_proxy(target: str) -> str:
+    ensure_runtime_dirs()
     action = "停止 8080 转发" if target == "stop" else f"切换 8080 转发到 {target}"
-    summary = output.strip() or f"{action}完成"
+
+    if target == "stop":
+        result = _stop_proxy_process()
+    elif target == "status":
+        result = get_proxy_mapping()
+    else:
+        try:
+            target_name, target_port = _resolve_proxy_target(target)
+        except ValueError as exc:
+            return str(exc)
+        # 切换场景：保留旧 meta 直到新 meta 写入，避免 UI 闪烁"未转发"
+        _stop_proxy_process(keep_meta=True)
+        try:
+            result = _start_proxy_process(target_name, target_port)
+        except RuntimeError as exc:
+            append_proxy_activity(f"{action} | 失败: {exc}")
+            return str(exc)
+
+    summary = result.strip() or f"{action}完成"
     append_proxy_activity(f"{action} | {summary.replace(chr(10), ' | ')}")
-    return output.strip() or f"切换完成，目标 {target}"
+    return result.strip() or f"切换完成，目标 {target}"
 
 
 def maybe_open_browser(host: str, port: int) -> None:
@@ -601,14 +812,21 @@ def maybe_open_browser(host: str, port: int) -> None:
         print(f"请手动打开: {url}")
 
 
+_ANSI_ESCAPE_RE = re.compile(r"\x1b\[[0-9;]*[a-zA-Z]|\x1b\].*?\x07|\x1b\[.*?[a-zA-Z]")
+
+
+def _strip_ansi(text: str) -> str:
+    """剥离 ANSI 转义码，让日志在 Web UI 中可读。"""
+    return _ANSI_ESCAPE_RE.sub("", text)
+
+
 def tail_log(service: Service, lines: int = 20) -> str:
     if not service.log_file.exists():
         return f"{service.label} 还没有日志文件。"
 
-    content = service.log_file.read_text(errors="replace").splitlines()
+    content = _strip_ansi(service.log_file.read_text(encoding="utf-8", errors="replace")).splitlines()
     if not content:
         return "(日志为空)"
-    # 使用显式切片以满足部分 Linter 要求
     last_lines = content[-lines:] if lines > 0 else []
     return "\n".join(last_lines)
 
@@ -616,7 +834,7 @@ def tail_log(service: Service, lines: int = 20) -> str:
 def tail_proxy_logs(lines: int = 20) -> str:
     entries: list[str] = []
     if PROXY_ACTIVITY_LOG.exists():
-        entries.extend(PROXY_ACTIVITY_LOG.read_text(errors="replace").splitlines())
+        entries.extend(_strip_ansi(PROXY_ACTIVITY_LOG.read_text(encoding="utf-8", errors="replace")).splitlines())
 
     if os.name == "nt":
         proxy_process_files = [PROXY_LOG_FILE, PROXY_ERR_FILE]
@@ -626,7 +844,7 @@ def tail_proxy_logs(lines: int = 20) -> str:
     for path in proxy_process_files:
         if not path.exists():
             continue
-        file_lines = path.read_text(errors="replace").splitlines()
+        file_lines = _strip_ansi(path.read_text(encoding="utf-8", errors="replace")).splitlines()
         if not file_lines:
             continue
         entries.append(f"--- {path.name} ---")
@@ -639,8 +857,8 @@ def tail_proxy_logs(lines: int = 20) -> str:
     return "\n".join(last_lines)
 
 
-def serialize_service(service: Service) -> dict[str, Any]:
-    info = get_service_status(service)
+def serialize_service(service: Service, *, netstat_output: str | None = None) -> dict[str, Any]:
+    info = get_service_status(service, netstat_output=netstat_output)
     return {
         "key": service.key,
         "label": service.label,
@@ -651,12 +869,27 @@ def serialize_service(service: Service) -> dict[str, Any]:
         "pid": info["pid"],
         "portOpen": info["port_open"] == "yes",
         "logFile": str(service.log_file),
+        "available": service.available,
     }
 
 
+def _get_netstat_output() -> str | None:
+    """获取一次 netstat 输出，供所有服务共享，避免重复调用。"""
+    if os.name != "nt":
+        return None
+    result = subprocess.run(
+        ["netstat", "-ano", "-p", "tcp"],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    return result.stdout if result.returncode == 0 else None
+
+
 def build_snapshot() -> dict[str, Any]:
+    netstat_output = _get_netstat_output()
     return {
-        "services": [serialize_service(service) for service in SERVICES],
+        "services": [serialize_service(service, netstat_output=netstat_output) for service in SERVICES],
         "proxyMapping": get_proxy_mapping(),
         "generatedAt": int(time.time()),
     }
@@ -734,19 +967,25 @@ class DevManagerWebHandler(BaseHTTPRequestHandler):
 
     def _send_json(self, payload: dict[str, Any], status: int = 200) -> None:
         body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
-        self.send_response(status)
-        self.send_header("Content-Type", "application/json; charset=utf-8")
-        self.send_header("Content-Length", str(len(body)))
-        self.end_headers()
-        self.wfile.write(body)
+        try:
+            self.send_response(status)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+        except (ConnectionResetError, ConnectionAbortedError, BrokenPipeError, OSError):
+            pass
 
     def _send_html(self, html: str, status: int = 200) -> None:
         body = html.encode("utf-8")
-        self.send_response(status)
-        self.send_header("Content-Type", "text/html; charset=utf-8")
-        self.send_header("Content-Length", str(len(body)))
-        self.end_headers()
-        self.wfile.write(body)
+        try:
+            self.send_response(status)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+        except (ConnectionResetError, ConnectionAbortedError, BrokenPipeError, OSError):
+            pass
 
     def _read_json_body(self) -> dict[str, Any]:
         content_length = self.headers.get("Content-Length", "0").strip()
@@ -803,11 +1042,14 @@ class DevManagerWebHandler(BaseHTTPRequestHandler):
             elif suffix == ".jpg" or suffix == ".jpeg":
                 content_type = "image/jpeg"
             body = asset_path.read_bytes()
-            self.send_response(200)
-            self.send_header("Content-Type", content_type)
-            self.send_header("Content-Length", str(len(body)))
-            self.end_headers()
-            self.wfile.write(body)
+            try:
+                self.send_response(200)
+                self.send_header("Content-Type", content_type)
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+            except (ConnectionResetError, ConnectionAbortedError, BrokenPipeError, OSError):
+                pass
             return
         if path == "/api/snapshot":
             self._send_json({"success": True, "data": build_snapshot()})
@@ -886,7 +1128,7 @@ class DevManagerWebHandler(BaseHTTPRequestHandler):
         path = parsed.path.rstrip("/") or "/"
         body = self._read_json_body()
 
-        # 前端若误用 POST 访问健康检查，也兼容返回结果，避免“资源未找到”。
+        # 前端若误用 POST 访问健康检查，也兼容返回结果，避免"资源未找到"。
         if path.startswith("/api/services/") and path.endswith("/health"):
             parts = path.strip("/").split("/")
             if len(parts) != 4:
@@ -964,6 +1206,7 @@ def run_web_server(host: str, port: int) -> None:
         print("\n已停止 Web 服务管理。")
     finally:
         server.server_close()
+
 
 def print_snapshot() -> None:
     payload = build_snapshot()

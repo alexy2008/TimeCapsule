@@ -140,6 +140,11 @@
         font-size: 13px;
       }
 
+      select option {
+        background: #0a1e30;
+        color: var(--text);
+      }
+
       button { cursor: pointer; }
 
       button:hover:not(:disabled) {
@@ -238,6 +243,13 @@
         box-shadow: inset 0 0 0 1px rgba(186, 94, 255, 0.22), 0 0 22px rgba(101, 36, 158, 0.24);
       }
       .card.kind-desktop::before { background: #ba5eff; }
+      .card-disabled {
+        opacity: 0.42;
+        filter: grayscale(0.6);
+      }
+      .card-disabled .actions button {
+        cursor: not-allowed;
+      }
       .card.state-running {
         border-width: 1.5px;
       }
@@ -518,6 +530,7 @@
             <div id="proxyCurrent" class="proxy-current">-</div>
             <div class="proxy-select">
               <select id="proxyTarget">
+                <option value="">选择后端...</option>
                 <option value="spring-boot">Spring Boot</option>
                 <option value="fastapi">FastAPI</option>
                 <option value="gin">Gin</option>
@@ -529,6 +542,7 @@
                 <option value="drogon">Drogon</option>
                 <option value="__stop__">停止转发</option>
               </select>
+              <button id="proxyApply" disabled>切换</button>
             </div>
           </div>
         </div>
@@ -599,6 +613,7 @@
       const serviceCount = document.getElementById('serviceCount');
       const proxyCurrent = document.getElementById('proxyCurrent');
       const proxyTarget = document.getElementById('proxyTarget');
+      const proxyApply = document.getElementById('proxyApply');
       const logServiceTabs = document.getElementById('logServiceTabs');
       const refreshLog = document.getElementById('refreshLog');
       const autoScrollLogs = document.getElementById('autoScrollLogs');
@@ -706,21 +721,23 @@
         const kindClass = `kind-${service.kind}`;
         const stateClass = cardStatusClass(service.status);
         const iconUrl = `/assets/icons/${encodeURIComponent(service.key)}.svg`;
-        
+        const disabled = !service.available;
+        const disabledAttr = disabled ? ' disabled' : '';
+
         let openOrTest = '';
-        if (service.kind === 'backend') {
+        if (!disabled && service.kind === 'backend') {
           openOrTest = `<button data-health="${escapeHtml(service.key)}" ${service.status === '已停止' ? 'disabled' : ''}>测试</button>`;
-        } else if (service.kind !== 'desktop') {
+        } else if (!disabled && service.kind !== 'desktop') {
           openOrTest = `<a href="${escapeHtml(service.url)}" target="_blank" rel="noreferrer"><button>打开</button></a>`;
         }
 
-        const isRunning = service.status === '运行中' || service.status === '启动中';
-        const toggleAction = isRunning ? 'stop' : 'start';
-        const toggleLabel = isRunning ? '停止' : '启动';
-        const toggleClass = isRunning ? 'btn-stop' : 'btn-start';
+        const isRunning = !disabled && (service.status === '运行中' || service.status === '启动中');
+        const toggleAction = disabled ? '' : (isRunning ? 'stop' : 'start');
+        const toggleLabel = disabled ? '不支持当前系统' : (isRunning ? '停止' : '启动');
+        const toggleClass = disabled ? '' : (isRunning ? 'btn-stop' : 'btn-start');
 
         return `
-          <article class="card ${escapeHtml(kindClass)} ${escapeHtml(stateClass)}">
+          <article class="card ${escapeHtml(kindClass)} ${escapeHtml(stateClass)}${disabled ? ' card-disabled' : ''}">
             <div class="card-header">
               <img class="service-icon" src="${iconUrl}" alt="${escapeHtml(service.label)}" onerror="this.style.visibility='hidden'" />
               <h3 class="title">${escapeHtml(service.label)}</h3>
@@ -729,9 +746,9 @@
             <div class="small">端口: ${escapeHtml(service.port)} ｜ PID: ${escapeHtml(service.pid)}</div>
             <div class="health-line">${healthInfo ? escapeHtml(healthInfo) : '&nbsp;'}</div>
             <div class="actions">
-              <button data-service-action="${toggleAction}" data-service-key="${escapeHtml(service.key)}" class="${toggleClass}">${toggleLabel}</button>
-              <button data-service-action="restart" data-service-key="${escapeHtml(service.key)}" ${canRestart(service.status) ? '' : 'disabled'}>重启</button>
-              <button data-show-log="${escapeHtml(service.key)}">日志</button>
+              <button data-service-action="${toggleAction}" data-service-key="${escapeHtml(service.key)}" class="${toggleClass}"${disabledAttr}>${toggleLabel}</button>
+              <button data-service-action="restart" data-service-key="${escapeHtml(service.key)}"${disabledAttr}>重启</button>
+              <button data-show-log="${escapeHtml(service.key)}"${disabledAttr}>日志</button>
               ${openOrTest}
             </div>
           </article>
@@ -766,7 +783,8 @@
       }
 
       function parseProxyTarget(mappingText) {
-        const matched = mappingText.match(/当前\s+8080\s+->\s+([^\s]+)\s*\(/);
+        // 匹配"当前 8080 -> xxx (port)" 或 "切换中 -> xxx (port)"
+        const matched = mappingText.match(/(?:当前|Current|切换中)\s+(?:8080\s+)?->\s+([^\s]+)\s*\(/);
         if (matched && matched[1]) {
           return matched[1];
         }
@@ -782,12 +800,7 @@
 
         const mappingSummary = String(state.snapshot.proxyMapping || '').split('\n')[0] || '当前没有运行中的 8080 转发';
         proxyCurrent.textContent = mappingSummary;
-        const guessedTarget = parseProxyTarget(mappingSummary);
-        if ([...proxyTarget.options].some((item) => item.value === guessedTarget)) {
-          proxyTarget.value = guessedTarget;
-        } else {
-          proxyTarget.value = '__stop__';
-        }
+        proxyCurrent.style.borderColor = mappingSummary.includes('切换中') ? 'var(--warn)' : '';
 
         const date = new Date(state.snapshot.generatedAt * 1000);
         generatedAt.textContent = `最近更新: ${date.toLocaleString()}`;
@@ -830,6 +843,8 @@
 
       async function applyProxyMapping() {
         const target = proxyTarget.value;
+        proxyApply.disabled = true;
+        proxyTarget.value = '';
         if (target === '__stop__') {
           await requestJson('/api/proxy/stop', { method: 'POST' });
           await refreshSnapshot(false);
@@ -938,6 +953,12 @@
       });
 
       proxyTarget.addEventListener('change', () => {
+        // 选择后端后启用切换按钮，不立即执行
+        proxyApply.disabled = !proxyTarget.value;
+      });
+
+      proxyApply.addEventListener('click', () => {
+        if (!proxyTarget.value) return;
         applyProxyMapping().catch((error) => {
           showToast(error instanceof Error ? error.message : String(error));
         });

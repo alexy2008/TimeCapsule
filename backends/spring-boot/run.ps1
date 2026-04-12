@@ -7,4 +7,4 @@ if (-not $env:SERVER_PORT) {
     $env:SERVER_PORT = "18000"
 }
 
-& .\mvnw.cmd spring-boot:run
+mvn spring-boot:run

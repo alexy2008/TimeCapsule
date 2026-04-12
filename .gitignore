@@ -66,3 +66,9 @@ backends/drogon/build/
 
 # Tool-generated
 .qoder/
+.claude/
+
+# Build logs (local)
+build_log.txt
+build_output.txt
+xaml_build_log.txt

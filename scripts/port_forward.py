@@ -12,10 +12,13 @@ import signal
 import socket
 import socketserver
 import threading
+import time
 from typing import Tuple
 
 BUFFER_SIZE = 65536
 MAX_CONNECTIONS = 100
+IDLE_TIMEOUT = 300  # 空闲连接超时（秒），防止半开连接永久阻塞
+
 active_connections = 0
 connections_lock = threading.Lock()
 
@@ -25,19 +28,30 @@ def pump_bidirectional(left: socket.socket, right: socket.socket) -> None:
     selector.register(left, selectors.EVENT_READ, right)
     selector.register(right, selectors.EVENT_READ, left)
 
+    last_activity = time.monotonic()
     try:
         while True:
-            events = selector.select()
+            events = selector.select(timeout=30)
             if not events:
+                # 超时无数据：检查是否超过 idle timeout
+                if time.monotonic() - last_activity > IDLE_TIMEOUT:
+                    return
                 continue
 
+            last_activity = time.monotonic()
             for key, _ in events:
                 source: socket.socket = key.fileobj
                 target: socket.socket = key.data
-                chunk = source.recv(BUFFER_SIZE)
+                try:
+                    chunk = source.recv(BUFFER_SIZE)
+                except (ConnectionResetError, ConnectionAbortedError, OSError):
+                    return
                 if not chunk:
                     return
-                target.sendall(chunk)
+                try:
+                    target.sendall(chunk)
+                except (ConnectionResetError, ConnectionAbortedError, BrokenPipeError, OSError):
+                    return
     finally:
         selector.close()
 
@@ -54,7 +68,10 @@ class ForwardHandler(socketserver.BaseRequestHandler):
             active_connections += 1
 
         try:
-            upstream = socket.create_connection((self.target_host, self.target_port))
+            try:
+                upstream = socket.create_connection((self.target_host, self.target_port))
+            except (ConnectionRefusedError, ConnectionResetError, OSError):
+                return
             try:
                 try:
                     self.request.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
@@ -106,7 +123,7 @@ def main() -> None:
     def shutdown(signum: int, frame) -> None:
         print("收到关闭信号，正在停止服务...", flush=True)
         # `server.shutdown()` 不能在 `serve_forever()` 所在线程里直接调用，否则会卡死。
-        # 这里改为后台线程触发关闭，避免留下“占着 8080 但不再转发”的僵尸进程。
+        # 这里改为后台线程触发关闭，避免留下"占着 8080 但不再转发"的僵尸进程。
         threading.Thread(target=server.shutdown, daemon=True).start()
 
     signal.signal(signal.SIGTERM, shutdown)

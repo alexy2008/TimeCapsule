@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
+"""代理运行时路径配置。"""
 from __future__ import annotations
 
-import argparse
 import json
-import os
-import shlex
-import tempfile
 from pathlib import Path
 
 
@@ -14,9 +11,12 @@ PROXY_META_FILENAME = "hellotime-backend-proxy.meta"
 PROXY_LOG_FILENAME = "hellotime-backend-proxy.log"
 PROXY_ERR_FILENAME = "hellotime-backend-proxy.err"
 
+# 使用项目 .runtime 目录，而非系统临时目录，避免被系统清理
+_PROXY_RUNTIME_DIR = Path(__file__).resolve().parent.parent / ".runtime" / "proxy"
+
 
 def get_proxy_runtime_dir() -> Path:
-    return Path(tempfile.gettempdir()) if os.name == "nt" else Path("/tmp")
+    return _PROXY_RUNTIME_DIR
 
 
 def build_proxy_paths() -> dict[str, str]:
@@ -30,31 +30,5 @@ def build_proxy_paths() -> dict[str, str]:
     }
 
 
-def to_shell_vars(paths: dict[str, str]) -> str:
-    return "\n".join(f"{key}={shlex.quote(value)}" for key, value in paths.items())
-
-
-def to_powershell_vars(paths: dict[str, str]) -> str:
-    return "\n".join(f"${key} = {json.dumps(value, ensure_ascii=False)}" for key, value in paths.items())
-
-
-def main() -> None:
-    parser = argparse.ArgumentParser(description="HelloTime proxy runtime paths")
-    parser.add_argument("--json", action="store_true", help="Print JSON object")
-    parser.add_argument("--shell", action="store_true", help="Print sh-compatible assignments")
-    parser.add_argument("--powershell", action="store_true", help="Print PowerShell assignments")
-    args = parser.parse_args()
-
-    paths = build_proxy_paths()
-    if args.shell:
-        print(to_shell_vars(paths))
-        return
-    if args.powershell:
-        print(to_powershell_vars(paths))
-        return
-
-    print(json.dumps(paths, ensure_ascii=False))
-
-
 if __name__ == "__main__":
-    main()
+    print(json.dumps(build_proxy_paths(), ensure_ascii=False))
