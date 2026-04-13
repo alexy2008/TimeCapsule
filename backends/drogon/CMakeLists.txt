@@ -26,6 +26,15 @@ FetchContent_MakeAvailable(drogon)
 find_package(OpenSSL REQUIRED)
 find_package(SQLite3 REQUIRED)
 
+# Handle case where FindSQLite3 doesn't create an imported target
+if(NOT TARGET SQLite3::SQLite3)
+  add_library(SQLite3::SQLite3 UNKNOWN IMPORTED)
+  set_target_properties(SQLite3::SQLite3 PROPERTIES
+    IMPORTED_LOCATION "${SQLite3_LIBRARIES}"
+    INTERFACE_INCLUDE_DIRECTORIES "${SQLite3_INCLUDE_DIRS}"
+  )
+endif()
+
 add_library(hellotime_drogon_lib
   src/server.cc
 )
