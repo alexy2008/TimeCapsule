@@ -97,39 +97,8 @@ const app = new Elysia()
       };
     }
 
+    // VALIDATION 是 Elysia 内置校验错误，不在自定义错误中，需要单独处理
     switch (code) {
-      case "CAPSULE_NOT_FOUND":
-        set.status = 404;
-        return {
-          success: false,
-          data: null,
-          message: error.message,
-          errorCode: "CAPSULE_NOT_FOUND",
-        };
-      case "INVALID_OPEN_AT":
-        set.status = 400;
-        return {
-          success: false,
-          data: null,
-          message: error.message,
-          errorCode: "BAD_REQUEST",
-        };
-      case "CODE_GENERATION":
-        set.status = 500;
-        return {
-          success: false,
-          data: null,
-          message: error.message,
-          errorCode: "INTERNAL_ERROR",
-        };
-      case "UNAUTHORIZED":
-        set.status = 401;
-        return {
-          success: false,
-          data: null,
-          message: error.message,
-          errorCode: "UNAUTHORIZED",
-        };
       case "VALIDATION":
         set.status = 400;
         return {

@@ -29,7 +29,9 @@ public class InstantStringConverter implements AttributeConverter<Instant, Strin
             return null;
         }
 
-        String normalized = dbData.trim().replace(' ', 'T');
+        // SQLite 可能将 'T' 存为空格，需要还原为 ISO 8601 格式
+        // 只替换第一个空格，避免误伤其他位置的空格
+        String normalized = dbData.trim().replaceFirst(" ", "T");
         if (!normalized.endsWith("Z") && !normalized.matches(".*[+-]\\d{2}:\\d{2}$")) {
             normalized = normalized + "Z";
         }

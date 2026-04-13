@@ -40,6 +40,6 @@ describe('CapsuleCard', () => {
 
     expect(screen.getByText('未来胶囊')).toBeDefined()
     expect(screen.getByText('未到时间')).toBeDefined()
-    expect(screen.getByText('解锁时间:')).toBeDefined()
+    expect(screen.getByText('开启时间:')).toBeDefined()
   })
 })
