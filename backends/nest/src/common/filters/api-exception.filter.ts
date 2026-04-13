@@ -1,3 +1,20 @@
+/**
+ * 全局异常过滤器 — 统一将各类异常转为标准响应格式
+ *
+ * NestJS 的 ExceptionFilter 在异常抛出后执行，
+ * 位于请求生命周期的最后阶段。@Catch() 无参表示捕获所有异常。
+ *
+ * 分层处理策略（按优先级）：
+ * 1. AppException — 业务异常，自带 errorCode
+ * 2. BadRequestException — class-validator 校验失败
+ * 3. HttpException — 其他 NestJS 内置 HTTP 异常
+ * 4. 未知异常 — 返回通用 500，同时 console.error 记录
+ *
+ * 对应其他技术栈：
+ * - Spring Boot: @ControllerAdvice + @ExceptionHandler
+ * - FastAPI: app.add_exception_handler()
+ * - Gin: middleware recover + 自定义错误响应
+ */
 import {
   ArgumentsHost,
   BadRequestException,
@@ -6,8 +23,59 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
+/**
+ * 全局异常过滤器 — 统一将各类异常转为标准响应格式
+ *
+ * NestJS 的 ExceptionFilter 在异常抛出后执行，
+ * 位于请求生命周期的最后阶段。@Catch() 无参表示捕获所有异常。
+ *
+ * 分层处理策略（按优先级）：
+ * 1. AppException — 业务异常，自带 errorCode
+ * 2. BadRequestException — class-validator 校验失败
+ * 3. HttpException — 其他 NestJS 内置 HTTP 异常
+ * 4. 未知异常 — 返回通用 500，同时 console.error 记录
+ *
+ * 对应其他技术栈：
+ * - Spring Boot: @ControllerAdvice + @ExceptionHandler
+ * - FastAPI: app.add_exception_handler()
+ * - Gin: middleware recover + 自定义错误响应
+ */
 import { Response } from 'express';
+/**
+ * 全局异常过滤器 — 统一将各类异常转为标准响应格式
+ *
+ * NestJS 的 ExceptionFilter 在异常抛出后执行，
+ * 位于请求生命周期的最后阶段。@Catch() 无参表示捕获所有异常。
+ *
+ * 分层处理策略（按优先级）：
+ * 1. AppException — 业务异常，自带 errorCode
+ * 2. BadRequestException — class-validator 校验失败
+ * 3. HttpException — 其他 NestJS 内置 HTTP 异常
+ * 4. 未知异常 — 返回通用 500，同时 console.error 记录
+ *
+ * 对应其他技术栈：
+ * - Spring Boot: @ControllerAdvice + @ExceptionHandler
+ * - FastAPI: app.add_exception_handler()
+ * - Gin: middleware recover + 自定义错误响应
+ */
 import { error } from '../dto/api-response.dto';
+/**
+ * 全局异常过滤器 — 统一将各类异常转为标准响应格式
+ *
+ * NestJS 的 ExceptionFilter 在异常抛出后执行，
+ * 位于请求生命周期的最后阶段。@Catch() 无参表示捕获所有异常。
+ *
+ * 分层处理策略（按优先级）：
+ * 1. AppException — 业务异常，自带 errorCode
+ * 2. BadRequestException — class-validator 校验失败
+ * 3. HttpException — 其他 NestJS 内置 HTTP 异常
+ * 4. 未知异常 — 返回通用 500，同时 console.error 记录
+ *
+ * 对应其他技术栈：
+ * - Spring Boot: @ControllerAdvice + @ExceptionHandler
+ * - FastAPI: app.add_exception_handler()
+ * - Gin: middleware recover + 自定义错误响应
+ */
 import { AppException } from '../exceptions/app.exception';
 
 @Catch()

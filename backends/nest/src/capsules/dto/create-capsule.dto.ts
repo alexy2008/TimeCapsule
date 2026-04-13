@@ -1,3 +1,15 @@
+/**
+ * 创建胶囊请求 DTO — 使用 class-validator 做声明式校验
+ *
+ * 校验规则完全匹配 OpenAPI 契约：
+ * - title: 非空，最多 100 字符
+ * - content: 非空（无长度上限，与其他后端一致）
+ * - creator: 非空，最多 30 字符
+ * - openAt: 非空，ISO 8601 格式
+ *
+ * NestJS 的 ValidationPipe 自动执行这些校验，
+ * 类似 Spring Boot 的 @Valid + Bean Validation，类似 FastAPI 的 Pydantic。
+ */
 import { IsISO8601, IsNotEmpty, MaxLength } from 'class-validator';
 
 export class CreateCapsuleDto {

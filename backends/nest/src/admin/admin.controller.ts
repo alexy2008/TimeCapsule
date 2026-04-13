@@ -1,3 +1,10 @@
+/**
+ * 管理控制器 — 处理 /admin 路由（登录、列表、删除）
+ *
+ * @UseGuards(AdminAuthGuard) 将守卫挂载到需要认证的路由上，
+ * 比 Spring Boot 的 @PreAuthorize 更显式，比 Gin 的 router.Group 更细粒度。
+ * 登录路由不需要守卫，其他两个路由都需要。
+ */
 import {
   Body,
   Controller,
@@ -10,12 +17,61 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+/**
+ * 管理控制器 — 处理 /admin 路由（登录、列表、删除）
+ *
+ * @UseGuards(AdminAuthGuard) 将守卫挂载到需要认证的路由上，
+ * 比 Spring Boot 的 @PreAuthorize 更显式，比 Gin 的 router.Group 更细粒度。
+ * 登录路由不需要守卫，其他两个路由都需要。
+ */
 import { ok } from '../common/dto/api-response.dto';
+/**
+ * 管理控制器 — 处理 /admin 路由（登录、列表、删除）
+ *
+ * @UseGuards(AdminAuthGuard) 将守卫挂载到需要认证的路由上，
+ * 比 Spring Boot 的 @PreAuthorize 更显式，比 Gin 的 router.Group 更细粒度。
+ * 登录路由不需要守卫，其他两个路由都需要。
+ */
 import { AppUnauthorizedException } from '../common/exceptions/app-unauthorized.exception';
+/**
+ * 管理控制器 — 处理 /admin 路由（登录、列表、删除）
+ *
+ * @UseGuards(AdminAuthGuard) 将守卫挂载到需要认证的路由上，
+ * 比 Spring Boot 的 @PreAuthorize 更显式，比 Gin 的 router.Group 更细粒度。
+ * 登录路由不需要守卫，其他两个路由都需要。
+ */
 import { CapsulesService } from '../capsules/capsules.service';
+/**
+ * 管理控制器 — 处理 /admin 路由（登录、列表、删除）
+ *
+ * @UseGuards(AdminAuthGuard) 将守卫挂载到需要认证的路由上，
+ * 比 Spring Boot 的 @PreAuthorize 更显式，比 Gin 的 router.Group 更细粒度。
+ * 登录路由不需要守卫，其他两个路由都需要。
+ */
 import { AdminAuthGuard } from './admin-auth.guard';
+/**
+ * 管理控制器 — 处理 /admin 路由（登录、列表、删除）
+ *
+ * @UseGuards(AdminAuthGuard) 将守卫挂载到需要认证的路由上，
+ * 比 Spring Boot 的 @PreAuthorize 更显式，比 Gin 的 router.Group 更细粒度。
+ * 登录路由不需要守卫，其他两个路由都需要。
+ */
 import { AdminService } from './admin.service';
+/**
+ * 管理控制器 — 处理 /admin 路由（登录、列表、删除）
+ *
+ * @UseGuards(AdminAuthGuard) 将守卫挂载到需要认证的路由上，
+ * 比 Spring Boot 的 @PreAuthorize 更显式，比 Gin 的 router.Group 更细粒度。
+ * 登录路由不需要守卫，其他两个路由都需要。
+ */
 import { AdminLoginDto } from './dto/admin-login.dto';
+/**
+ * 管理控制器 — 处理 /admin 路由（登录、列表、删除）
+ *
+ * @UseGuards(AdminAuthGuard) 将守卫挂载到需要认证的路由上，
+ * 比 Spring Boot 的 @PreAuthorize 更显式，比 Gin 的 router.Group 更细粒度。
+ * 登录路由不需要守卫，其他两个路由都需要。
+ */
 import { ListCapsulesQueryDto } from './dto/list-capsules-query.dto';
 
 @Controller('admin')

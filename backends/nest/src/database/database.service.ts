@@ -1,3 +1,12 @@
+/**
+ * 数据库服务 — 封装 node:sqlite 的同步 SQLite 连接
+ *
+ * 为什么用 node:sqlite（Node 22+ 内置）而非 better-sqlite3：
+ * - 无需编译原生模块，安装零依赖
+ * - 同步 API 与 NestJS 控制器的同步风格一致
+ *
+ * WAL 模式提升并发读性能，适合开发时多终端同时查询。
+ */
 import { Injectable } from '@nestjs/common';
 import { DatabaseSync, StatementSync } from 'node:sqlite';
 import { appConfig } from '../config/app.config';

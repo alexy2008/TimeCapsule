@@ -1,3 +1,4 @@
+// 健康检查服务 — 返回框架、语言、数据库信息
 import { Injectable } from '@nestjs/common';
 
 @Injectable()

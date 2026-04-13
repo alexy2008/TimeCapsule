@@ -1,3 +1,17 @@
+/// HelloTime Drogon 后端 — 核心实现
+///
+/// 单文件实现（1036 行），包含：
+/// - SQLite3 C API 封装（Statement RAII 类）
+/// - 手写 JWT 生成与验证（OpenSSL HMAC-SHA256）
+/// - ISO 8601 时间解析（正则表达式）
+/// - Drogon 路由注册与 CORS 处理
+///
+/// 对应其他技术栈：
+/// - Spring Boot: controller + service + repository
+/// - Gin: handler + service + model
+/// - Axum: lib.rs handler 函数
+///
+/// C++20 特性：string_view、span、optional、filesystem、designated initializers
 #include "server.h"
 
 #include <drogon/HttpAppFramework.h>
@@ -32,6 +46,8 @@ namespace
 {
 using namespace ::drogon;
 
+// 默认配置值，可通过环境变量覆盖
+// 演示项目硬编码默认密码，生产环境应通过环境变量覆盖
 constexpr std::string_view kDefaultDatabasePath = "../../data/hellotime.db";
 constexpr std::string_view kDefaultAdminPassword = "timecapsule-admin";
 constexpr std::string_view kDefaultJwtSecret =
@@ -41,12 +57,17 @@ constexpr size_t kCodeLength = 8;
 constexpr int kCodeRetryLimit = 10;
 constexpr std::string_view kCodeAlphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
+/// 解析后的时间 — 包含 epoch 秒数和标准化 UTC 字符串
+///
+/// 使用 C++20 designated initializers 构造：
+/// ParsedTime{.epochSeconds = ..., .normalizedUtc = ...}
 struct ParsedTime
 {
     std::time_t epochSeconds{0};
     std::string normalizedUtc;
 };
 
+/// 读取环境变量，未设置时使用默认值
 std::string getenvOrDefault(const char *key, std::string_view fallback)
 {
     if (const char *value = std::getenv(key))
@@ -96,6 +117,10 @@ std::string formatUtc(std::time_t epochSeconds)
     return output.str();
 }
 
+/// 解析 ISO 8601 时间字符串 — 支持 Z 和 +HH:MM / -HH:MM 时区偏移
+///
+/// 使用正则表达式匹配各字段，然后用 timegm / _mkgmtime 转为 epoch 秒数。
+/// 跨平台兼容：Windows 用 _mkgmtime，Linux/macOS 用 timegm。
 ParsedTime parseIso8601(const std::string &value)
 {
     static const std::regex pattern(
@@ -146,6 +171,7 @@ std::time_t currentEpochSeconds()
     return std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 }
 
+/// 构造统一响应体 — 所有 9 个后端共用 { success, data, message, errorCode } 结构
 Json::Value makeResponse(bool success,
                          const Json::Value &data,
                          const std::string &message,
@@ -181,6 +207,7 @@ bool isLocalhostOrigin(const std::string &origin)
     return origin.starts_with("http://localhost") || origin.starts_with("https://localhost");
 }
 
+/// 应用 CORS 头 — 允许 localhost 来源，预检请求在 preRoutingAdvice 中处理
 void applyCorsHeaders(const HttpRequestPtr &request, const HttpResponsePtr &response)
 {
     const auto origin = request->getHeader("origin");
@@ -194,6 +221,10 @@ void applyCorsHeaders(const HttpRequestPtr &request, const HttpResponsePtr &resp
     response->addHeader("Vary", "Origin");
 }
 
+/// SQLite3 语句 RAII 封装 — 构造时 prepare，析构时 finalize
+///
+/// 经典 RAII 模式，确保异常安全。与 Axum 的 SQLx、NestJS 的 node:sqlite
+/// 相比，这里直接操作 C API，手动管理资源生命周期。
 class Statement final
 {
   public:
@@ -222,6 +253,7 @@ class Statement final
     sqlite3_stmt *statement_{nullptr};
 };
 
+/// 初始化数据库 — CREATE TABLE IF NOT EXISTS 幂等建表
 void initializeDatabase(sqlite3 *database)
 {
     const char *sql = R"SQL(
@@ -244,6 +276,10 @@ void initializeDatabase(sqlite3 *database)
     }
 }
 
+/// 生成随机胶囊码 — 8 位大写字母+数字
+///
+/// 使用 thread_local 随数器避免多线程竞争，
+/// C++20 的 std::random_device + std::mt19937 是标准做法。
 std::string generateCode()
 {
     thread_local std::random_device device;
@@ -280,6 +316,10 @@ std::string generateUniqueCode(sqlite3 *database)
     throw std::runtime_error("无法生成唯一的胶囊码");
 }
 
+/// 胶囊记录转 JSON — 根据可见性策略决定是否返回 content
+///
+/// includeContent=true 表示管理员视角，始终返回 content。
+/// includeContent=false 表示公开视角，仅在已开启时返回 content。
 Json::Value capsuleToJson(const CapsuleRecord &capsule, bool includeContent)
 {
     const auto openAt = parseIso8601(capsule.openAt);
@@ -325,6 +365,10 @@ std::optional<CapsuleRecord> findCapsule(sqlite3 *database, const std::string &c
     return record;
 }
 
+/// Base64URL 编码 — 用于 JWT header/payload
+///
+/// 使用 C++20 std::span 接受任意字节序列，
+/// 替换 +→-、/→_ 并去掉 padding，符合 JWT 规范。
 std::string base64UrlEncode(std::span<const unsigned char> input)
 {
     if (input.empty())
@@ -400,6 +444,7 @@ std::vector<unsigned char> base64UrlDecode(std::string value)
     return output;
 }
 
+/// 计算 HMAC-SHA256 签名 — 用于 JWT 签名和验证
 std::string computeHmacSha256(std::string_view data, std::string_view secret)
 {
     unsigned int length = EVP_MAX_MD_SIZE;
@@ -414,6 +459,10 @@ std::string computeHmacSha256(std::string_view data, std::string_view secret)
     return base64UrlEncode(std::span<const unsigned char>(digest.data(), length));
 }
 
+/// 恒定时间比较 — 防止时序攻击
+///
+/// 使用 OpenSSL 的 CRYPTO_memcmp，比较时间与内容无关，
+/// 这是 JWT 签名验证的安全最佳实践。
 bool constantTimeEquals(const std::string &left, const std::string &right)
 {
     if (left.size() != right.size())
@@ -423,6 +472,10 @@ bool constantTimeEquals(const std::string &left, const std::string &right)
     return CRYPTO_memcmp(left.data(), right.data(), left.size()) == 0;
 }
 
+/// 生成管理员 JWT — 手写 HS256 签名
+///
+/// 对比其他后端使用第三方库（Python pyjwt、Go golang-jwt、
+/// Java jjwt），这里直接调用 OpenSSL 实现，展示 JWT 底层原理。
 std::string createAdminToken(const AppConfig &config)
 {
     Json::Value header(Json::objectValue);
@@ -445,6 +498,7 @@ std::string createAdminToken(const AppConfig &config)
     return signingInput + "." + signature;
 }
 
+/// 验证管理员 JWT — 拆分三段，验证签名，检查 exp
 bool verifyAdminToken(const AppConfig &config, const std::string &token)
 {
     const auto firstDot = token.find('.');
@@ -574,6 +628,16 @@ int parseQueryInt(const HttpRequestPtr &request, const std::string &name, int fa
     return fallback;
 }
 
+/// 注册所有路由 — 使用 Drogon 的 registerHandler 原生 API
+///
+/// 对应其他技术栈的路由注册：
+/// - Spring Boot: @GetMapping / @PostMapping
+/// - Gin: router.GET / router.POST
+/// - Axum: Router::new().route("/path", get(handler))
+/// - NestJS: @Controller + @Get / @Post 装饰器
+///
+/// 每个路由使用 lambda 回调 + 手动错误处理，
+/// 比框架自动序列化更底层，但灵活性更高。
 void registerRoutes(const std::shared_ptr<AppState> &state)
 {
     app().registerHandler(
@@ -964,6 +1028,7 @@ AppConfig AppConfig::fromEnv()
     return config;
 }
 
+/// 构造函数 — 打开 SQLite 数据库并初始化表结构
 AppState::AppState(AppConfig cfg) : config(std::move(cfg))
 {
     if (sqlite3_open(config.databasePath.c_str(), &database) != SQLITE_OK)
@@ -979,6 +1044,7 @@ AppState::AppState(AppConfig cfg) : config(std::move(cfg))
     initializeDatabase(database);
 }
 
+/// 析构函数 — RAII 关闭数据库连接
 AppState::~AppState()
 {
     if (database != nullptr)
@@ -988,6 +1054,11 @@ AppState::~AppState()
     }
 }
 
+/// 配置 Drogon 应用 — CORS、路由、线程数、日志级别
+///
+/// preRoutingAdvice 处理 OPTIONS 预检请求，
+/// postHandlingAdvice 给所有响应添加 CORS 头。
+/// 这是 Drogon 的惯用模式，避免每个路由重复 CORS 逻辑。
 std::shared_ptr<AppState> configureApp(const AppConfig &config)
 {
     static bool configured = false;
@@ -1027,6 +1098,7 @@ std::shared_ptr<AppState> configureApp(const AppConfig &config)
     return state;
 }
 
+/// 启动服务 — 配置应用并运行 Drogon 事件循环
 int runServer(const AppConfig &config)
 {
     configureApp(config);

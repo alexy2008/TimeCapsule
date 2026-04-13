@@ -1,3 +1,14 @@
+/**
+ * 应用配置 — 从环境变量读取，提供默认值
+ *
+ * 演示项目硬编码默认密码和 JWT 密钥，
+ * 生产环境应通过环境变量覆盖（不使用 fallback）。
+ *
+ * 对应其他技术栈：
+ * - Spring Boot: application.properties / @Value
+ * - FastAPI: os.getenv / pydantic BaseSettings
+ * - Gin: viper / os.Getenv
+ */
 import { resolve } from 'node:path';
 
 function readNumber(name: string, fallback: number): number {

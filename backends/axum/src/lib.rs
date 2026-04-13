@@ -1,3 +1,19 @@
+//! HelloTime Axum 后端实现
+//!
+//! 单文件结构（lib.rs），集中展示 Axum 的核心概念：
+//! - `FromRequestParts` 自定义 extractor（AdminAuth 鉴权）
+//! - `State` + `FromRef` 显式状态管理
+//! - `IntoResponse` 统一错误处理
+//! - Tower 中间件（CORS）
+//!
+//! 对应其他技术栈：
+//! - Spring Boot: controller/service/repository 三层
+//! - Gin: handler/service/model/router 四层
+//! - FastAPI: router/service/schema 三层
+//! - NestJS: module/controller/service/guard/filter
+//!
+//! 单文件结构便于横向对比，阅读者无需在文件间跳转即可理解全貌。
+
 use std::{net::SocketAddr, sync::Arc, time::Duration};
 
 use axum::{
@@ -22,6 +38,8 @@ use tower_http::{
     services::ServeDir,
 };
 
+// 默认配置值，可通过环境变量覆盖
+// 演示项目硬编码默认密码，生产环境应通过环境变量覆盖
 const DEFAULT_DATABASE_URL: &str = "../../data/hellotime.db";
 const DEFAULT_ADMIN_PASSWORD: &str = "timecapsule-admin";
 const DEFAULT_JWT_SECRET: &str = "hellotime-jwt-secret-key-that-is-long-enough-for-hs256";
@@ -31,6 +49,12 @@ const DEFAULT_PORT: u16 = 18070;
 const CODE_LENGTH: usize = 8;
 const CODE_RETRY_LIMIT: usize = 10;
 
+/// 应用配置 — 从环境变量读取，提供合理的默认值
+///
+/// 对应其他技术栈：
+/// - Spring Boot: application.properties + @Value
+/// - FastAPI: os.getenv / pydantic Settings
+/// - Gin: viper / os.Getenv
 #[derive(Clone)]
 pub struct AppConfig {
     pub database_url: String,
@@ -69,6 +93,11 @@ impl AppConfig {
     }
 }
 
+/// 共享应用状态 — 包含 SQLite 连接池和配置
+///
+/// 使用 Arc<AppConfig> + FromRef 实现子状态提取：
+/// AdminAuth extractor 可以只依赖 Arc<AppConfig>，
+/// 不需要整个 AppState。这是 Axum 状态管理的教科书用法。
 #[derive(Clone)]
 pub struct AppState {
     pool: SqlitePool,
@@ -81,6 +110,9 @@ impl FromRef<AppState> for Arc<AppConfig> {
     }
 }
 
+/// 统一响应体 — 所有 9 个后端共用 { success, data, message, errorCode } 结构
+///
+/// 泛型设计保证类型安全，skip_serializing_if 省略 None 字段。
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ApiResponse<T> {
@@ -123,6 +155,10 @@ impl ApiResponse<serde_json::Value> {
     }
 }
 
+/// 统一错误类型 — 实现 IntoResponse 自动转为 HTTP 响应
+///
+/// From<sqlx::Error> 实现让 ? 操作符可以在 handler 中直接使用，
+/// 数据库错误自动转为 500 内部错误。
 #[derive(Debug)]
 pub struct AppError {
     status: StatusCode,
@@ -277,12 +313,17 @@ struct CapsuleRecord {
     created_at: String,
 }
 
+/// 内容可见性控制 — 区分公开访客和管理员的响应策略
+///
+/// 管理员始终看到 content（即使未到 openAt），
+/// 公开访客在 openAt 之前看不到 content。
 #[derive(Clone, Copy)]
 enum ContentVisibility {
-    Public,
-    Admin,
+    Public,  // 公开访客：未到时间 content 为 None
+    Admin,   // 管理员：始终返回 content
 }
 
+/// 创建 Axum Router — 组装所有路由、中间件和状态
 pub async fn create_app(config: AppConfig) -> Result<Router, AppError> {
     let pool = SqlitePoolOptions::new()
         .acquire_timeout(Duration::from_secs(5))
@@ -322,6 +363,7 @@ pub async fn create_app(config: AppConfig) -> Result<Router, AppError> {
         .with_state(state))
 }
 
+/// 启动服务 — 读取配置、创建 Router、绑定端口
 pub async fn run() -> Result<(), AppError> {
     let config = AppConfig::from_env();
     let address = config.socket_addr()?;
@@ -334,6 +376,7 @@ pub async fn run() -> Result<(), AppError> {
         .map_err(|error| AppError::internal(format!("启动 Axum 服务失败: {error}")))
 }
 
+/// 健康检查 — 所有 9 个后端共享同一返回结构
 async fn health() -> Json<ApiResponse<HealthData>> {
     Json(ApiResponse::ok(
         HealthData {
@@ -349,6 +392,7 @@ async fn health() -> Json<ApiResponse<HealthData>> {
     ))
 }
 
+/// 创建胶囊 — 校验 -> 解析时间 -> 生成 code -> 入库
 async fn create_capsule(
     State(state): State<AppState>,
     Json(payload): Json<CreateCapsuleRequest>,
@@ -396,6 +440,7 @@ async fn create_capsule(
     ))
 }
 
+/// 查询胶囊 — ContentVisibility::Public 确保未到时间时 content 为 null
 async fn get_capsule(
     State(state): State<AppState>,
     Path(code): Path<String>,
@@ -406,6 +451,7 @@ async fn get_capsule(
     Ok(Json(ApiResponse::ok(response, "查询成功")))
 }
 
+/// 管理员登录 — 密码验证 -> JWT 签发
 async fn admin_login(
     State(state): State<AppState>,
     Json(payload): Json<AdminLoginRequest>,
@@ -438,6 +484,10 @@ async fn admin_login(
     )))
 }
 
+/// 胶囊列表 — 需要 AdminAuth 认证
+///
+/// 函数参数 _admin: AdminAuth 就是 Axum extractor 的鉴权方式，
+/// 比 Gin 的 middleware 更直观——类型签名即表达了"需要认证"的语义。
 async fn list_capsules(
     _admin: AdminAuth,
     State(state): State<AppState>,
@@ -482,6 +532,7 @@ async fn list_capsules(
     )))
 }
 
+/// 删除胶囊 — 需要 AdminAuth 认证
 async fn delete_capsule(
     _admin: AdminAuth,
     State(state): State<AppState>,
@@ -500,6 +551,7 @@ async fn delete_capsule(
     Ok(Json(ApiResponse::ok_empty("删除成功")))
 }
 
+/// 初始化数据库 — CREATE TABLE IF NOT EXISTS 幂等建表
 async fn initialize_database(pool: &SqlitePool) -> Result<(), AppError> {
     sqlx::query(
         r#"
@@ -519,6 +571,9 @@ async fn initialize_database(pool: &SqlitePool) -> Result<(), AppError> {
     Ok(())
 }
 
+/// 校验创建请求 — 各字段的非空和长度检查
+///
+/// 使用 chars().count() 做字符数校验（而非字节数），支持中文等多字节字符。
 fn validate_create_request(request: &CreateCapsuleRequest) -> Result<(), AppError> {
     if request.title.trim().is_empty() {
         return Err(AppError::validation("title 不能为空"));
@@ -541,6 +596,9 @@ fn validate_create_request(request: &CreateCapsuleRequest) -> Result<(), AppErro
     Ok(())
 }
 
+/// 校验胶囊 code — 8 位字母数字，匹配失败返回 404（而非 400）
+///
+/// 返回 404 而非 400 是为了安全：不暴露"这个格式有问题"的信息。
 fn validate_code(code: &str) -> Result<(), AppError> {
     if code.len() != CODE_LENGTH || !code.bytes().all(|byte| byte.is_ascii_alphanumeric()) {
         return Err(AppError::not_found("胶囊不存在"));
@@ -548,6 +606,7 @@ fn validate_code(code: &str) -> Result<(), AppError> {
     Ok(())
 }
 
+/// 按 code 查询胶囊 — fetch_optional + ok_or_else 处理不存在的情况
 async fn find_capsule_by_code(pool: &SqlitePool, code: &str) -> Result<CapsuleRecord, AppError> {
     sqlx::query_as::<_, CapsuleRecord>(
         "SELECT code, title, content, creator, open_at, created_at FROM capsules WHERE code = ?1",
@@ -558,6 +617,9 @@ async fn find_capsule_by_code(pool: &SqlitePool, code: &str) -> Result<CapsuleRe
     .ok_or_else(|| AppError::not_found("胶囊不存在"))
 }
 
+/// 数据库记录转响应 — 根据可见性策略决定是否返回 content
+///
+/// 管理员（Admin）始终看到 content，公开访客（Public）仅在已开启时看到。
 fn map_capsule(
     capsule: CapsuleRecord,
     visibility: ContentVisibility,
@@ -582,6 +644,7 @@ fn map_capsule(
     })
 }
 
+/// 生成唯一胶囊码 — 8 位大写字母+数字，最多重试 10 次
 async fn generate_unique_code(pool: &SqlitePool) -> Result<String, AppError> {
     for _ in 0..CODE_RETRY_LIMIT {
         let candidate: String = rand::rng()
@@ -605,16 +668,19 @@ async fn generate_unique_code(pool: &SqlitePool) -> Result<String, AppError> {
     Err(AppError::internal("无法生成唯一的胶囊码"))
 }
 
+/// 解析 ISO 8601 时间 — 使用 chrono 的 RFC 3339 解析器
 fn parse_datetime(value: &str) -> Result<DateTime<Utc>, AppError> {
     DateTime::parse_from_rfc3339(value)
         .map(|time| time.with_timezone(&Utc))
         .map_err(|_| AppError::bad_request("openAt 格式错误，请使用 ISO 8601 格式"))
 }
 
+/// 格式化时间为 UTC ISO 8601 — 只保留秒级精度，与其他后端一致
 fn format_time(value: DateTime<Utc>) -> String {
     value.to_rfc3339_opts(SecondsFormat::Secs, true)
 }
 
+/// 构造 SQLite 连接 URL — :memory: 或文件路径 + ?mode=rwc 自动创建
 fn sqlite_url(database_url: &str) -> String {
     if database_url == ":memory:" || database_url.starts_with("sqlite:") {
         database_url.to_string()
@@ -623,6 +689,7 @@ fn sqlite_url(database_url: &str) -> String {
     }
 }
 
+/// CORS 来源检查 — 仅允许 localhost
 fn is_localhost_origin(origin: &HeaderValue) -> bool {
     let Ok(origin) = origin.to_str() else {
         return false;
@@ -633,6 +700,16 @@ fn is_localhost_origin(origin: &HeaderValue) -> bool {
     matches!(uri.host(), Some("localhost"))
 }
 
+/// 管理员认证 extractor — 自定义 FromRequestParts 实现 JWT 鉴权
+///
+/// 这是 Axum 的核心卖点之一：函数参数签名 _admin: AdminAuth
+/// 即表达了"需要认证"的语义，比 Gin 的 middleware 更直观。
+///
+/// 对应其他技术栈的鉴权方式：
+/// - Spring Boot: @RequestHeader("Authorization") + 手动验证
+/// - FastAPI: Depends(get_current_admin)
+/// - Gin: middleware.AdminAuth() 挂载到路由组
+/// - NestJS: @UseGuards(AdminAuthGuard)
 pub struct AdminAuth;
 
 impl<S> FromRequestParts<S> for AdminAuth
@@ -657,6 +734,7 @@ where
     }
 }
 
+/// 从 Authorization header 提取 Bearer token
 fn extract_bearer_token(headers: &HeaderMap) -> Option<&str> {
     let header = headers.get(AUTHORIZATION)?.to_str().ok()?;
     header.strip_prefix("Bearer ")
