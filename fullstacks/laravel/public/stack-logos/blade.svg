@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <rect width="128" height="128" rx="16" fill="#FF2D20"/>
+  <text x="64" y="82" font-family="monospace" font-size="52" font-weight="bold" fill="white" text-anchor="middle">B</text>
+  <text x="64" y="108" font-family="monospace" font-size="14" fill="rgba(255,255,255,0.8)" text-anchor="middle">BLADE</text>
+</svg>

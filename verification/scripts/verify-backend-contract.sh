@@ -10,7 +10,7 @@ ADMIN_PASSWORD="${ADMIN_PASSWORD:-timecapsule-admin}"
 SAFE_PATH="/usr/bin:/bin:/usr/sbin:/sbin"
 
 if [ "$#" -eq 0 ]; then
-  SELECTED_BACKENDS="spring-boot fastapi gin elysia nest aspnet-core vapor axum drogon"
+  SELECTED_BACKENDS="spring-boot fastapi gin elysia nest aspnet-core vapor axum drogon laravel"
 else
   SELECTED_BACKENDS="$*"
 fi
@@ -33,6 +33,7 @@ label_for() {
     vapor) echo "Vapor" ;;
     axum) echo "Axum" ;;
     drogon) echo "Drogon" ;;
+    laravel) echo "Laravel" ;;
     *) echo "Unknown" ;;
   esac
 }
@@ -48,6 +49,7 @@ dir_for() {
     vapor) echo "$ROOT_DIR/backends/vapor" ;;
     axum) echo "$ROOT_DIR/backends/axum" ;;
     drogon) echo "$ROOT_DIR/backends/drogon" ;;
+    laravel) echo "$ROOT_DIR/fullstacks/laravel" ;;
     *) return 1 ;;
   esac
 }
@@ -63,6 +65,7 @@ base_url_for() {
     vapor) echo "http://127.0.0.1:18060" ;;
     axum) echo "http://127.0.0.1:18070" ;;
     drogon) echo "http://127.0.0.1:18080" ;;
+    laravel) echo "http://127.0.0.1:5179" ;;
     *) return 1 ;;
   esac
 }
@@ -78,6 +81,7 @@ port_for() {
     vapor) echo "18060" ;;
     axum) echo "18070" ;;
     drogon) echo "18080" ;;
+    laravel) echo "5179" ;;
     *) return 1 ;;
   esac
 }
@@ -93,6 +97,7 @@ run_command_for() {
     vapor) echo "./run" ;;
     axum) echo "./run" ;;
     drogon) echo "./run" ;;
+    laravel) echo "./run" ;;
     *) return 1 ;;
   esac
 }

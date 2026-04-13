@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <linearGradient id="capsuleGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3366FF"/>
+      <stop offset="100%" stop-color="#2EC4A0"/>
+    </linearGradient>
+    <linearGradient id="fillGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1A9A8A"/>
+      <stop offset="100%" stop-color="#36C8B0"/>
+    </linearGradient>
+  </defs>
+
+  <g transform="translate(100,100) rotate(-35)">
+    <!-- Outer capsule stroke -->
+    <rect x="-42" y="-72" width="84" height="144" rx="42" ry="42"
+          fill="none" stroke="url(#capsuleGrad)" stroke-width="16"/>
+
+    <!-- White inner -->
+    <rect x="-30" y="-60" width="60" height="120" rx="30" ry="30" fill="white"/>
+
+    <!-- Teal liquid in bottom half -->
+    <clipPath id="innerClip">
+      <rect x="-30" y="-60" width="60" height="120" rx="30" ry="30"/>
+    </clipPath>
+    <g clip-path="url(#innerClip)">
+      <!-- Liquid body -->
+      <ellipse cx="0" cy="30" rx="38" ry="40" fill="url(#fillGrad)"/>
+      <!-- Subtle highlight on liquid -->
+      <ellipse cx="-8" cy="22" rx="16" ry="12" fill="#1A8A7A" opacity="0.4"/>
+    </g>
+
+    <!-- Clock tick marks (upper half, ~5 ticks) -->
+    <g stroke="#9BB0D0" stroke-width="2.5" stroke-linecap="round">
+      <!-- 12 o'clock -->
+      <line x1="0" y1="-50" x2="0" y2="-42"/>
+      <!-- 1 o'clock -->
+      <line x1="16" y1="-47" x2="13" y2="-40" transform="rotate(0)"/>
+      <!-- 11 o'clock -->
+      <line x1="-16" y1="-47" x2="-13" y2="-40"/>
+      <!-- 2 o'clock area -->
+      <line x1="0" y1="-50" x2="0" y2="-42" transform="rotate(55)"/>
+      <!-- 10 o'clock area -->
+      <line x1="0" y1="-50" x2="0" y2="-42" transform="rotate(-55)"/>
+      <!-- between 12 and 1 -->
+      <line x1="0" y1="-50" x2="0" y2="-43" transform="rotate(28)"/>
+      <!-- between 11 and 12 -->
+      <line x1="0" y1="-50" x2="0" y2="-43" transform="rotate(-28)"/>
+    </g>
+
+    <!-- Clock hands -->
+    <!-- Hour hand (pointing to ~12) -->
+    <line x1="0" y1="-2" x2="0" y2="-34" stroke="#2C3E6B" stroke-width="5" stroke-linecap="round"/>
+    <!-- Minute hand (pointing to ~2 o'clock) -->
+    <line x1="0" y1="-2" x2="24" y2="8" stroke="#2EC4A0" stroke-width="5" stroke-linecap="round"/>
+    <!-- Center dot -->
+    <circle cx="0" cy="-2" r="5" fill="#1A6B5A"/>
+  </g>
+</svg>

@@ -229,6 +229,14 @@ SERVICES: list[Service] = [
         port=4179,
     ),
     Service(
+        key="laravel",
+        label="Laravel",
+        kind="fullstack",
+        workdir=ROOT_DIR / "fullstacks" / "laravel",
+        command=["bash", str(ROOT_DIR / "fullstacks" / "laravel" / "run")],
+        port=5179,
+    ),
+    Service(
         key="tauri",
         label="Tauri 桌面",
         kind="desktop",
