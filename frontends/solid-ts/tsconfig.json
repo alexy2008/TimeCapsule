@@ -14,7 +14,7 @@
     "jsxImportSource": "solid-js",
     "strict": true,
     "types": ["vite/client", "vitest/globals"],
-    "ignoreDeprecations": "6.0",
+    "ignoreDeprecations": "5.0",
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
