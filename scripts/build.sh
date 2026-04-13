@@ -19,6 +19,11 @@ cd "$ROOT_DIR/backends/aspnet-core"
 ./dotnetw build -c Release
 echo "[ASP.NET Core 后端] 构建完成: bin/Release/net8.0/"
 
+echo "[后端] 构建 Ktor..."
+cd "$ROOT_DIR/backends/ktor"
+./gradlew build
+echo "[Ktor 后端] 构建完成: build/"
+
 if [[ "$(uname -s)" == "Darwin" ]] && command -v swift >/dev/null 2>&1; then
   echo "[后端] 构建 Vapor..."
   cd "$ROOT_DIR/backends/vapor/server"
@@ -108,6 +113,7 @@ fi
 echo ""
 echo "=== 构建完成 ==="
 echo "  后端 JAR:       backends/spring-boot/target/hellotime-backend-1.0.0.jar"
+echo "  Ktor 构建产物:  backends/ktor/build/"
 echo "  Vapor 构建产物: backends/vapor/server/.build/（仅 macOS）"
 echo "  Axum 构建产物:  backends/axum/target/release/"
 echo "  Drogon 构建产物: backends/drogon/build/"

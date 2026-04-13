@@ -8,7 +8,7 @@
 
 | 类别 | 当前数量 | 规划数量 | 说明 |
 | :--- | ---: | ---: | :--- |
-| 后端实现 | 9 | 10 | 已补齐 Java, Go, Python, Bun, Node, .NET、Swift、Rust、C++。后续规划 Kotlin |
+| 后端实现 | 10 | 10 | 已补齐 Java, Go, Python, Bun, Node, .NET、Swift、Rust、C++、Kotlin |
 | 浏览器前端 | 5 | 5 | 已补齐 React, Vue, Angular, Svelte, SolidJS，形成完整对照组 |
 | 全栈实现 | 3 | 5 | 已有 Next, Nuxt, Spring MVC。后续规划 Laravel, Rails |
 | 桌面端 | 3 | 5 | 已补齐 Tauri, macOS SwiftUI, WinUI 3。后续规划 Flutter, Electron |
@@ -60,7 +60,7 @@
 
 ### 3.1 目标
 
-后端从 9 个扩展到 10 个，继续补足语言与框架覆盖面。
+后端已经扩展到 10 个，补齐了 JVM 轻量后端路线。
 
 ### 3.2 已完成与待新增后端
 
@@ -71,12 +71,7 @@
 | Swift | Vapor | [DONE] |
 | Rust | Axum | [DONE] |
 | C++ | Drogon | [DONE] |
-
-待新增：
-
-| 新增方向 | 推荐框架 | 价值 |
-| :--- | :--- | :--- |
-| Kotlin | Ktor | 展示 Kotlin 轻量后端 |
+| Kotlin | Ktor | [DONE] |
 
 ### 3.3 推荐接入顺序
 
@@ -87,12 +82,12 @@
 3. Swift (Vapor) [DONE]
 4. Rust (Axum) [DONE]
 5. C++ (Drogon) [DONE]
-6. Kotlin (Ktor)
+6. Kotlin (Ktor) [DONE]
 
 原因是：
 
-- ASP.NET Core、NestJS、Vapor、Axum、Drogon 已经提供了较完整的新增后端模板
-- Ktor 适合继续补足 JVM 轻量后端路线
+- ASP.NET Core、NestJS、Vapor、Axum、Drogon、Ktor 已经提供了较完整的新增后端模板
+- Ktor 作为 Kotlin 轻量后端，补足了 JVM 路线里的另一种工程风格
 
 ### 3.4 后端统一要求
 

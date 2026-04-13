@@ -141,6 +141,14 @@ SERVICES: list[Service] = [
         port=18050,
     ),
     Service(
+        key="ktor",
+        label="Ktor",
+        kind="backend",
+        workdir=ROOT_DIR / "backends" / "ktor",
+        command=["bash", str(ROOT_DIR / "backends" / "ktor" / "run")],
+        port=18090,
+    ),
+    Service(
         key="vapor",
         label="Vapor",
         kind="backend",

@@ -71,6 +71,7 @@ verification/
 - `elysia`
 - `nest`
 - `aspnet-core`
+- `ktor`
 - `vapor`
 - `axum`
 - `drogon`
@@ -183,6 +184,7 @@ verification/
 - Gin: `go test ./tests/...`
 - Elysia: `bun test`
 - ASP.NET Core: `./dotnetw test tests/tests.csproj`
+- Ktor: `./gradlew test`
 - Axum: `cargo test`
 - Drogon: `cmake -S . -B build -G Ninja && cmake --build build --target hellotime-drogon-tests && ctest --test-dir build --output-on-failure`
 - React: `npm run test`

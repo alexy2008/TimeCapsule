@@ -132,6 +132,7 @@ HelloTime 是一个技术展示型 demo，不是生产模板。
 - `elysia` (Bun/TS)
 - `nest` (Node.js/TS)
 - `aspnet-core` (C#/.NET)
+- `ktor` (Kotlin/JVM)
 - `vapor` (Swift)
 - `axum` (Rust)
 - `drogon` (C++)

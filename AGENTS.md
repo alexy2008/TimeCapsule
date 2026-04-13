@@ -29,6 +29,7 @@ cd backends/gin           && ./run          # port 18020
 cd backends/elysia        && ./run          # port 18030
 cd backends/nest          && ./run          # port 18040
 cd backends/aspnet-core   && ./run          # port 18050
+cd backends/ktor          && ./run          # port 18090
 cd backends/vapor         && ./run          # port 18060
 cd backends/axum          && ./run          # port 18070
 cd backends/drogon        && ./run          # port 18080
@@ -119,6 +120,7 @@ bash verification/scripts/verify-frontend-browser-flows.sh [implementation...]
 | Elysia | 18030 | TypeScript + Bun |
 | NestJS | 18040 | TypeScript + Node.js |
 | ASP.NET Core 8 | 18050 | C# 12 + .NET 8 |
+| Ktor 2.3 | 18090 | Kotlin/JVM |
 | Vapor 4 | 18060 | Swift 6.2+ |
 | Axum 0.8 | 18070 | Rust 1.94+ |
 | Drogon 1.9 | 18080 | C++20 |
@@ -129,7 +131,7 @@ bash verification/scripts/verify-frontend-browser-flows.sh [implementation...]
 
 ### Monorepo Structure
 
-- **backends/** — 9 个后端实现，各跑独立端口，共享 SQLite 表结构和 API 契约
+- **backends/** — 10 个后端实现，各跑独立端口，共享 SQLite 表结构和 API 契约
 - **frontends/** — 5 个前端框架实现，共享 `api/index.ts`、`types/index.ts`、`spec/styles/cyber.css`
 - **fullstacks/** — 3 个独立全栈实现（自带前后端），不依赖 `localhost:8080`
 - **desktop/** — 4 个桌面端实现（Tauri、Flutter、macOS SwiftUI、WinUI 3）
@@ -183,6 +185,13 @@ bash verification/scripts/verify-frontend-browser-flows.sh [implementation...]
 - **DTOs** (`Dtos/`) — Request/response objects
 - **Middleware** (`Middleware/`) — JWT auth middleware
 - **Configuration** (`Configuration/`) — App configuration
+
+### Backend (Ktor)
+- **Application** (`src/main/kotlin/com/hellotime/Application.kt`) — Ktor plugin 安装、路由与静态资源
+- **Config** (`src/main/kotlin/com/hellotime/config/`) — 环境变量与运行配置
+- **Services** (`src/main/kotlin/com/hellotime/service/`) — 胶囊业务、JWT、SQLite JDBC 持久化
+- **Models** (`src/main/kotlin/com/hellotime/model/`) — `kotlinx.serialization` 请求/响应模型与异常
+- **Static** (`src/main/resources/static/tech-logos/`) — 技术栈展示图标
 
 ### Backend (Vapor)
 - **Controllers** (`server/Sources/App/Controllers/`) — REST endpoints
@@ -330,7 +339,7 @@ SQLite. Single table `capsules`:
 
 当任务涉及技术栈展示、启动命令、验证脚本、文档更新时，必须同时判断是否需要同步到：
 - 所有 5 个前端实现
-- 所有 9 个后端实现
+- 所有 10 个后端实现
 - 3 个全栈实现
 - 4 个桌面端实现
 - 共享验证脚本

@@ -21,6 +21,12 @@ cd "$ROOT_DIR/backends/aspnet-core"
 ./dotnetw test tests/tests.csproj
 echo "[ASP.NET Core 后端] 测试完成"
 
+echo ""
+echo "[后端] 运行 Ktor 测试..."
+cd "$ROOT_DIR/backends/ktor"
+./gradlew test
+echo "[Ktor 后端] 测试完成"
+
 # Gin 后端测试
 echo ""
 echo "[后端] 运行 Gin 测试..."

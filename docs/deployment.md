@@ -53,6 +53,7 @@ cd backends/drogon
 - `elysia`: `18030`
 - `nest`: `18040`
 - `aspnet-core`: `18050`
+- `ktor`: `18090`
 - `vapor`: `18060`
 - `axum`: `18070`
 - `drogon`: `18080`
@@ -84,6 +85,7 @@ npm run dev
 ./scripts/switch-backend.sh elysia
 ./scripts/switch-backend.sh nest
 ./scripts/switch-backend.sh aspnet-core
+./scripts/switch-backend.sh ktor
 ./scripts/switch-backend.sh vapor
 ./scripts/switch-backend.sh axum
 ./scripts/switch-backend.sh drogon
@@ -101,6 +103,7 @@ npm run dev
 ./scripts/dev-manager.py --start fastapi
 ./scripts/dev-manager.py --stop react
 ./scripts/dev-manager.py --switch-proxy aspnet-core
+./scripts/dev-manager.py --switch-proxy ktor
 ```
 
 ## 生产部署
@@ -137,7 +140,7 @@ java -jar backends/spring-boot/target/hellotime-backend-1.0.0.jar
 | `ADMIN_PASSWORD` | timecapsule-admin | 管理员密码 |
 | `JWT_SECRET` | (内置默认值) | JWT 签名密钥，生产环境必须修改 |
 | `SERVER_PORT` | 18000 | Spring Boot 端口 |
-| `PORT` | 各后端不同 | FastAPI/Gin/Elysia/Nest/ASP.NET Core/Vapor/Axum/Drogon 端口，默认分别为 18010/18020/18030/18040/18050/18060/18070/18080 |
+| `PORT` | 各后端不同 | FastAPI/Gin/Elysia/Nest/ASP.NET Core/Ktor/Vapor/Axum/Drogon 端口，默认分别为 18010/18020/18030/18040/18050/18090/18060/18070/18080 |
 
 ### 生产环境示例
 

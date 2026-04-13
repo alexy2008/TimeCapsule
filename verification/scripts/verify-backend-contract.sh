@@ -10,7 +10,7 @@ ADMIN_PASSWORD="${ADMIN_PASSWORD:-timecapsule-admin}"
 SAFE_PATH="/usr/bin:/bin:/usr/sbin:/sbin"
 
 if [ "$#" -eq 0 ]; then
-  SELECTED_BACKENDS="spring-boot fastapi gin elysia nest aspnet-core vapor axum drogon laravel"
+  SELECTED_BACKENDS="spring-boot fastapi gin elysia nest aspnet-core ktor vapor axum drogon"
 else
   SELECTED_BACKENDS="$*"
 fi
@@ -30,10 +30,10 @@ label_for() {
     elysia) echo "Elysia" ;;
     nest) echo "NestJS" ;;
     aspnet-core) echo "ASP.NET Core" ;;
+    ktor) echo "Ktor" ;;
     vapor) echo "Vapor" ;;
     axum) echo "Axum" ;;
     drogon) echo "Drogon" ;;
-    laravel) echo "Laravel" ;;
     *) echo "Unknown" ;;
   esac
 }
@@ -46,10 +46,10 @@ dir_for() {
     elysia) echo "$ROOT_DIR/backends/elysia" ;;
     nest) echo "$ROOT_DIR/backends/nest" ;;
     aspnet-core) echo "$ROOT_DIR/backends/aspnet-core" ;;
+    ktor) echo "$ROOT_DIR/backends/ktor" ;;
     vapor) echo "$ROOT_DIR/backends/vapor" ;;
     axum) echo "$ROOT_DIR/backends/axum" ;;
     drogon) echo "$ROOT_DIR/backends/drogon" ;;
-    laravel) echo "$ROOT_DIR/fullstacks/laravel" ;;
     *) return 1 ;;
   esac
 }
@@ -62,10 +62,10 @@ base_url_for() {
     elysia) echo "http://127.0.0.1:18030" ;;
     nest) echo "http://127.0.0.1:18040" ;;
     aspnet-core) echo "http://127.0.0.1:18050" ;;
+    ktor) echo "http://127.0.0.1:18090" ;;
     vapor) echo "http://127.0.0.1:18060" ;;
     axum) echo "http://127.0.0.1:18070" ;;
     drogon) echo "http://127.0.0.1:18080" ;;
-    laravel) echo "http://127.0.0.1:5179" ;;
     *) return 1 ;;
   esac
 }
@@ -78,10 +78,10 @@ port_for() {
     elysia) echo "18030" ;;
     nest) echo "18040" ;;
     aspnet-core) echo "18050" ;;
+    ktor) echo "18090" ;;
     vapor) echo "18060" ;;
     axum) echo "18070" ;;
     drogon) echo "18080" ;;
-    laravel) echo "5179" ;;
     *) return 1 ;;
   esac
 }
@@ -94,10 +94,10 @@ run_command_for() {
     elysia) echo "./run" ;;
     nest) echo "./run" ;;
     aspnet-core) echo "./run" ;;
+    ktor) echo "./run" ;;
     vapor) echo "./run" ;;
     axum) echo "./run" ;;
     drogon) echo "./run" ;;
-    laravel) echo "./run" ;;
     *) return 1 ;;
   esac
 }
