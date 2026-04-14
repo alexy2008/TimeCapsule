@@ -1,0 +1,95 @@
+#!/bin/bash
+set -e
+
+# Change to script directory
+cd "$(dirname "$0")"
+
+echo "==========================================="
+echo " Building HelloTimeCyber for iOS Simulator "
+echo "==========================================="
+
+# Select target simulator
+DEVICE="iPhone 17"
+
+echo "Booting simulator '$DEVICE'..."
+# Ensure simulator app is open
+open -a Simulator
+
+# Boot the device
+xcrun simctl boot "$DEVICE" 2>/dev/null || true
+
+echo "Waiting for simulator to be ready (this may take a minute)..."
+# Wait until the device is fully booted and ready for commands
+xcrun simctl bootstatus "$DEVICE"
+
+echo "Building package..."
+xcodebuild -scheme HelloTimeCyber \
+    -destination "platform=iOS Simulator,name=$DEVICE" \
+    -configuration Debug build
+
+echo "Locating build products..."
+# Search in default DerivedData for the newest binary
+BINARY=$(find ~/Library/Developer/Xcode/DerivedData -name "HelloTimeCyber" -path "*/Debug-iphonesimulator/*" -type f -perm +111 -not -path "*.app/*" | xargs ls -t | head -n 1)
+
+if [ -z "$BINARY" ]; then
+    echo "Error: Could not find any generated binary for HelloTimeCyber"
+    exit 1
+fi
+
+echo "Found binary: $BINARY"
+
+echo "Creating .app bundle..."
+APP_BUNDLE="HelloTimeCyber.app"
+rm -rf "$APP_BUNDLE"
+mkdir -p "$APP_BUNDLE"
+    
+# 1. Copy Binary
+cp "$BINARY" "$APP_BUNDLE/HelloTimeCyber"
+    
+# 2. Add Info.plist
+cat > "$APP_BUNDLE/Info.plist" <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleExecutable</key>
+    <string>HelloTimeCyber</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.hellotime.cyber.ios</string>
+    <key>CFBundleName</key>
+    <string>HelloTime</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0</string>
+    <key>CFBundleVersion</key>
+    <string>1</string>
+    <key>LSRequiresIPhoneOS</key>
+    <true/>
+    <key>UISupportedInterfaceOrientations</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+    </array>
+    <key>UILaunchScreen</key>
+    <dict/>
+</dict>
+</plist>
+EOF
+
+# 3. Handle Resources
+PRODUCTS_DIR=$(dirname "$BINARY")
+RESOURCE_BUNDLE=$(find "$PRODUCTS_DIR" -name "*_HelloTimeCyber.bundle" -maxdepth 1 | head -n 1)
+if [ -n "$RESOURCE_BUNDLE" ] && [ -d "$RESOURCE_BUNDLE" ]; then
+    cp -r "$RESOURCE_BUNDLE" "$APP_BUNDLE/"
+else
+    cp Sources/HelloTimeCyber/*.png "$APP_BUNDLE/" 2>/dev/null || true
+    cp Sources/HelloTimeCyber/*.svg "$APP_BUNDLE/" 2>/dev/null || true
+fi
+
+echo "Installing app on simulator..."
+xcrun simctl install booted "$APP_BUNDLE"
+    
+echo "Launching app..."
+xcrun simctl launch booted "com.hellotime.cyber.ios"
+
+echo "Successfully started iOS Native App!"

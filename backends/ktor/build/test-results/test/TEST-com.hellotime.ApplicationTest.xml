@@ -1,15 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.hellotime.ApplicationTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-04-14T08:17:51" hostname="AlexdeMacBook-Air.local" time="1.257">
+<testsuite name="com.hellotime.ApplicationTest" tests="4" skipped="0" failures="1" errors="0" timestamp="2026-04-14T08:47:21" hostname="AlexdeMacBook-Air.local" time="1.287">
   <properties/>
-  <testcase name="adminCanListAndDeleteCapsules()" classname="com.hellotime.ApplicationTest" time="1.206"/>
+  <testcase name="adminCanListAndDeleteCapsules()" classname="com.hellotime.ApplicationTest" time="1.23">
+    <failure message="org.opentest4j.AssertionFailedError: expected: &lt;200 OK&gt; but was: &lt;401 Unauthorized&gt;" type="org.opentest4j.AssertionFailedError">org.opentest4j.AssertionFailedError: expected: &lt;200 OK&gt; but was: &lt;401 Unauthorized&gt;
+	at app//org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
+	at app//org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
+	at app//org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:197)
+	at app//org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:182)
+	at app//org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1156)
+	at app//kotlin.test.junit5.JUnit5Asserter.assertEquals(JUnitSupport.kt:32)
+	at app//kotlin.test.AssertionsKt__AssertionsKt.assertEquals(Assertions.kt:63)
+	at app//kotlin.test.AssertionsKt.assertEquals(Unknown Source)
+	at app//kotlin.test.AssertionsKt__AssertionsKt.assertEquals$default(Assertions.kt:62)
+	at app//kotlin.test.AssertionsKt.assertEquals$default(Unknown Source)
+	at app//com.hellotime.ApplicationTest$adminCanListAndDeleteCapsules$1.invokeSuspend(ApplicationTest.kt:90)
+	at app//kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at app//kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:106)
+	at app//kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:280)
+	at app//kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:85)
+	at app//kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:59)
+	at app//kotlinx.coroutines.BuildersKt.runBlocking(Unknown Source)
+	at app//kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default(Builders.kt:38)
+	at app//kotlinx.coroutines.BuildersKt.runBlocking$default(Unknown Source)
+	at app//com.hellotime.ApplicationTest$withApp$1.invokeSuspend(ApplicationTest.kt:121)
+	at app//com.hellotime.ApplicationTest$withApp$1.invoke(ApplicationTest.kt)
+	at app//com.hellotime.ApplicationTest$withApp$1.invoke(ApplicationTest.kt)
+	at app//io.ktor.server.testing.TestApplicationKt$testApplication$builder$1$1.invokeSuspend(TestApplication.kt:335)
+	at app//kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at app//kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:106)
+	at app//kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:280)
+	at app//kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:85)
+	at app//kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:59)
+	at app//kotlinx.coroutines.BuildersKt.runBlocking(Unknown Source)
+	at app//io.ktor.server.testing.TestApplicationKt.testApplication(TestApplication.kt:329)
+	at app//io.ktor.server.testing.TestApplicationKt.testApplication(TestApplication.kt:287)
+	at app//com.hellotime.ApplicationTest.withApp(ApplicationTest.kt:101)
+	at app//com.hellotime.ApplicationTest.adminCanListAndDeleteCapsules(ApplicationTest.kt:70)
+	at java.base@21/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base@21/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base@21/java.util.ArrayList.forEach(ArrayList.java:1596)
+</failure>
+  </testcase>
   <testcase name="invalidTimeFormatReturns400()" classname="com.hellotime.ApplicationTest" time="0.025"/>
-  <testcase name="createAndFetchLockedCapsule()" classname="com.hellotime.ApplicationTest" time="0.013"/>
-  <testcase name="healthReturnsUp()" classname="com.hellotime.ApplicationTest" time="0.01"/>
-  <system-out><![CDATA[16:17:51.325 [DefaultDispatcher-worker-1 @call-context#3] INFO ktor.test -- No ktor.deployment.watch patterns specified, automatic reload is not active.
-16:17:51.868 [DefaultDispatcher-worker-1 @call-context#3] INFO ktor.test -- Application started in 0.549 seconds.
-16:17:51.868 [DefaultDispatcher-worker-1 @call-context#3] INFO ktor.test -- Application started: io.ktor.server.application.Application@1d59f4d4
-16:17:51.869 [DefaultDispatcher-worker-3 @coroutine#5] INFO ktor.test -- Responding at http://localhost:80
-16:17:51.869 [DefaultDispatcher-worker-3 @coroutine#5] INFO ktor.test -- Responding at https://localhost:443
+  <testcase name="createAndFetchLockedCapsule()" classname="com.hellotime.ApplicationTest" time="0.019"/>
+  <testcase name="healthReturnsUp()" classname="com.hellotime.ApplicationTest" time="0.011"/>
+  <system-out><![CDATA[16:47:21.917 [DefaultDispatcher-worker-1 @call-context#3] INFO ktor.test -- No ktor.deployment.watch patterns specified, automatic reload is not active.
+16:47:22.494 [DefaultDispatcher-worker-1 @call-context#3] INFO ktor.test -- Application started in 0.583 seconds.
+16:47:22.494 [DefaultDispatcher-worker-1 @call-context#3] INFO ktor.test -- Application started: io.ktor.server.application.Application@43ea6c5a
+16:47:22.495 [DefaultDispatcher-worker-3 @coroutine#5] INFO ktor.test -- Responding at http://localhost:80
+16:47:22.496 [DefaultDispatcher-worker-3 @coroutine#5] INFO ktor.test -- Responding at https://localhost:443
 ]]></system-out>
   <system-err><![CDATA[SLF4J(I): Connected with provider of type [ch.qos.logback.classic.spi.LogbackServiceProvider]
 ]]></system-err>

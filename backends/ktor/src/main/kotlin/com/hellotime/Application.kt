@@ -84,8 +84,7 @@ fun Application.helloTimeModule(
                 )
             )
         }
-        exception<Throwable> { call, cause ->
-            application.log.error("Unhandled exception", cause)
+        exception<Throwable> { call, _ ->
             call.respond(
                 HttpStatusCode.InternalServerError,
                 ApiResponse<Nothing?>(
