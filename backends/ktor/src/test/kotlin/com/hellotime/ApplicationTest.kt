@@ -42,7 +42,7 @@ class ApplicationTest {
             contentType(ContentType.Application.Json)
             setBody(
                 """
-                {"title":"Future","content":"hello","creator":"alex","openAt":"2026-04-14T00:00:00Z"}
+                {"title":"Future","content":"hello","creator":"alex","openAt":"2099-01-01T00:00:00Z"}
                 """.trimIndent()
             )
         }
@@ -70,7 +70,7 @@ class ApplicationTest {
     fun adminCanListAndDeleteCapsules() = withApp { client ->
         val createResponse = client.post("/api/v1/capsules") {
             contentType(ContentType.Application.Json)
-            setBody("""{"title":"Now","content":"hello","creator":"alex","openAt":"2026-04-14T00:00:00Z"}""")
+            setBody("""{"title":"Now","content":"hello","creator":"alex","openAt":"2099-01-01T00:00:00Z"}""")
         }
         assertEquals(HttpStatusCode.Created, createResponse.status)
         val code = json.parseToJsonElement(createResponse.body<String>()).jsonObject["data"]!!
@@ -109,7 +109,7 @@ class ApplicationTest {
                         jwtIssuer = "hellotime-admin",
                         jwtExpirationHours = 2
                     ),
-                    nowProvider = { Instant.parse("2026-04-13T00:00:00Z") }
+                    nowProvider = { Instant.now() }
                 )
             }
 

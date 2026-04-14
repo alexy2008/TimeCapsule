@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class Capsule extends Model
 {
     protected $table = 'capsules';
+    protected $primaryKey = 'code';
+    public $incrementing = false;
+    protected $keyType = 'string';
     public $timestamps = false;
 
     protected $fillable = [
