@@ -64,6 +64,8 @@ backends/drogon/build/
 # .NET
 **/bin/
 **/obj/
+*.sln
+*.csproj.user
 
 # Tool-generated
 .qoder/
