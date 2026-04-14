@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.hellotime.ApplicationTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-04-14T08:17:51" hostname="AlexdeMacBook-Air.local" time="1.257">
+  <properties/>
+  <testcase name="adminCanListAndDeleteCapsules()" classname="com.hellotime.ApplicationTest" time="1.206"/>
+  <testcase name="invalidTimeFormatReturns400()" classname="com.hellotime.ApplicationTest" time="0.025"/>
+  <testcase name="createAndFetchLockedCapsule()" classname="com.hellotime.ApplicationTest" time="0.013"/>
+  <testcase name="healthReturnsUp()" classname="com.hellotime.ApplicationTest" time="0.01"/>
+  <system-out><![CDATA[16:17:51.325 [DefaultDispatcher-worker-1 @call-context#3] INFO ktor.test -- No ktor.deployment.watch patterns specified, automatic reload is not active.
+16:17:51.868 [DefaultDispatcher-worker-1 @call-context#3] INFO ktor.test -- Application started in 0.549 seconds.
+16:17:51.868 [DefaultDispatcher-worker-1 @call-context#3] INFO ktor.test -- Application started: io.ktor.server.application.Application@1d59f4d4
+16:17:51.869 [DefaultDispatcher-worker-3 @coroutine#5] INFO ktor.test -- Responding at http://localhost:80
+16:17:51.869 [DefaultDispatcher-worker-3 @coroutine#5] INFO ktor.test -- Responding at https://localhost:443
+]]></system-out>
+  <system-err><![CDATA[SLF4J(I): Connected with provider of type [ch.qos.logback.classic.spi.LogbackServiceProvider]
+]]></system-err>
+</testsuite>

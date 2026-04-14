@@ -15,6 +15,24 @@ Laravel 12 + Blade + Alpine.js + SQLite 全栈实现。
 
 ## 快速启动
 
+### 首次初始化
+
+```bash
+# 1. 安装 PHP 依赖
+composer install
+
+# 2. 生成应用密钥
+php artisan key:generate
+
+# 3. 执行数据库迁移
+php artisan migrate
+
+# 4. 启动服务
+./run
+```
+
+### 后续启动
+
 ```bash
 ./run
 # 访问 http://localhost:5179
@@ -35,6 +53,12 @@ Laravel 12 + Blade + Alpine.js + SQLite 全栈实现。
 | `ADMIN_PASSWORD` | `timecapsule-admin` | 管理员密码 |
 | `JWT_SECRET` | (内置) | JWT 签名密钥 |
 | `PORT` | `5179` | 服务端口 |
+
+## 数据库
+
+- 共享 SQLite 数据库：`../../data/hellotime.db`
+- 迁移文件：`database/migrations/2024_01_01_000001_create_capsules_table.php`
+- 表结构：`capsules` (code, title, content, creator, open_at, created_at)
 
 ## API 端点
 
