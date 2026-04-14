@@ -1,0 +1,17 @@
+# Gradle
+.gradle/
+build/
+*.jar
+
+# IDE
+.idea/
+*.iml
+out/
+
+# OS
+.DS_Store
+*.swp
+*.swo
+
+# Project-specific
+data/
