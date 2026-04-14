@@ -11,7 +11,7 @@ data class AppConfig(
     companion object {
         fun fromEnv(): AppConfig = AppConfig(
             port = System.getenv("PORT")?.toIntOrNull() ?: 18090,
-            databasePath = System.getenv("DATABASE_PATH") ?: "data/hellotime.db",
+            databasePath = System.getenv("DATABASE_PATH") ?: "../../data/hellotime.db",
             adminPassword = System.getenv("ADMIN_PASSWORD") ?: "timecapsule-admin",
             jwtSecret = System.getenv("JWT_SECRET") ?: "hellotime-ktor-secret-key",
             jwtIssuer = System.getenv("JWT_ISSUER") ?: "hellotime-admin",
