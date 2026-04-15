@@ -154,6 +154,19 @@ cd "$ROOT_DIR/fullstacks/spring-boot-mvc"
 ./mvnw test
 echo "[Spring MVC 全栈] 验证完成"
 
+# Rails 全栈测试
+if command -v ruby >/dev/null 2>&1 && command -v bundle >/dev/null 2>&1; then
+  echo ""
+  echo "[全栈] 运行 Rails 测试..."
+  cd "$ROOT_DIR/fullstacks/rails"
+  export PATH="/opt/homebrew/opt/ruby/bin:/opt/homebrew/lib/ruby/gems/4.0.0/bin:$PATH"
+  bundle exec rails test
+  echo "[Rails 全栈] 测试完成"
+else
+  echo ""
+  echo "[全栈] 跳过 Rails 测试（需要 Ruby + Bundler）"
+fi
+
 # macOS 桌面端测试
 if [[ "$(uname -s)" == "Darwin" ]] && command -v swift >/dev/null 2>&1; then
   echo ""

@@ -1,0 +1,77 @@
+<% content_for :title, '关于 - 时间胶囊-Rails' %>
+
+<section id="view-about" class="view active">
+    <div class="view-header">
+        <a class="btn-back" href="/">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            返回
+        </a>
+        <h2>关于时间胶囊 (HelloTime)</h2>
+    </div>
+
+    <div class="about-content-wrapper">
+        <div class="cyber-glass p-8 mb-8">
+            <div class="flex-row gap-8">
+                <div class="about-hero-text">
+                    <h3 class="text-glow-cyan mb-4">Rails 全栈演示</h3>
+                    <p class="text-secondary mb-6">
+                        这一套实现使用 <strong class="cyan-text text-glow">Ruby on Rails + ERB</strong>，
+                        展示服务端模板渲染、会话态管理与客户端交互如何在同一应用中协同工作。
+                    </p>
+                    <p class="text-secondary">
+                        Rails 以约定优于配置的理念和成熟的 MVC 架构见长，特别适合快速搭建完整的 Web 应用。
+                    </p>
+                </div>
+                <div class="about-hero-deco">
+                    <button type="button" class="tech-orb tech-orb-button" aria-label="隐藏管理入口" data-secret-admin>
+                        <span class="orb-core"></span>
+                        <span class="orb-ring ring-1"></span>
+                        <span class="orb-ring ring-2"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="about-grid mb-8">
+            <div class="cyber-glass p-6">
+                <div class="feature-header mb-4">
+                    <div class="f-icon">💎</div>
+                    <h4>约定优于配置</h4>
+                </div>
+                <p class="text-muted text-sm">Rails 遵循 CoC 原则，大量约定减少样板代码，让开发者专注于业务逻辑。</p>
+            </div>
+            <div class="cyber-glass p-6">
+                <div class="feature-header mb-4">
+                    <div class="f-icon">🛤️</div>
+                    <h4>全栈 MVC</h4>
+                </div>
+                <p class="text-muted text-sm mt-3">模型、视图、控制器一体化，ERB 模板直出完整 HTML，首屏零等待。</p>
+            </div>
+            <div class="cyber-glass p-6">
+                <div class="feature-header mb-4">
+                    <div class="f-icon">🗃️</div>
+                    <h4>Active Record</h4>
+                </div>
+                <p class="text-muted text-sm mt-3">强大的 ORM 层，数据库操作直观简洁，迁移系统确保 schema 版本一致。</p>
+            </div>
+        </div>
+
+        <div class="cyber-glass p-8 mb-8">
+            <h3 class="text-glow-cyan mb-6">核心驱动 (Core Technologies)</h3>
+            <div class="tech-logos-grid" style="align-items: flex-start; margin-top: 3rem;">
+                <% @tech_items.each do |item| %>
+                <div class="tech-item" style="flex-direction: column; gap: 1.5rem;">
+                    <img src="<%= item[:src] %>" class="stack-icon" style="width: 64px; height: 64px;" alt="<%= item[:label] %>" />
+                    <div class="text-center">
+                        <div class="text-glow" style="font-size: 1.1rem; font-weight: bold;"><%= item[:label] %></div>
+                        <div class="text-tertiary mono-font mt-2" style="font-size: 0.9rem;"><%= item[:version].to_s %></div>
+                    </div>
+                </div>
+                <% end %>
+            </div>
+        </div>
+    </div>
+</section>

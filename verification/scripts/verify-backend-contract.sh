@@ -10,7 +10,7 @@ ADMIN_PASSWORD="${ADMIN_PASSWORD:-timecapsule-admin}"
 SAFE_PATH="/usr/bin:/bin:/usr/sbin:/sbin"
 
 if [ "$#" -eq 0 ]; then
-  SELECTED_BACKENDS="spring-boot fastapi gin elysia nest aspnet-core ktor vapor axum drogon"
+  SELECTED_BACKENDS="spring-boot fastapi gin elysia nest aspnet-core ktor vapor axum drogon rails"
 else
   SELECTED_BACKENDS="$*"
 fi
@@ -34,6 +34,7 @@ label_for() {
     vapor) echo "Vapor" ;;
     axum) echo "Axum" ;;
     drogon) echo "Drogon" ;;
+    rails) echo "Rails" ;;
     *) echo "Unknown" ;;
   esac
 }
@@ -50,6 +51,7 @@ dir_for() {
     vapor) echo "$ROOT_DIR/backends/vapor" ;;
     axum) echo "$ROOT_DIR/backends/axum" ;;
     drogon) echo "$ROOT_DIR/backends/drogon" ;;
+    rails) echo "$ROOT_DIR/fullstacks/rails" ;;
     *) return 1 ;;
   esac
 }
@@ -66,6 +68,7 @@ base_url_for() {
     vapor) echo "http://127.0.0.1:18060" ;;
     axum) echo "http://127.0.0.1:18070" ;;
     drogon) echo "http://127.0.0.1:18080" ;;
+    rails) echo "http://127.0.0.1:5181" ;;
     *) return 1 ;;
   esac
 }
@@ -82,6 +85,7 @@ port_for() {
     vapor) echo "18060" ;;
     axum) echo "18070" ;;
     drogon) echo "18080" ;;
+    rails) echo "5181" ;;
     *) return 1 ;;
   esac
 }
@@ -98,6 +102,7 @@ run_command_for() {
     vapor) echo "./run" ;;
     axum) echo "./run" ;;
     drogon) echo "./run" ;;
+    rails) echo "./run" ;;
     *) return 1 ;;
   esac
 }

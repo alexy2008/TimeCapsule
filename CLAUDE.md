@@ -30,6 +30,9 @@ cd frontends/svelte-ts && npm run dev
 
 # React frontend (port 5174)
 cd frontends/react-ts && npm run dev
+
+# Rails fullstack (port 5181)
+cd fullstacks/rails && bash run
 ```
 
 ### Testing
@@ -54,6 +57,9 @@ cd frontends/svelte-ts && npm run check
 
 # React tests only
 cd frontends/react-ts && npm run test
+
+# Rails fullstack tests
+cd fullstacks/rails && bundle exec rails test
 ```
 
 ### Build
@@ -73,6 +79,8 @@ cd frontends/react-ts && npm run test
   - `react-ts/` - React 19 + TypeScript + Vite (port 5174)
   - `angular-ts/` - Angular 18 + TypeScript + Angular CLI (port 5175)
   - `svelte-ts/` - Svelte 5 + TypeScript + Vite (port 5176)
+- **fullstacks/** - Fullstack implementations
+  - `rails/` - Ruby on Rails 8 + ERB + SQLite (port 5181)
 - **spec/** - Shared specifications (OpenAPI, design tokens, styles)
 - **docs/** - Documentation (API spec, database schema, deployment, design tokens)
 
@@ -150,6 +158,15 @@ Key configuration in `config/config.go`:
 - **Views** (`views/`) - Application pages linked via `svelte-routing`
 - **API** (`api/index.ts`) - Identical fetch-based API client as Vue/React/Angular
 - **Types** (`types/index.ts`) - Identical shared TypeScript interfaces
+
+### Fullstack (Rails 8 + ERB)
+- **Controllers** (`app/controllers/web/`) - Server-rendered MPA pages via ERB templates
+- **API Controllers** (`app/controllers/api/v1/`) - JSON API endpoints following OpenAPI spec
+- **Services** (`app/services/`) - Business logic (CapsuleService, AdminService)
+- **Model** (`app/models/capsule.rb`) - ActiveRecord model with `code` as primary key
+- **Views** (`app/views/`) - ERB templates with layout, partials, and page views
+- **Auth** - Web admin uses Rails sessions; API admin uses JWT (ruby-jwt gem, HS256)
+- **Assets** - Static CSS/JS in `public/` (no asset pipeline)
 
 ### API Contract
 All implementations must follow `spec/api/openapi.yaml`. Key endpoints:

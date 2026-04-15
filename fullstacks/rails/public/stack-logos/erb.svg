@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect x="32" y="96" width="448" height="320" rx="24" fill="#CC342D"/>
+  <text x="256" y="210" text-anchor="middle" font-family="monospace" font-weight="bold" font-size="72" fill="#FFD700">&lt;%=</text>
+  <text x="256" y="310" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="bold" font-size="100" fill="#fff">ERB</text>
+  <text x="256" y="380" text-anchor="middle" font-family="monospace" font-weight="bold" font-size="72" fill="#FFD700">%&gt;</text>
+</svg>

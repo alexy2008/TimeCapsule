@@ -245,6 +245,14 @@ SERVICES: list[Service] = [
         port=5179,
     ),
     Service(
+        key="rails",
+        label="Rails",
+        kind="fullstack",
+        workdir=ROOT_DIR / "fullstacks" / "rails",
+        command=["bash", str(ROOT_DIR / "fullstacks" / "rails" / "run")],
+        port=5181,
+    ),
+    Service(
         key="tauri",
         label="Tauri 桌面",
         kind="desktop",

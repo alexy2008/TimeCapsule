@@ -12,7 +12,7 @@ CHROME_EXECUTABLE_PATH="${CHROME_EXECUTABLE_PATH:-/Applications/Google Chrome.ap
 FORCE_RESTART_FRONTENDS="${FORCE_RESTART_FRONTENDS:-0}"
 
 if [ "$#" -eq 0 ]; then
-  SELECTED_FRONTENDS="react-ts vue3-ts angular-ts svelte-ts solid-ts next-ts nuxt-ts spring-boot-mvc"
+  SELECTED_FRONTENDS="react-ts vue3-ts angular-ts svelte-ts solid-ts next-ts nuxt-ts spring-boot-mvc rails"
 else
   SELECTED_FRONTENDS="$*"
 fi
@@ -34,6 +34,7 @@ label_for() {
     next-ts) echo "Next" ;;
     nuxt-ts) echo "Nuxt" ;;
     spring-boot-mvc) echo "Spring MVC" ;;
+    rails) echo "Rails" ;;
     *) echo "Unknown" ;;
   esac
 }
@@ -48,6 +49,7 @@ dir_for() {
     next-ts) echo "$ROOT_DIR/fullstacks/next-ts" ;;
     nuxt-ts) echo "$ROOT_DIR/fullstacks/nuxt-ts" ;;
     spring-boot-mvc) echo "$ROOT_DIR/fullstacks/spring-boot-mvc" ;;
+    rails) echo "$ROOT_DIR/fullstacks/rails" ;;
     *) return 1 ;;
   esac
 }
@@ -62,6 +64,7 @@ base_url_for() {
     next-ts) echo "http://localhost:4177" ;;
     nuxt-ts) echo "http://localhost:4178" ;;
     spring-boot-mvc) echo "http://localhost:4179" ;;
+    rails) echo "http://localhost:4181" ;;
     *) return 1 ;;
   esac
 }
@@ -76,6 +79,7 @@ port_for() {
     next-ts) echo "4177" ;;
     nuxt-ts) echo "4178" ;;
     spring-boot-mvc) echo "4179" ;;
+    rails) echo "4181" ;;
     *) return 1 ;;
   esac
 }
@@ -90,6 +94,7 @@ dev_command_for() {
     next-ts) echo "rm -rf .next && npm run build && npm run start -- --hostname localhost --port 4177" ;;
     nuxt-ts) echo "npm run dev -- --host localhost --port 4178" ;;
     spring-boot-mvc) echo "./run" ;;
+    rails) echo "PATH=/opt/homebrew/opt/ruby/bin:/opt/homebrew/lib/ruby/gems/4.0.0/bin:\$PATH bundle exec rails server -p 4181 -b localhost --pid /tmp/hellotime-rails-verify.pid" ;;
     *) return 1 ;;
   esac
 }
@@ -136,7 +141,7 @@ ensure_backend_ready() {
 
 selected_frontends_require_backend() {
   for frontend in $SELECTED_FRONTENDS; do
-    if [ "$frontend" != "next-ts" ] && [ "$frontend" != "nuxt-ts" ] && [ "$frontend" != "spring-boot-mvc" ]; then
+    if [ "$frontend" != "next-ts" ] && [ "$frontend" != "nuxt-ts" ] && [ "$frontend" != "spring-boot-mvc" ] && [ "$frontend" != "rails" ]; then
       return 0
     fi
   done
@@ -211,7 +216,7 @@ run_browser_verification() {
   base_url="$(base_url_for "$frontend")" || return 1
   api_backend_url="$BACKEND_URL"
 
-  if [ "$frontend" = "next-ts" ] || [ "$frontend" = "nuxt-ts" ] || [ "$frontend" = "spring-boot-mvc" ]; then
+  if [ "$frontend" = "next-ts" ] || [ "$frontend" = "nuxt-ts" ] || [ "$frontend" = "spring-boot-mvc" ] || [ "$frontend" = "rails" ]; then
     api_backend_url="$base_url"
   fi
 

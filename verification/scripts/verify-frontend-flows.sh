@@ -30,6 +30,7 @@ label_for() {
     next-ts) echo "Next" ;;
     nuxt-ts) echo "Nuxt" ;;
     spring-boot-mvc) echo "Spring MVC" ;;
+    rails) echo "Rails" ;;
     *) echo "Unknown" ;;
   esac
 }
@@ -44,6 +45,7 @@ dir_for() {
     next-ts) echo "$ROOT_DIR/fullstacks/next-ts" ;;
     nuxt-ts) echo "$ROOT_DIR/fullstacks/nuxt-ts" ;;
     spring-boot-mvc) echo "$ROOT_DIR/fullstacks/spring-boot-mvc" ;;
+    rails) echo "$ROOT_DIR/fullstacks/rails" ;;
     *) return 1 ;;
   esac
 }
@@ -58,6 +60,7 @@ home_file_for() {
     next-ts) echo "$ROOT_DIR/fullstacks/next-ts/src/app/page.tsx" ;;
     nuxt-ts) echo "$ROOT_DIR/fullstacks/nuxt-ts/pages/index.vue" ;;
     spring-boot-mvc) echo "$ROOT_DIR/fullstacks/spring-boot-mvc/src/main/resources/templates/index.html" ;;
+    rails) echo "$ROOT_DIR/fullstacks/rails/app/views/pages/home.html.erb" ;;
     *) return 1 ;;
   esac
 }
@@ -69,6 +72,7 @@ home_data_file_for() {
     next-ts) echo "$ROOT_DIR/fullstacks/next-ts/src/app/page.tsx" ;;
     nuxt-ts) echo "$ROOT_DIR/fullstacks/nuxt-ts/pages/index.vue" ;;
     spring-boot-mvc) echo "$ROOT_DIR/fullstacks/spring-boot-mvc/src/main/resources/templates/index.html $ROOT_DIR/fullstacks/spring-boot-mvc/src/main/java/com/hellotime/view/ViewModelAdvice.java" ;;
+    rails) echo "$ROOT_DIR/fullstacks/rails/app/controllers/web/pages_controller.rb" ;;
     *) home_file_for "$1" ;;
   esac
 }
@@ -83,6 +87,7 @@ frontend_logo_for() {
     next-ts) echo "$ROOT_DIR/fullstacks/next-ts/public/frontend.svg" ;;
     nuxt-ts) echo "$ROOT_DIR/fullstacks/nuxt-ts/public/frontend.svg" ;;
     spring-boot-mvc) echo "$ROOT_DIR/fullstacks/spring-boot-mvc/src/main/resources/static/stack-logos/spring-boot.svg" ;;
+    rails) echo "$ROOT_DIR/fullstacks/rails/public/stack-logos/rails.svg" ;;
     *) return 1 ;;
   esac
 }
@@ -97,6 +102,7 @@ language_logo_for() {
     next-ts) echo "$ROOT_DIR/fullstacks/next-ts/public/frontend-language.svg" ;;
     nuxt-ts) echo "$ROOT_DIR/fullstacks/nuxt-ts/public/frontend-language.svg" ;;
     spring-boot-mvc) echo "$ROOT_DIR/fullstacks/spring-boot-mvc/src/main/resources/static/stack-logos/java.svg" ;;
+    rails) echo "$ROOT_DIR/fullstacks/rails/public/stack-logos/ruby.svg" ;;
     *) return 1 ;;
   esac
 }
@@ -105,6 +111,7 @@ framework_logo_pattern_for() {
   case "$1" in
     react-ts|vue3-ts|angular-ts|svelte-ts|solid-ts|next-ts|nuxt-ts) echo '/frontend\.svg' ;;
     spring-boot-mvc) echo '/stack-logos/spring-boot\.svg' ;;
+    rails) echo '/stack-logos/rails\.svg' ;;
     *) return 1 ;;
   esac
 }
@@ -119,6 +126,7 @@ verify_command_for() {
     next-ts) echo "npm run build" ;;
     nuxt-ts) echo "npm run build" ;;
     spring-boot-mvc) echo "./mvnw test" ;;
+    rails) echo "PATH=/opt/homebrew/opt/ruby/bin:/opt/homebrew/lib/ruby/gems/4.0.0/bin:\$PATH bundle exec rails test" ;;
     *) return 1 ;;
   esac
 }
@@ -175,6 +183,19 @@ run_static_checks() {
       echo "  首页未引用 SQLite logo: $home_data_file"
       return 1
     fi
+  elif [ "$frontend" = "rails" ]; then
+    if ! rg -q '/stack-logos/ruby\.svg' $home_data_file; then
+      echo "  首页未引用 Ruby logo: $home_data_file"
+      return 1
+    fi
+    if ! rg -q '/stack-logos/erb\.svg' $home_data_file; then
+      echo "  首页未引用 ERB logo: $home_data_file"
+      return 1
+    fi
+    if ! rg -q '/stack-logos/sqlite\.svg' $home_data_file; then
+      echo "  首页未引用 SQLite logo: $home_data_file"
+      return 1
+    fi
   elif ! rg -q '/frontend-language\.svg' $home_data_file; then
     echo "  首页未引用前端语言 logo: $home_data_file"
     return 1
@@ -185,17 +206,17 @@ run_static_checks() {
       echo "  全栈首页未引用数据库 logo: $home_data_file"
       return 1
     fi
-  elif [ "$frontend" != "spring-boot-mvc" ] && ! rg -q 'backend\.svg' $home_data_file; then
+  elif [ "$frontend" != "spring-boot-mvc" ] && [ "$frontend" != "rails" ] && ! rg -q 'backend\.svg' $home_data_file; then
     echo "  首页未引用后端框架 logo: $home_data_file"
     return 1
   fi
 
-  if [ "$frontend" != "next-ts" ] && [ "$frontend" != "nuxt-ts" ] && [ "$frontend" != "spring-boot-mvc" ] && ! rg -q 'language\.svg' $home_data_file; then
+  if [ "$frontend" != "next-ts" ] && [ "$frontend" != "nuxt-ts" ] && [ "$frontend" != "spring-boot-mvc" ] && [ "$frontend" != "rails" ] && ! rg -q 'language\.svg' $home_data_file; then
     echo "  首页未引用后端语言 logo: $home_data_file"
     return 1
   fi
 
-  if [ "$frontend" != "next-ts" ] && [ "$frontend" != "nuxt-ts" ] && [ "$frontend" != "spring-boot-mvc" ] && ! rg -q 'database\.svg' $home_data_file; then
+  if [ "$frontend" != "next-ts" ] && [ "$frontend" != "nuxt-ts" ] && [ "$frontend" != "spring-boot-mvc" ] && [ "$frontend" != "rails" ] && ! rg -q 'database\.svg' $home_data_file; then
     echo "  首页未引用后端数据库 logo: $home_data_file"
     return 1
   fi

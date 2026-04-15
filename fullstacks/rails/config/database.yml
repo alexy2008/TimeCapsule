@@ -1,0 +1,16 @@
+default: &default
+  adapter: sqlite3
+  pool: 5
+  timeout: 5000
+
+development:
+  <<: *default
+  database: <%= ENV.fetch("DB_DATABASE") { File.expand_path("../../../data/hellotime.db", __dir__) } %>
+
+test:
+  <<: *default
+  database: ":memory:"
+
+production:
+  <<: *default
+  database: <%= ENV.fetch("DB_DATABASE") { File.expand_path("../../../data/hellotime.db", __dir__) } %>

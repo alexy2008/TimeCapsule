@@ -22,6 +22,8 @@ function frameworkLogoSelector() {
       return 'Nuxt Logo'
     case 'spring-boot-mvc':
       return 'Spring Boot Logo'
+    case 'rails':
+      return 'Rails Logo'
     default:
       return '前端框架 Logo'
   }
@@ -45,21 +47,27 @@ function frameworkLabel() {
       return 'Nuxt'
     case 'spring-boot-mvc':
       return 'Spring Boot'
+    case 'rails':
+      return 'Rails'
     default:
       return ''
   }
 }
 
 function languageLabel() {
-  return frontendName === 'spring-boot-mvc' ? 'Java' : 'TypeScript'
+  if (frontendName === 'spring-boot-mvc') return 'Java'
+  if (frontendName === 'rails') return 'Ruby'
+  return 'TypeScript'
 }
 
 function languageLogoSelector() {
-  return frontendName === 'spring-boot-mvc' ? 'Java Logo' : 'TypeScript Logo'
+  if (frontendName === 'spring-boot-mvc') return 'Java Logo'
+  if (frontendName === 'rails') return 'Ruby Logo'
+  return 'TypeScript Logo'
 }
 
 function isFullstackFrontend() {
-  return frontendName === 'next-ts' || frontendName === 'nuxt-ts' || frontendName === 'spring-boot-mvc'
+  return frontendName === 'next-ts' || frontendName === 'nuxt-ts' || frontendName === 'spring-boot-mvc' || frontendName === 'rails'
 }
 
 function futureDateTimeLocal() {
@@ -89,6 +97,10 @@ test(`首页展示技术栈卡片 [${frontendName}]`, async ({ page }) => {
     await expect(techCard).toContainText('HTMX')
     await expect(techCard.getByAltText('Thymeleaf Logo')).toBeVisible()
     await expect(techCard.getByAltText('HTMX Logo')).toBeVisible()
+    await expect(techCard.getByAltText('SQLite Logo')).toBeVisible()
+  } else if (frontendName === 'rails') {
+    await expect(techCard).toContainText('ERB')
+    await expect(techCard.getByAltText('ERB Logo')).toBeVisible()
     await expect(techCard.getByAltText('SQLite Logo')).toBeVisible()
   } else if (isFullstackFrontend()) {
     await expect(techCard.getByAltText('SQLite Logo')).toBeVisible()
